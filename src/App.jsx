@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, createContext, useContext } from 'react';
 
 // Importa ícones do Lucide React
-import { Home, Mic, Briefcase, Users, Lightbulb, Trophy, DollarSign, Bike, MessageSquare, CheckCircle, Heart, Leaf, Star, Info, MapPin, Award, RefreshCcw, CalendarDays, Volume2, Search, Gift, Send, Copy, FileText, Mail, Phone, Menu, X, Quote, ChevronLeft, ChevronRight, Moon, Sun, ChevronDown, Scale, MessageCircle, Upload, BriefcaseBusiness, Palette, Calculator, Rss, ListTodo, Sparkles, TrendingUp, Handshake, Globe } from 'lucide-react';
+import { Home, Mic, Briefcase, Users, Lightbulb, Trophy, DollarSign, Bike, MessageSquare, CheckCircle, Heart, Leaf, Star, Info, MapPin, Award, RefreshCcw, CalendarDays, Volume2, Search, Gift, Send, Copy, FileText, Mail, Phone, Menu, X, Quote, ChevronLeft, ChevronRight, Moon, Sun, ChevronDown, Scale, MessageCircle, Upload, BriefcaseBusiness, Palette, Calculator, Rss, ListTodo, Sparkles, TrendingUp, Handshake, Globe, PlayCircle } from 'lucide-react';
 
 // --- Contexto de Tema ---
 // Define as paletas de cores
@@ -10,8 +10,8 @@ const colorPalettes = [
         name: "Azul & Amarelo (Padrão)",
         primary: "blue",
         accent: "yellow",
-        text: "gray-900",
-        darkText: "gray-100",
+        text: "gray-900", // Texto escuro para contraste no modo claro
+        darkText: "gray-100", // Texto claro para contraste no modo escuro
         lightBg: "blue-50",
         darkBg: "blue-900",
         border: "blue-200",
@@ -192,9 +192,19 @@ const ThemeContext = createContext();
 
 const ThemeProvider = ({ children }) => {
     const [currentTheme, setCurrentTheme] = useState(colorPalettes[0]); // Default to Blue & Yellow
+    const [isDarkMode, setIsDarkMode] = useState(false); // Movido para o ThemeProvider
+
+    // Efeito para aplicar o modo escuro ao elemento <html>
+    useEffect(() => {
+        if (isDarkMode) {
+            document.documentElement.classList.add('dark');
+        } else {
+            document.documentElement.classList.remove('dark');
+        }
+    }, [isDarkMode]);
 
     return (
-        <ThemeContext.Provider value={{ currentTheme, setCurrentTheme, colorPalettes }}>
+        <ThemeContext.Provider value={{ currentTheme, setCurrentTheme, colorPalettes, isDarkMode, setIsDarkMode }}>
             {children}
         </ThemeContext.Provider>
     );
@@ -251,6 +261,17 @@ const SendAudioModal = ({ onClose, navigateTo }) => {
             setPaymentProofFile(file);
             // Substituído alert por console.log para evitar bloqueio em iframes
             console.log(`Comprovante "${file.name}" anexado!`);
+        }
+    };
+
+    // Nova função para lidar com o clique nos termos e condições
+    const handleTermsClick = (e) => {
+        e.preventDefault();
+        onClose(); // Fecha o modal
+        if (typeof navigateTo === 'function') {
+            navigateTo('termos-condicoes'); // Navega para a página de termos
+        } else {
+            console.error("navigateTo não é uma função em SendAudioModal:", navigateTo);
         }
     };
 
@@ -388,7 +409,7 @@ const SendAudioModal = ({ onClose, navigateTo }) => {
                             onChange={(e) => setAgreedToTerms(e.target.checked)}
                             className={`form-checkbox h-4 w-4 text-${currentTheme.primary}-600 transition-colors duration-200`}
                         />
-                        <span className={`ml-2 text-gray-800 dark:text-gray-200`}>Aceito os <a href="#" onClick={(e) => { e.preventDefault(); onClose(); navigateTo('termos-condicoes'); }} className={`text-${currentTheme.primary}-600 hover:underline`}>termos e condições</a> da AELO - Sua Voz em Movimento.</span>
+                        <span className={`ml-2 text-gray-800 dark:text-gray-200`}>Aceito os <a href="#" onClick={handleTermsClick} className={`text-${currentTheme.primary}-600 hover:underline`}>termos e condições</a> da AELO - Sua Voz em Movimento.</span>
                     </label>
                 </div>
 
@@ -407,7 +428,7 @@ const SendAudioModal = ({ onClose, navigateTo }) => {
 
 // Componente principal do aplicativo
 const App = () => {
-    const { currentTheme, setCurrentTheme, colorPalettes } = useContext(ThemeContext);
+    const { currentTheme, setCurrentTheme, colorPalettes, isDarkMode, setIsDarkMode } = useContext(ThemeContext);
     // Estado para controlar a página ativa
     const [activePage, setActivePage] = useState('home');
     // Estado para controlar a visibilidade do conteúdo para a animação
@@ -416,6 +437,8 @@ const App = () => {
     const [pixCopiedMessage, setPixCopiedMessage] = useState('');
     // Estado para controlar a visibilidade do menu lateral
     const [isMenuOpen, setIsMenuOpen] = useState(false);
+    // Estado para o sintetizador de áudio (Tone.js)
+    const synth = useRef(null);
     // Estado para o carrossel de depoimentos
     const [currentTestimonialIndex, setCurrentTestimonialIndex] = useState(0);
 
@@ -425,10 +448,6 @@ const App = () => {
     const [formMessage, setFormMessage] = useState('');
     const [formStatus, setFormStatus] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
-
-    // Novos estados para o player de áudio de exemplo
-    const [isDarkMode, setIsDarkMode] = useState(false);
-    const [openFaqIndex, setOpenFaqIndex] = useState(null);
 
     // Estado para controlar a visibilidade do chatbot
     const [isChatbotOpen, setIsChatbotOpen] = useState(false);
@@ -451,6 +470,17 @@ const App = () => {
     const [finalCost, setFinalCost] = useState(0);
     const [savings, setSavings] = useState(0);
     const [effectiveDailyCost, setEffectiveDailyCost] = useState(0);
+
+    // Dados para os áudios de cada categoria
+    const [clientAudioUrl, setClientAudioUrl] = useState('');
+    const [isClientAudioLoading, setIsClientAudioLoading] = useState(false);
+    const [businessAudioUrl, setBusinessAudioUrl] = useState('');
+    const [isBusinessAudioLoading, setIsBusinessAudioLoading] = useState(false);
+    const [publicAudioUrl, setPublicAudioUrl] = useState('');
+    const [isPublicAudioLoading, setIsPublicAudioLoading] = useState(false);
+    const [sampleAudioUrl, setSampleAudioUrl] = useState('');
+    const [isSampleAudioLoading, setIsSampleAudioLoading] = useState(false);
+
 
     // Função para formatar moeda
     const formatCurrency = (value) => {
@@ -535,6 +565,36 @@ const App = () => {
     }, [selectedPlan, selectedDuration]);
     // --- Fim Estados para o Simulador de Assinatura ---
 
+    // Inicializa o Tone.js de forma segura no lado do cliente
+    useEffect(() => {
+        // Verifica se Tone.js está disponível globalmente
+        if (window.Tone) {
+            synth.current = new window.Tone.Synth().toDestination();
+        } else {
+            console.warn("Tone.js não encontrado. Certifique-se de que o script está carregado em index.html.");
+        }
+    }, []);
+
+    // Função para tocar o som misterioso
+    const playMysterySound = () => {
+        if (synth.current && window.Tone.context.state !== 'running') {
+            window.Tone.start().then(() => {
+                console.log("Tone.js context started.");
+                const now = window.Tone.now();
+                synth.current.triggerAttackRelease("C#3", "8n", now);
+                synth.current.triggerAttackRelease("G3", "8n", now + 0.3);
+                synth.current.triggerAttackRelease("E4", "16n", now + 0.6);
+            }).catch(e => console.error("Erro ao iniciar Tone.js context:", e));
+        } else if (synth.current) {
+            console.log("Tone.js context já está rodando.");
+            const now = window.Tone.now();
+            synth.current.triggerAttackRelease("C#3", "8n", now);
+            synth.current.triggerAttackRelease("G3", "8n", now + 0.3);
+            synth.current.triggerAttackRelease("E4", "16n", now + 0.6);
+        } else {
+            console.error("Sintetizador Tone.js não inicializado.");
+        }
+    };
 
     // Dados para o blog (placeholders)
     const blogPosts = [
@@ -568,7 +628,7 @@ const App = () => {
                 <p>A dicção deve ser clara e a velocidade da fala adequada. Evite gírias excessivas ou jargões que seu público talvez não compreenda. A mensagem precisa ser facilmente entendida por qualquer pessoa que a ouça em movimento.</p>
                 
                 <h3>3. Chame a Atenção</h3>
-                <p>Comece com algo que prenda a atenção do ouvinte. Pode ser uma pergunta, um som interessante (mas não invasivo), ou uma declaração ousada. O objetivo é fazer com que as pessoas parem e ouçam.</p>
+                <p>Comece com algo que prenda a atenção do ouvinte. Pode ser uma pergunta, um som interessante (but not intrusive), or a bold statement. The goal is to make people stop and listen.</p>
                 
                 <h3>4. Destaque o Benefício, Não Apenas a Característica</h3>
                 <p>Em vez de apenas listar o que você oferece, foque nos benefícios que seu produto ou serviço traz para o cliente. Como ele resolve um problema? Como melhora a vida do seu público?</p>
@@ -714,140 +774,6 @@ const App = () => {
         }
     ];
 
-    // Efeito para aplicar o modo escuro ao elemento <html>
-    useEffect(() => {
-        if (isDarkMode) {
-            document.documentElement.classList.add('dark');
-        } else {
-            document.documentElement.classList.remove('dark');
-        }
-    }, [isDarkMode]);
-
-    // Função para navegar entre as páginas com animação
-    const navigateTo = (pageId) => {
-        setContentVisible(false); // Inicia o fade-out
-        setIsMenuOpen(false); // Fecha o menu lateral ao navegar
-        setIsChatbotOpen(false); // Fecha o chatbot ao navegar
-        setSelectedBlogPost(null); // Limpa o post de blog selecionado ao navegar
-        setTimeout(() => {
-            setActivePage(pageId); // Muda a página
-            setContentVisible(true); // Inicia o fade-in da nova página
-            setPixCopiedMessage(''); // Limpa a mensagem do Pix ao mudar de página
-            setFormStatus(''); // Limpa o status do formulário
-        }, 300); // Tempo da transição (deve ser menor ou igual à duração da animação CSS)
-    };
-
-    // Função para copiar a chave Pix
-    const copyPixKey = () => {
-        const pixKey = '60.676.425/0001-47';
-        const tempInput = document.createElement('input');
-        tempInput.value = pixKey;
-        document.body.appendChild(tempInput);
-        tempInput.select();
-        document.execCommand('copy');
-        document.body.removeChild(tempInput);
-        setPixCopiedMessage('Chave Pix copiada!');
-        setTimeout(() => setPixCopiedMessage(''), 3000); // Mensagem some após 3 segundos
-    };
-
-    // Função para enviar o formulário de contato (simulado com API)
-    const handleFormSubmit = async (e) => {
-        e.preventDefault();
-        setIsSubmitting(true);
-        setFormStatus('Enviando sua mensagem...');
-
-        try {
-            // Prompt para a API Gemini para gerar uma resposta de confirmação
-            const prompt = `Gere uma mensagem de confirmação para o envio de um formulário de contato. Use um tone amigável e profissional. Mencione que a AELO - Sua Voz em Movimento recebeu a mensagem de ${formName} e irá responder em breve.`;
-            const chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
-            const payload = { contents: chatHistory };
-            const apiKey = ""; // Sua chave de API
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
-
-            // Chama a API com tratamento de erros e retentativa
-            const response = await fetch(apiUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-
-            const result = await response.json();
-            if (result.candidates && result.candidates.length > 0 && result.candidates[0].content) {
-                const text = result.candidates[0].content.parts[0].text;
-                setFormStatus(text);
-                setFormName('');
-                setFormEmail('');
-                setFormMessage('');
-            } else {
-                setFormStatus('Ocorreu um erro ao enviar sua mensagem. Por favor, tente novamente.');
-            }
-        } catch (error) {
-            console.error("Erro na chamada da API:", error);
-            setFormStatus('Ocorreu um erro ao enviar sua mensagem. Por favor, tente novamente.');
-        } finally {
-            setIsSubmitting(false);
-        }
-    };
-    
-    // Dados para os depoimentos (Aumentado para o carrossel)
-    const testimonials = [
-        {
-            quote: "O pedido de casamento foi mágico! Ouvir minha voz ecoando na praça onde nos conhecemos... Inesquecível. AELO tornou tudo perfeito!",
-            name: "Lucas M.",
-            service: "AELO+ Cliente",
-            icon: <Heart size={24} className={`text-${currentTheme.accent}-500`} />
-        },
-        {
-            quote: "A inauguração da nossa cafeteria foi um sucesso! A propaganda na AELO atraiu muita gente do bairro. O retorno foi imediato e superou as expectativas.",
-            name: "Juliana P.",
-            service: "AELO Negócio",
-            icon: <Briefcase size={24} className={`text-${currentTheme.accent}-500`} />
-        },
-        {
-            quote: "Conseguimos muitos voluntários para nossa campanha de doação de agasalhos. AELO foi fundamental para espalhar a mensagem pela comunidade.",
-            name: "ONG Mãos que Ajudam",
-            service: "AELO Informações Públicas",
-            icon: <Info size={24} className={`text-${currentTheme.primary}-500`} />
-        },
-        {
-            quote: "Ouvir a voz dos meus filhos me parabenizando pelo meu aniversário enquanto eu caminhava na rua... me emocionei demais! Uma surpresa maravilhosa.",
-            name: "Silvia R.",
-            service: "AELO+ Cliente",
-            icon: <Gift size={24} className={`text-${currentTheme.accent}-500`} />
-        },
-        {
-            quote: "A veiculação da AELO divulgou nosso bazar de roupas usadas e superou as expectativas de público. Foi uma solução de baixo custo com um resultado incrível!",
-            name: "Bazar da Ana",
-            service: "AELO Negócio",
-            icon: <DollarSign size={24} className={`text-${currentTheme.success}-500`} />
-        },
-        {
-            quote: "Usamos a AELO para divulgar um evento de adoção de animais. O áudio com os latidos e miados chamou muita atenção e a maioria dos bichinhos encontrou um lar!",
-            name: "Abrigo Patas Felizes",
-            service: "AELO Informações Públicas",
-            icon: <Heart size={24} className={`text-${currentTheme.error}-500`} />
-        }
-    ];
-
-    // Lógica para o carrossel de depoimentos
-    const nextTestimonial = () => {
-        setCurrentTestimonialIndex((prevIndex) => (prevIndex + 1) % testimonials.length);
-    };
-
-    const prevTestimonial = () => {
-        setCurrentTestimonialIndex((prevIndex) => (prevIndex - 1 + testimonials.length) % testimonials.length);
-    };
-    
-    // Auto-play do carrossel a cada 5 segundos
-    useEffect(() => {
-        if (activePage === 'depoimentos') {
-            const timer = setInterval(() => {
-                nextTestimonial();
-            }, 5000);
-            return () => clearInterval(timer);
-        }
-    }, [activePage, currentTestimonialIndex]);
-
     // Define o ano atual para o rodapé
     const currentYear = new Date().getFullYear();
 
@@ -943,7 +869,7 @@ const App = () => {
                 case "Quais dinâmicas a AELO oferece?":
                     botResponseText = "Oferecemos várias dinâmicas! 'Achou um Áudio Conhecido?' (ganhe brinde ao encontrar um áudio), 'Ticket de até R$1000' (participe ao enviar áudio), 'O Áudio Misterioso' (desvende enigmas para prêmios), e 'Caça ao Tesouro Sonora' (siga pistas em áudio pela cidade).";
                     break;
-                case "Preciso falar com um atendente.":
+                case "Falar com Humano":
                     botResponseText = "Entendido! Você pode entrar em contato diretamente com nossa equipe via WhatsApp no número (14) 98115-0675 ou por e-mail em Aelobrasil@gmail.com. Estamos prontos para ajudar!";
                     break;
                 default:
@@ -955,41 +881,299 @@ const App = () => {
             setIsChatbotTyping(false);
         } else {
             // Se não for uma opção, chame a API Gemini
-            await callGeminiAPI(messageText);
+            await callGeminiAPI(messageText); // Corrigido para usar messageText
         }
     };
 
     const callGeminiAPI = async (query) => {
-        try {
-            const chatHistory = [
-                { role: "user", parts: [{ text: aeloKnowledgeBase + "\n\nPergunta do usuário: " + query }] }
-            ];
-            const payload = { contents: chatHistory };
-            const apiKey = ""; // Sua chave de API
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
+        let chatHistory = [];
+        chatHistory.push({ role: "user", parts: [{ text: aeloKnowledgeBase + "\n\nPergunta do usuário: " + query }] });
+        const payload = { contents: chatHistory };
+        const apiKey = ""; // Sua chave de API
+        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
 
+        const MAX_RETRIES = 3;
+        let retries = 0;
+        let delay = 1000; // 1 second
+
+        while (retries < MAX_RETRIES) {
+            try {
+                const response = await fetch(apiUrl, {
+                    method: 'POST',
+                    headers: { 'Content-Type': 'application/json' },
+                    body: JSON.stringify(payload)
+                });
+
+                if (!response.ok) {
+                    const errorBody = await response.text(); // Read as text for better error logging
+                    console.error(`Erro HTTP: ${response.status} - ${errorBody}`);
+                    throw new Error(`Erro HTTP: ${response.status} - ${errorBody}`);
+                }
+
+                let result;
+                try {
+                    result = await response.json(); // Attempt to parse as JSON
+                } catch (jsonError) {
+                    const rawText = await response.text(); // If JSON parsing fails, read as raw text
+                    console.error("Erro ao fazer parse do JSON da API:", jsonError);
+                    console.error("Resposta bruta da API:", rawText);
+                    throw new Error("Resposta da API não é um JSON válido.");
+                }
+
+                let botResponseText = "Desculpe, não consegui obter uma resposta no momento. Por favor, tente novamente mais tarde ou entre em contato via WhatsApp.";
+
+                if (result.candidates && result.candidates.length > 0 && result.candidates[0].content && result.candidates[0].content.parts && result.candidates[0].content.parts.length > 0) {
+                    botResponseText = result.candidates[0].content.parts[0].text;
+                } else {
+                    console.warn("Resposta da API Gemini não contém o formato esperado de 'candidates'.", result);
+                    botResponseText = "Desculpe, a resposta da API não está no formato esperado. Por favor, tente novamente ou reformule sua pergunta.";
+                }
+
+                setChatMessages(prevMessages => [...prevMessages, { sender: 'bot', text: botResponseText }]);
+                break; // Exit loop on success
+            } catch (error) {
+                console.error("Erro na chamada da API do chatbot (tentativa " + (retries + 1) + "):", error);
+                retries++;
+                if (retries < MAX_RETRIES) {
+                    await new Promise(res => setTimeout(res, delay));
+                    delay *= 2; // Exponential backoff
+                } else {
+                    setChatMessages(prevMessages => [...prevMessages, { sender: 'bot', text: 'Ocorreu um erro ao processar sua solicitação após várias tentativas. Por favor, tente novamente mais tarde.' }]);
+                }
+            } finally {
+                setIsChatbotTyping(false);
+            }
+        }
+    };
+
+    // Funções auxiliares para converter PCM para WAV
+    const pcmToWav = (pcmData, sampleRate) => {
+        const numChannels = 1;
+        const bytesPerSample = 2;
+        const blockAlign = numChannels * bytesPerSample;
+        const byteRate = sampleRate * blockAlign;
+
+        const buffer = new ArrayBuffer(44 + pcmData.length * bytesPerSample);
+        const view = new DataView(buffer);
+
+        // WAV header
+        let offset = 0;
+        const writeString = (str) => {
+            for (let i = 0; i < str.length; i++) view.setUint8(offset++, str.charCodeAt(i));
+        };
+        const writeUint32 = (val) => { view.setUint32(offset, val, true); offset += 4; };
+        const writeUint16 = (val) => { view.setUint16(offset, val, true); offset += 2; };
+
+        writeString('RIFF');
+        writeUint32(36 + pcmData.length * bytesPerSample);
+        writeString('WAVE');
+        writeString('fmt ');
+        writeUint32(16);
+        writeUint16(1);
+        writeUint16(numChannels);
+        writeUint32(sampleRate);
+        writeUint32(byteRate);
+        writeUint16(blockAlign);
+        writeUint16(bytesPerSample * 8);
+        writeString('data');
+        writeUint32(pcmData.length * bytesPerSample);
+
+        // PCM data
+        for (let i = 0; i < pcmData.length; i++) {
+            view.setInt16(offset, pcmData[i], true);
+            offset += 2;
+        }
+
+        return new Blob([view], { type: 'audio/wav' });
+    };
+
+    const base64ToArrayBuffer = (base64) => {
+        const binaryString = atob(base64);
+        const len = binaryString.length;
+        const bytes = new Uint8Array(len);
+        for (let i = 0; i < len; i++) {
+            bytes[i] = binaryString.charCodeAt(i);
+        }
+        return bytes.buffer;
+    };
+
+    // Função genérica para gerar e tocar áudio de exemplo
+    const generateAndPlayAudio = async (prompt, setAudioUrl, setIsLoading) => {
+        setIsLoading(true);
+        setAudioUrl('');
+        console.log("Iniciando geração de áudio para:", prompt);
+
+        try {
+            const payload = {
+                contents: [{
+                    parts: [{ text: prompt }]
+                }],
+                generationConfig: {
+                    responseModalities: ["AUDIO"],
+                    speechConfig: {
+                        voiceConfig: {
+                            prebuiltVoiceConfig: { voiceName: "Puck" } // Usando a voz feminina "Puck"
+                        }
+                    }
+                },
+                model: "gemini-2.5-flash-preview-tts"
+            };
+            const apiKey = "";
+            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`;
+
+            console.log("Enviando payload para a API:", payload);
             const response = await fetch(apiUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
                 body: JSON.stringify(payload)
             });
-
-            const result = await response.json();
-            let botResponseText = "Desculpe, não consegui obter uma resposta no momento. Por favor, tente novamente mais tarde ou entre em contato via WhatsApp.";
-
-            if (result.candidates && result.candidates.length > 0 && result.candidates[0].content && result.candidates[0].content.parts && result.candidates[0].content.parts.length > 0) {
-                botResponseText = result.candidates[0].content.parts[0].text;
+            
+            if (!response.ok) {
+                const errorBody = await response.text();
+                throw new Error(`Erro HTTP: ${response.status} - ${errorBody}`);
             }
 
-            setChatMessages(prevMessages => [...prevMessages, { sender: 'bot', text: botResponseText }]);
+            const result = await response.json();
+            console.log("Resposta da API recebida:", result);
+
+            const part = result?.candidates?.[0]?.content?.parts?.[0];
+            const audioData = part?.inlineData?.data;
+            const mimeType = part?.inlineData?.mimeType;
+
+            console.log("Dados de áudio:", { audioData: audioData ? "presente" : "ausente", mimeType });
+
+            if (audioData && mimeType && mimeType.startsWith("audio/")) {
+                const sampleRateMatch = mimeType.match(/rate=(\d+)/);
+                if (!sampleRateMatch) {
+                    throw new Error("MimeType não contém sample rate.");
+                }
+                const sampleRate = parseInt(sampleRateMatch[1], 10);
+                console.log("Sample Rate detectado:", sampleRate);
+
+                const pcmData = base64ToArrayBuffer(audioData);
+                const pcm16 = new Int16Array(pcmData);
+                const wavBlob = pcmToWav(pcm16, sampleRate);
+                const url = URL.createObjectURL(wavBlob);
+                setAudioUrl(url);
+                console.log("Áudio gerado e URL criada:", url);
+            } else {
+                console.error("Estrutura de resposta de áudio inválida ou dados ausentes.");
+            }
         } catch (error) {
-            console.error("Erro na chamada da API do chatbot:", error);
-            setChatMessages(prevMessages => [...prevMessages, { sender: 'bot', text: 'Ocorreu um erro ao processar sua solicitação. Por favor, tente novamente.' }]);
+            console.error("Erro ao gerar áudio:", error);
         } finally {
-            setIsChatbotTyping(false);
+            setIsLoading(false);
+            console.log("Geração de áudio finalizada.");
         }
     };
+    
+    // Dados para os depoimentos (Aumentado para o carrossel)
+    const testimonials = [
+        {
+            quote: "O pedido de casamento foi mágico! Ouvir minha voz ecoando na praça onde nos conhecemos... Inesquecível. AELO tornou tudo perfeito!",
+            name: "Lucas M.",
+            service: "AELO+ Cliente",
+            icon: <Heart size={24} className={`text-${currentTheme.accent}-500`} />
+        },
+        {
+            quote: "A inauguração da nossa cafeteria foi um sucesso! A propaganda na AELO atraiu muita gente do bairro. O retorno foi imediato e superou as expectativas.",
+            name: "Juliana P.",
+            service: "AELO Negócio",
+            icon: <Briefcase size={24} className={`text-${currentTheme.accent}-500`} />
+        },
+        {
+            quote: "Conseguimos muitos voluntários para nossa campanha de doação de agasalhos. AELO foi fundamental para espalhar a mensagem pela comunidade.",
+            name: "ONG Mãos que Ajudam",
+            service: "AELO Informações Públicas",
+            icon: <Info size={24} className={`text-${currentTheme.primary}-500`} />
+        },
+        {
+            quote: "Ouvir a voz dos meus filhos me parabenizando pelo meu aniversário enquanto eu caminhava na rua... me emocionei demais! Uma surpresa maravilhosa.",
+            name: "Silvia R.",
+            service: "AELO+ Cliente",
+            icon: <Gift size={24} className={`text-${currentTheme.accent}-500`} />
+        },
+        {
+            quote: "A veiculação da AELO divulgou nosso bazar de roupas usadas e superou as expectativas de público. Foi uma solução de baixo custo com um resultado incrível!",
+            name: "Bazar da Ana",
+            service: "AELO Negócio",
+            icon: <DollarSign size={24} className={`text-${currentTheme.success}-500`} />
+        },
+        {
+            quote: "Usamos a AELO para divulgar um evento de adoção de animais. O áudio com os latidos e miados chamou muita atenção e a maioria dos bichinhos encontrou um lar!",
+            name: "Abrigo Patas Felizes",
+            service: "AELO Informações Públicas",
+            icon: <Heart size={24} className={`text-${currentTheme.error}-500`} />
+        }
+    ];
 
+    // Lógica para o carrossel de depoimentos
+    const nextTestimonial = () => {
+        setCurrentTestimonialIndex((prevIndex) => (prevIndex + 1) % testimonials.length);
+    };
+
+    const prevTestimonial = () => {
+        setCurrentTestimonialIndex((prevIndex) => (prevIndex - 1 + testimonials.length) % testimonials.length);
+    };
+    
+    // Auto-play do carrossel a cada 5 segundos
+    useEffect(() => {
+        if (activePage === 'depoimentos') {
+            const timer = setInterval(() => {
+                nextTestimonial();
+            }, 5000);
+            return () => clearInterval(timer);
+        }
+    }, [activePage, currentTestimonialIndex]);
+
+    // Função para navegar entre as páginas
+    const navigateTo = (page) => {
+        setContentVisible(false); // Inicia a animação de saída
+        setIsMenuOpen(false); // Fecha o menu ao navegar
+        setTimeout(() => {
+            setActivePage(page);
+            setContentVisible(true); // Inicia a animação de entrada
+        }, 300); // Tempo da animação
+    };
+
+    // Estado para o FAQ (mantido)
+    const [openFaqIndex, setOpenFaqIndex] = useState(null);
+
+    // Função para copiar a chave Pix
+    const copyPixKey = () => {
+        const pixKey = '60.676.425/0001-47';
+        document.execCommand('copy'); // Use document.execCommand('copy') para compatibilidade em iframes
+        const tempInput = document.createElement('input');
+        tempInput.value = pixKey;
+        document.body.appendChild(tempInput);
+        tempInput.select();
+        document.execCommand('copy');
+        document.body.removeChild(tempInput);
+        setPixCopiedMessage('Chave Pix copiada!');
+        setTimeout(() => setPixCopiedMessage(''), 3000);
+    };
+
+    // Função para lidar com o envio do formulário de contato (simulado)
+    const handleFormSubmit = async (e) => {
+        e.preventDefault();
+        setIsSubmitting(true);
+        setFormStatus('');
+
+        // Simula um envio de API
+        await new Promise(resolve => setTimeout(resolve, 1500));
+
+        // Aqui você integraria com um serviço de backend real (e.g., Firebase Functions, Formspree)
+        // Por enquanto, apenas simula sucesso/erro
+        if (Math.random() > 0.1) { // 90% de chance de sucesso
+            setFormStatus('Mensagem enviada com sucesso! Em breve entraremos em contato.');
+            setFormName('');
+            setFormEmail('');
+            setFormMessage('');
+        } else {
+            setFormStatus('Erro ao enviar mensagem. Por favor, tente novamente mais tarde.');
+        }
+        setIsSubmitting(false);
+    };
 
     return (
         <div className={`min-h-screen font-inter antialiased flex flex-col transition-colors duration-300 ${isDarkMode ? `dark bg-gray-900 text-${currentTheme.darkText}` : `bg-gray-100 text-${currentTheme.text}`}`}>
@@ -1206,6 +1390,28 @@ const App = () => {
                                      <li>Celebração de Conquistas: Formaturas, novos empregos, vitórias que merecem ser celebradas em alto e bom som.</li>
                                  </ul>
                                  <p className="mt-4 leading-relaxed">Como funciona: Grave seu áudio com o coração (seu celular é perfeito!), envie para a AELO e nós o veiculamos com carinho. Simples e impactante!</p>
+                                 <div className={`mt-4 p-4 rounded-lg shadow-inner text-center ${isDarkMode ? 'bg-gray-900' : 'bg-white'}`}>
+                                    <h4 className="font-semibold text-lg mb-2">Exemplo de Áudio:</h4>
+                                    {clientAudioUrl ? (
+                                        <audio controls src={clientAudioUrl} className="w-full"></audio>
+                                    ) : (
+                                        <button
+                                            onClick={() => generateAndPlayAudio("Feliz aniversário, meu amor! Que o seu dia seja tão incrível quanto você. Te amo!", setClientAudioUrl, setIsClientAudioLoading)}
+                                            className={`inline-flex items-center justify-center gap-3 px-6 py-3 bg-${currentTheme.primary}-500 text-white font-bold rounded-full shadow-lg hover:bg-${currentTheme.primary}-600 transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed`}
+                                            disabled={isClientAudioLoading}
+                                        >
+                                            {isClientAudioLoading ? (
+                                                <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                </svg>
+                                            ) : (
+                                                <PlayCircle size={22} />
+                                            )}
+                                            {isClientAudioLoading ? "Gerando..." : "Ouvir Exemplo"}
+                                        </button>
+                                    )}
+                                </div>
                              </div>
                              <div className={`category-box border p-6 rounded-lg shadow-md mb-6 transform hover:scale-[1.01] transition-transform duration-200 animate-fade-in-up delay-100 ${isDarkMode ? `bg-gray-700 border-${currentTheme.primary}-600` : `bg-${currentTheme.primary}-50 border-${currentTheme.primary}-200`}`}>
                                  <h3 className={`text-2xl font-semibold text-${currentTheme.primary}-600 mb-3 flex items-center gap-2`}><Briefcase size={24} /> AELO Negócio: Sua Marca em Movimento</h3>
@@ -1217,6 +1423,28 @@ const App = () => {
                                      <li>Lançamento de Produtos Inovadores: Apresentar novidades ao público de forma dinâmica.</li>
                                  </ul>
                                  <p className="mt-4 leading-relaxed">É a solução ideal para pequenos e médios empreendedores que buscam um alcance direcionado, criativo e que realmente se conecta com a cidade.</p>
+                                 <div className={`mt-4 p-4 rounded-lg shadow-inner text-center ${isDarkMode ? 'bg-gray-900' : 'bg-white'}`}>
+                                    <h4 className="font-semibold text-lg mb-2">Exemplo de Áudio:</h4>
+                                    {businessAudioUrl ? (
+                                        <audio controls src={businessAudioUrl} className="w-full"></audio>
+                                    ) : (
+                                        <button
+                                            onClick={() => generateAndPlayAudio("Atenção, Bauru! A nova loja de doces 'Delícias da Vovó' acaba de abrir na Rua XV de Novembro, 123. Venha provar os nossos bolos caseiros, tortas frescas e doces artesanais. Delícias da Vovó, o sabor da tradição em cada mordida.", setBusinessAudioUrl, setIsBusinessAudioLoading)}
+                                            className={`inline-flex items-center justify-center gap-3 px-6 py-3 bg-${currentTheme.primary}-500 text-white font-bold rounded-full shadow-lg hover:bg-${currentTheme.primary}-600 transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed`}
+                                            disabled={isBusinessAudioLoading}
+                                        >
+                                            {isBusinessAudioLoading ? (
+                                                <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                </svg>
+                                            ) : (
+                                                <PlayCircle size={22} />
+                                            )}
+                                            {isBusinessAudioLoading ? "Gerando..." : "Ouvir Exemplo"}
+                                        </button>
+                                    )}
+                                </div>
                              </div>
                              <div className={`category-box border p-6 rounded-lg shadow-md transform hover:scale-[1.01] transition-transform duration-200 animate-fade-in-up delay-200 ${isDarkMode ? `bg-gray-700 border-${currentTheme.primary}-600` : `bg-${currentTheme.primary}-50 border-${currentTheme.primary}-200`}`}>
                                  <h3 className={`text-2xl font-semibold text-${currentTheme.primary}-600 mb-3 flex items-center gap-2`}><Info size={24} /> AELO Informações Públicas: Ecoando Boas Causas</h3>
@@ -1227,6 +1455,28 @@ const App = () => {
                                      <li>Avisos Comunitários: Informações cruciais para o bairro ou cidade, entregues de forma eficiente.</li>
                                  </ul>
                                  <p className="mt-4 leading-relaxed">Fazer o bem também tem voz, e a AELO está aqui para amplificar sua mensagem social, alcançando quem mais precisa.</p>
+                                 <div className={`mt-4 p-4 rounded-lg shadow-inner text-center ${isDarkMode ? 'bg-gray-900' : 'bg-white'}`}>
+                                    <h4 className="font-semibold text-lg mb-2">Exemplo de Áudio:</h4>
+                                    {publicAudioUrl ? (
+                                        <audio controls src={publicAudioUrl} className="w-full"></audio>
+                                    ) : (
+                                        <button
+                                            onClick={() => generateAndPlayAudio("A ONG 'Amigos do Bairro' convida a todos para o nosso evento de doação de agasalhos neste sábado na praça central. Contamos com a sua colaboração para aquecer o inverno de quem mais precisa. Juntos, fazemos a diferença!", setPublicAudioUrl, setIsPublicAudioLoading)}
+                                            className={`inline-flex items-center justify-center gap-3 px-6 py-3 bg-${currentTheme.primary}-500 text-white font-bold rounded-full shadow-lg hover:bg-${currentTheme.primary}-600 transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed`}
+                                            disabled={isPublicAudioLoading}
+                                        >
+                                            {isPublicAudioLoading ? (
+                                                <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                </svg>
+                                            ) : (
+                                                <PlayCircle size={22} />
+                                            )}
+                                            {isPublicAudioLoading ? "Gerando..." : "Ouvir Exemplo"}
+                                        </button>
+                                    )}
+                                </div>
                              </div>
                         </div>
                     )}
@@ -1424,11 +1674,15 @@ const App = () => {
                             <div className={`p-6 rounded-lg shadow-md mb-6 transform hover:scale-[1.01] transition-transform duration-200 animate-fade-in-up delay-200 ${isDarkMode ? `bg-gray-700 border-${currentTheme.primary}-600 border` : `bg-${currentTheme.primary}-50 border-${currentTheme.primary}-200 border`}`}>
                                 <h3 className={`text-2xl font-semibold text-${currentTheme.primary}-600 mb-3 flex items-center gap-2`}><Search size={24} /> O Áudio Misterioso: Desvende o Enigma!</h3>
                                 <p className="leading-relaxed">Fique atento(a)! Periodicamente, veicularemos um "Áudio Misterioso". Ouça com atenção, desvende o enigma e envie sua resposta para a AELO - Sua Voz em Movimento para ganhar prêmios!</p>
-                                {/* Removido o botão de áudio misterioso */}
+                                <div className="mt-4 text-center">
+                                    <button onClick={playMysterySound} className={`inline-flex items-center justify-center gap-3 px-6 py-3 bg-${currentTheme.primary}-500 text-white font-bold rounded-full shadow-lg hover:bg-${currentTheme.primary}-600 transform hover:scale-105 transition-all duration-300`}>
+                                        <PlayCircle size={22} /> Ouvir o Áudio Misterioso
+                                    </button>
+                                </div>
                             </div>
                             <div className={`p-6 rounded-lg shadow-md transform hover:scale-[1.01] transition-transform duration-200 animate-fade-in-up delay-300 ${isDarkMode ? `bg-gray-700 border-${currentTheme.success}-600 border` : `bg-${currentTheme.success}-50 border-${currentTheme.success}-200 border`}`}>
                                 <h3 className={`text-2xl font-semibold text-${currentTheme.success}-600 mb-3 flex items-center gap-2`}><MapPin size={24} /> Caça ao Tesouro Sonora: Aventura Urbana!</h3>
-                                <p className="leading-relaxed">Prepare-se para uma aventura! Em dias específicos, nossos ciclistas veicularão pistas em áudio, transformando a cidade em um grande jogo. Siga as pistas para encontrar o tesouro!</p>
+                                <p className="leading-relaxed">Prepare-se para uma aventura! Em dias específicos, nossos ciclistas veiculam pistas em áudio, transformando a cidade em um grande jogo. Siga as pistas para encontrar o tesouro!</p>
                                 <div className={`flex justify-center items-center gap-4 mt-4 text-${currentTheme.success}-400`}>
                                     <Search size={28} />
                                     <span className="text-2xl font-mono">→</span>
@@ -1454,7 +1708,7 @@ const App = () => {
                                     <li>Anúncios de eventos e promoções ganham ainda mais visibilidade na "Temporada Áudio Ação".</li>
                                 </ul>
                             </div>
-                            <div className={`p-6 rounded-lg shadow-md mb-6 transform hover:scale-[1.01] transition-transform duration-200 animate-fade-in-up delay-100 ${isDarkMode ? `bg-gray-700 border-${currentTheme.primary}-600` : `bg-${currentTheme.primary}-50 border-${currentTheme.primary}-200`}`}>
+                            <div className={`p-6 rounded-lg shadow-md mb-6 transform hover:scale-[1.01] transition-transform duration-200 animate-fade-in-up delay-100 ${isDarkMode ? `bg-gray-700 border-${currentTheme.primary}-600 border` : `bg-${currentTheme.primary}-50 border-${currentTheme.primary}-200 border`}`}>
                                 <h3 className={`text-2xl font-semibold text-${currentTheme.primary}-600 mb-3 flex items-center gap-2`}><Leaf size={24} /> Exemplos de Temporadas Anteriores e Futuras</h3>
                                 <ul className="list-disc list-inside space-y-2 mt-2">
                                     <li>Temporada Áudio Verde: Foco em sustentabilidade, meio ambiente, vida saudável e bem-estar.</li>
@@ -1463,7 +1717,7 @@ const App = () => {
                                     <li>Temporada Áudio Festas: Mensagens especiais para datas comemorativas e celebrações.</li>
                                 </ul>
                             </div>
-                            <div className={`p-6 rounded-lg shadow-md transform hover:scale-[1.01] transition-transform duration-200 animate-fade-in-up delay-200 ${isDarkMode ? `bg-gray-700 border-${currentTheme.primary}-600` : `bg-${currentTheme.primary}-50 border-${currentTheme.primary}-200`}`}>
+                            <div className={`p-6 rounded-lg shadow-md transform hover:scale-[1.01] transition-transform duration-200 animate-fade-in-up delay-200 ${isDarkMode ? `bg-gray-700 border-${currentTheme.primary}-600 border` : `bg-${currentTheme.primary}-50 border-${currentTheme.primary}-200 border`}`}>
                                 <h3 className={`text-2xl font-semibold text-${currentTheme.primary}-600 mb-3 flex items-center gap-2`}><RefreshCcw size={24} /> Como Participar e Potencializar Sua Mensagem</h3>
                                 <p className="leading-relaxed">Para participar e maximizar o impacto, basta alinhar o conteúdo do seu áudio com o tema da temporada vigente. Embora não seja obrigatório, essa sintonia potencializa a ressonância da sua mensagem com o público.</p>
                             </div>
@@ -1518,14 +1772,14 @@ const App = () => {
                     {activePage === 'como-enviar' && (
                         <div className={`p-8 rounded-xl shadow-xl max-w-4xl mx-auto mt-8 animate-fade-in ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
                             <h2 className="text-3xl font-bold mb-6 text-center flex items-center justify-center gap-2">Como Enviar Seus Áudios para a AELO: Simples e Rápido! <Send size={32} /></h2>
-                            <p className="text-lg mb-6 leading-relaxed">Levar sua mensagem para as ruas com a AELO - Sua Voz em Movimento é um processo descomplicado. Siga estes passos e veja sua voz ganhar vida:</p>
+                            <p className="text-lg mb-6 leading-relaxed">Levar sua mensagem para as ruas com a AELO é um processo descomplicado. Siga estes passos e veja sua voz ganhar vida:</p>
                             <div className="space-y-6 text-left">
                                 <div className={`p-5 rounded-lg shadow-md flex items-start gap-4 transform hover:scale-[1.01] transition-transform duration-200 animate-fade-in-up ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
                                     <div className={`flex-shrink-0 w-8 h-8 bg-${currentTheme.primary}-600 text-white rounded-full flex items-center justify-center text-lg font-bold`}>1</div>
                                     <div>
                                         <h3 className="text-xl font-semibold mb-1 flex items-center gap-2"><Mic size={20} /> Grave Seu Áudio com Qualidade e Duração Ideal</h3>
                                         <p className={`text-gray-600 dark:text-gray-300`}>Use seu celular, computador ou qualquer dispositivo para gravar a mensagem que deseja veicular. A qualidade do áudio é fundamental para uma experiência sonora impecável!</p>
-                                        <ul className="list-disc list-inside text-gray-600 dark:text-gray-300 space-y-1 mt-2">
+                                        <ul className={`list-disc list-inside text-gray-600 dark:text-gray-300 space-y-1 mt-2`}>
                                             <li><span className={`font-semibold text-${currentTheme.primary}-700`}>AELO+ Cliente (Pessoais):</span> 15 a 20 segundos.</li>
                                             <li><span className={`font-semibold text-${currentTheme.primary}-700`}>AELO Negócio:</span> 30 segundos a 1 minuto.</li>
                                             <li><span className={`font-semibold text-${currentTheme.primary}-700`}>AELO Informações Públicas:</span> 30 segundos a 1 minuto e 30 segundos.</li>
@@ -1553,6 +1807,34 @@ const App = () => {
                                         <h3 className="text-xl font-semibold mb-1 flex items-center gap-2"><CheckCircle size={20} /> Confirmação e Pagamento</h3>
                                         <p className={`text-gray-600 dark:text-gray-300`}>Nossa equipe fará a moderação do áudio para garantir a melhor qualidade e confirmará todos os detalhes com você. Após sua aprovação e o pagamento (via Pix, por exemplo), seu áudio estará pronto para ir para as ruas e encantar a cidade!</p>
                                     </div>
+                                </div>
+                                {/* Player de Áudio de Exemplo na página "Como Enviar" */}
+                                <div className={`p-5 rounded-lg shadow-md text-center transform hover:scale-[1.01] transition-transform duration-200 animate-fade-in-up delay-400 ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
+                                    <h3 className="text-xl font-semibold text-purple-600 mb-4 flex items-center justify-center gap-2">
+                                        <Volume2 size={24} /> Exemplo de Qualidade de Áudio AELO
+                                    </h3>
+                                    {sampleAudioUrl ? (
+                                        <audio controls src={sampleAudioUrl} className="w-full"></audio>
+                                    ) : (
+                                        <button
+                                            onClick={() => generateAndPlayAudio("Este é um exemplo da qualidade de áudio que a AELO oferece. Sua voz, clara e profissional, ecoando pelas ruas da cidade. Sua voz em movimento.", setSampleAudioUrl, setIsSampleAudioLoading)}
+                                            className={`inline-flex items-center justify-center gap-3 px-6 py-3 bg-${currentTheme.primary}-500 text-white font-bold rounded-full shadow-lg hover:bg-${currentTheme.primary}-600 transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed`}
+                                            disabled={isSampleAudioLoading}
+                                        >
+                                            {isSampleAudioLoading ? (
+                                                <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
+                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
+                                                </svg>
+                                            ) : (
+                                                <PlayCircle size={22} />
+                                            )}
+                                            {isSampleAudioLoading ? "Gerando..." : "Gerar e Ouvir Exemplo"}
+                                        </button>
+                                    )}
+                                    <p className={`mt-2 text-sm text-gray-600 dark:text-gray-300`}>
+                                        Clique para gerar um áudio de exemplo e ouvir a qualidade da nossa veiculação.
+                                    </p>
                                 </div>
                             </div>
                         </div>
@@ -1594,7 +1876,7 @@ const App = () => {
                                 <h3 className="text-2xl font-semibold mb-4 flex items-center gap-2">
                                     <Palette size={24} className={`text-${currentTheme.primary}-600`} /> Escolha sua Paleta de Cores
                                 </h3>
-                                <p className="text-gray-700 dark:text-gray-300 mb-4">
+                                <p className={`text-gray-700 dark:text-gray-300 mb-4`}>
                                     Selecione uma das paletas abaixo para mudar o tema principal do site:
                                 </p>
                                 <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
@@ -1620,7 +1902,7 @@ const App = () => {
                                 <h3 className="text-2xl font-semibold mb-4 flex items-center gap-2">
                                     <MessageCircle size={24} className={`text-${currentTheme.primary}-600`} /> Opções do Chatbot
                                 </h3>
-                                <p className="text-gray-700 dark:text-gray-300 mb-4">
+                                <p className={`text-gray-700 dark:text-gray-300 mb-4`}>
                                     Gerencie a sua experiência com a Olea, nossa assistente virtual.
                                 </p>
                                 <button
@@ -1649,7 +1931,7 @@ const App = () => {
                                         <Briefcase size={20} className={`text-${currentTheme.primary}-600`} /> 1. Escolha o Plano
                                     </h3>
                                     <div className="flex flex-col sm:flex-row gap-4">
-                                        <label className="flex items-center cursor-pointer p-3 rounded-lg border dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors flex-1">
+                                        <label className={`flex items-center cursor-pointer p-3 rounded-lg border dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors flex-1`}>
                                             <input
                                                 type="radio"
                                                 name="planType"
@@ -1660,7 +1942,7 @@ const App = () => {
                                             />
                                             <span className="ml-2 font-medium">AELO Negócio - Em Fila (R$ 29,90/dia)</span>
                                         </label>
-                                        <label className="flex items-center cursor-pointer p-3 rounded-lg border dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors flex-1">
+                                        <label className={`flex items-center cursor-pointer p-3 rounded-lg border dark:border-gray-600 hover:bg-gray-100 dark:hover:bg-gray-600 transition-colors flex-1`}>
                                             <input
                                                 type="radio"
                                                 name="planType"
@@ -1741,7 +2023,7 @@ const App = () => {
                                         <ChevronLeft size={20} /> Voltar para o Blog
                                     </button>
                                     <h3 className={`text-3xl font-bold mb-3 text-${currentTheme.primary}-600`}>{selectedBlogPost.title}</h3>
-                                    <p className="text-sm text-gray-500 dark:text-gray-400 mb-4">
+                                    <p className={`text-sm text-gray-500 dark:text-gray-400 mb-4`}>
                                         Por {selectedBlogPost.author} em {selectedBlogPost.date}
                                     </p>
                                     <div className={`prose max-w-none text-${currentTheme.text} dark:text-${currentTheme.darkText}`} dangerouslySetInnerHTML={{ __html: selectedBlogPost.content }} />
@@ -1751,7 +2033,7 @@ const App = () => {
                                     {blogPosts.map((post) => (
                                         <div key={post.id} className={`p-5 rounded-lg shadow-md transform hover:scale-[1.01] transition-transform duration-200 ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
                                             <h3 className={`text-xl font-semibold mb-2 text-${currentTheme.primary}-600`}>{post.title}</h3>
-                                            <p className="text-sm text-gray-500 dark:text-gray-400 mb-3">
+                                            <p className={`text-sm text-gray-500 dark:text-gray-400 mb-3`}>
                                                 Por {post.author} em {post.date}
                                             </p>
                                             <p className={`text-gray-600 dark:text-gray-300 mb-4`}>{post.snippet}</p>
@@ -1900,7 +2182,7 @@ const App = () => {
                                     <p className={`mt-2 leading-relaxed`}><span className={`font-semibold text-${currentTheme.error}-600`}>Conteúdos Estritamente Proibidos:</span> Não serão veiculados áudios que contenham:</p>
                                     <ul className={`list-disc list-inside text-gray-600 dark:text-gray-300 space-y-1 mt-2`}>
                                         <li>Mensagens de má-fé, difamação ou calúnia.</li>
-                                        <li>Qualquer forma de discriminação (racial, de gênero, religiosa, sexual, etc.).</li>
+                                        <li>Qualquer forma de discriminação (racial, de gênero, religiosa, sexual).</li>
                                         <li>Discurso de ódio ou incitação à violência.</li>
                                         <li>Conteúdo sexualmente explícito ou obsceno.</li>
                                         <li>Informações falsas ou enganosas.</li>
@@ -1930,35 +2212,35 @@ const App = () => {
                             {/* Formulário de Contato */}
                             <form onSubmit={handleFormSubmit} className="space-y-4">
                                 <div>
-                                    <label htmlFor="name" className="block text-sm font-semibold mb-1">Seu Nome</label>
+                                    <label htmlFor="name" className={`block text-sm font-semibold mb-1`}>Seu Nome</label>
                                     <input
                                         type="text"
                                         id="name"
                                         value={formName}
                                         onChange={(e) => setFormName(e.target.value)}
-                                        className={`w-full p-3 rounded-lg border-2 ${isDarkMode ? 'bg-gray-900 border-gray-600' : 'bg-gray-50 border-gray-200'} focus:outline-none focus:border-${currentTheme.primary}-600`}
+                                        className={`w-full p-3 rounded-lg border-2 ${isDarkMode ? 'bg-gray-900 border-gray-600' : 'bg-gray-50 border-gray-200'} focus:outline-none focus:border-${currentTheme.primary}-500`}
                                         required
                                     />
                                 </div>
                                 <div>
-                                    <label htmlFor="email" className="block text-sm font-semibold mb-1">Seu E-mail</label>
+                                    <label htmlFor="email" className={`block text-sm font-semibold mb-1`}>Seu E-mail</label>
                                     <input
                                         type="email"
                                         id="email"
                                         value={formEmail}
                                         onChange={(e) => setFormEmail(e.target.value)}
-                                        className={`w-full p-3 rounded-lg border-2 ${isDarkMode ? 'bg-gray-900 border-gray-600' : 'bg-gray-50 border-gray-200'} focus:outline-none focus:border-${currentTheme.primary}-600`}
+                                        className={`w-full p-3 rounded-lg border-2 ${isDarkMode ? 'bg-gray-900 border-gray-600' : 'bg-gray-50 border-gray-200'} focus:outline-none focus:border-${currentTheme.primary}-500`}
                                         required
                                     />
                                 </div>
                                 <div>
-                                    <label htmlFor="message" className="block text-sm font-semibold mb-1">Sua Mensagem</label>
+                                    <label htmlFor="message" className={`block text-sm font-semibold mb-1`}>Sua Mensagem</label>
                                     <textarea
                                         id="message"
                                         rows="4"
                                         value={formMessage}
                                         onChange={(e) => setFormMessage(e.target.value)}
-                                        className={`w-full p-3 rounded-lg border-2 ${isDarkMode ? 'bg-gray-900 border-gray-600' : 'bg-gray-50 border-gray-200'} focus:outline-none focus:border-${currentTheme.primary}-600`}
+                                        className={`w-full p-3 rounded-lg border-2 ${isDarkMode ? 'bg-gray-900 border-gray-600' : 'bg-gray-50 border-gray-200'} focus:outline-none focus:border-${currentTheme.primary}-500`}
                                         required
                                     ></textarea>
                                 </div>
@@ -2010,7 +2292,7 @@ const App = () => {
                 <div className="container mx-auto flex flex-col items-center justify-center">
                     <p className="text-lg font-bold mb-1">AELO - Sua Voz em Movimento</p>
                     <p className="text-sm">Bauru, SP</p>
-                    <p className="text-xs mt-2">&copy; {currentYear} Todos os direitos reservados.</p>
+                    <p className="text-xs mt-2">&copy; {new Date().getFullYear()} Todos os direitos reservados.</p>
                     <Bike size={20} className={`text-${currentTheme.accent}-300 transform transition-transform duration-300 hover:rotate-[360deg] mt-2`} />
                 </div>
             </footer>

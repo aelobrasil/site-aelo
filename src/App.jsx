@@ -453,7 +453,7 @@ const App = () => {
     const [isChatbotOpen, setIsChatbotOpen] = useState(false);
     // Estados para o chat do chatbot
     const [chatMessages, setChatMessages] = useState([]);
-    const [currentInput, setCurrentInput] = useState('');
+    const [currentInput, setCurrentInput] = useState(''); // Alterado para useState
     const chatContainerRef = useRef(null); // Ref para scroll automático
     const [isChatbotTyping, setIsChatbotTyping] = useState(false); // Estado para indicar que o bot está digitando
 
@@ -628,7 +628,7 @@ const App = () => {
                 <p>A dicção deve ser clara e a velocidade da fala adequada. Evite gírias excessivas ou jargões que seu público talvez não compreenda. A mensagem precisa ser facilmente entendida por qualquer pessoa que a ouça em movimento.</p>
                 
                 <h3>3. Chame a Atenção</h3>
-                <p>Comece com algo que prenda a atenção do ouvinte. Pode ser uma pergunta, um som interessante (but not intrusive), or a bold statement. The goal is to make people stop and listen.</p>
+                <p>Comece com algo que prenda a atenção do ouvinte. Pode ser uma pergunta, um som interessante (mas não invasivo), ou uma declaração ousada. O objetivo é fazer com que as pessoas parem e ouçam.</p>
                 
                 <h3>4. Destaque o Benefício, Não Apenas a Característica</h3>
                 <p>Em vez de apenas listar o que você oferece, foque nos benefícios que seu produto ou serviço traz para o cliente. Como ele resolve um problema? Como melhora a vida do seu público?</p>
@@ -904,25 +904,31 @@ const App = () => {
                     body: JSON.stringify(payload)
                 });
 
+                // Clona a resposta para que possamos ler seu corpo várias vezes, se necessário
+                const clonedResponse = response.clone();
+
                 if (!response.ok) {
-                    const errorBody = await response.text(); // Read as text for better error logging
+                    const errorBody = await clonedResponse.text(); // Lê do clone
                     console.error(`Erro HTTP: ${response.status} - ${errorBody}`);
                     throw new Error(`Erro HTTP: ${response.status} - ${errorBody}`);
                 }
 
                 let result;
                 try {
-                    result = await response.json(); // Attempt to parse as JSON
+                    result = await response.json(); // Tenta analisar como JSON
                 } catch (jsonError) {
-                    const rawText = await response.text(); // If JSON parsing fails, read as raw text
+                    const rawText = await clonedResponse.text(); // Se a análise JSON falhar, lê como texto puro
                     console.error("Erro ao fazer parse do JSON da API:", jsonError);
                     console.error("Resposta bruta da API:", rawText);
-                    throw new Error("Resposta da API não é um JSON válido.");
+                    throw new Error("Resposta da API não é um JSON válido: " + rawText.substring(0, 100) + "..."); // Trunca para o console
                 }
 
                 let botResponseText = "Desculpe, não consegui obter uma resposta no momento. Por favor, tente novamente mais tarde ou entre em contato via WhatsApp.";
 
-                if (result.candidates && result.candidates.length > 0 && result.candidates[0].content && result.candidates[0].content.parts && result.candidates[0].content.parts.length > 0) {
+                // Verifica se o resultado é válido e tem a estrutura esperada
+                if (result && result.candidates && result.candidates.length > 0 &&
+                    result.candidates[0].content && result.candidates[0].content.parts &&
+                    result.candidates[0].content.parts.length > 0) {
                     botResponseText = result.candidates[0].content.parts[0].text;
                 } else {
                     console.warn("Resposta da API Gemini não contém o formato esperado de 'candidates'.", result);
@@ -930,13 +936,13 @@ const App = () => {
                 }
 
                 setChatMessages(prevMessages => [...prevMessages, { sender: 'bot', text: botResponseText }]);
-                break; // Exit loop on success
+                break; // Sai do loop em caso de sucesso
             } catch (error) {
                 console.error("Erro na chamada da API do chatbot (tentativa " + (retries + 1) + "):", error);
                 retries++;
                 if (retries < MAX_RETRIES) {
                     await new Promise(res => setTimeout(res, delay));
-                    delay *= 2; // Exponential backoff
+                    delay *= 2; // Backoff exponencial
                 } else {
                     setChatMessages(prevMessages => [...prevMessages, { sender: 'bot', text: 'Ocorreu um erro ao processar sua solicitação após várias tentativas. Por favor, tente novamente mais tarde.' }]);
                 }
@@ -1136,7 +1142,7 @@ const App = () => {
         }, 300); // Tempo da animação
     };
 
-    // Estado para o FAQ (mantido)
+    // Estado para o FAQ (mantidos)
     const [openFaqIndex, setOpenFaqIndex] = useState(null);
 
     // Função para copiar a chave Pix
@@ -1230,26 +1236,26 @@ const App = () => {
                     <button onClick={() => navigateTo('porque-aelo')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'porque-aelo' ? `bg-${currentTheme.primary}-600 text-white shadow-md` : `dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-${currentTheme.primary}-800 bg-gray-100 text-gray-800 hover:bg-${currentTheme.primary}-100`}`}><Lightbulb size={20} /> Por Que AELO?</button>
                     <button onClick={() => navigateTo('comparativo')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'comparativo' ? `bg-${currentTheme.primary}-600 text-white shadow-md` : `dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-${currentTheme.primary}-800 bg-gray-100 text-gray-800 hover:bg-${currentTheme.primary}-100`}`}><Scale size={20} /> AELO vs. Tradicionais</button>
                     <button onClick={() => navigateTo('depoimentos')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'depoimentos' ? `bg-${currentTheme.primary}-600 text-white shadow-md` : `dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-${currentTheme.primary}-800 bg-gray-100 text-gray-800 hover:bg-${currentTheme.primary}-100`}`}><Quote size={20} /> Depoimentos</button>
-                    <button onClick={() => navigateTo('dinamicas')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'dinamicas' ? `bg-${currentTheme.primary}-600 text-white shadow-md` : `dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-${currentTheme.primary}-800 bg-gray-100 text-gray-800 hover:bg-${currentTheme.primary}-100`}`}><Trophy size={20} /> Dinâmicas</button>
-                    <button onClick={() => navigateTo('temporadas')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'temporadas' ? `bg-${currentTheme.primary}-600 text-white shadow-md` : `dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-${currentTheme.primary}-800 bg-gray-100 text-gray-800 hover:bg-${currentTheme.primary}-100`}`}><CalendarDays size={20} /> Temporadas</button>
-                    <button onClick={() => navigateTo('precos')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'precos' ? `bg-${currentTheme.primary}-600 text-white shadow-md` : `dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-${currentTheme.primary}-800 bg-gray-100 text-gray-800 hover:bg-${currentTheme.primary}-100`}`}><DollarSign size={20} /> Preços</button>
-                    <button onClick={() => navigateTo('como-enviar')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'como-enviar' ? `bg-${currentTheme.primary}-600 text-white shadow-md` : `dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-${currentTheme.primary}-800 bg-gray-100 text-gray-800 hover:bg-${currentTheme.primary}-100`}`}><Send size={20} /> Como Enviar Áudios</button>
-                    <button onClick={() => navigateTo('aelo-em-acao')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'aelo-em-acao' ? `bg-${currentTheme.primary}-600 text-white shadow-md` : `dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-${currentTheme.primary}-800 bg-gray-100 text-gray-800 hover:bg-${currentTheme.primary}-100`}`}><Sparkles size={20} /> AELO em Ação</button> {/* Nova Aba */}
+                    <button onClick={() => navigateTo('dinamicas')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'dinamicas' ? `bg-${currentTheme.primary}-600 text-white shadow-md` : `dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-${currentTheme.primary}-800 bg-gray-100 text-gray-800 hover:hover:bg-${currentTheme.primary}-100`}`}><Trophy size={20} /> Dinâmicas</button>
+                    <button onClick={() => navigateTo('temporadas')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'temporadas' ? `bg-${currentTheme.primary}-600 text-white shadow-md` : `dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-${currentTheme.primary}-800 bg-gray-100 text-gray-800 hover:hover:bg-${currentTheme.primary}-100`}`}><CalendarDays size={20} /> Temporadas</button>
+                    <button onClick={() => navigateTo('precos')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'precos' ? `bg-${currentTheme.primary}-600 text-white shadow-md` : `dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-${currentTheme.primary}-800 bg-gray-100 text-gray-800 hover:hover:bg-${currentTheme.primary}-100`}`}><DollarSign size={20} /> Preços</button>
+                    <button onClick={() => navigateTo('como-enviar')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'como-enviar' ? `bg-${currentTheme.primary}-600 text-white shadow-md` : `dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-${currentTheme.primary}-800 bg-gray-100 text-gray-800 hover:hover:bg-${currentTheme.primary}-100`}`}><Send size={20} /> Como Enviar Áudios</button>
+                    <button onClick={() => navigateTo('aelo-em-acao')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'aelo-em-acao' ? `bg-${currentTheme.primary}-600 text-white shadow-md` : `dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-${currentTheme.primary}-800 bg-gray-100 text-gray-800 hover:hover:bg-${currentTheme.primary}-100`}`}><Sparkles size={20} /> AELO em Ação</button> {/* Nova Aba */}
                     {/* Nova aba "Seu AELO" */}
-                    <button onClick={() => navigateTo('seu-aelo')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'seu-aelo' ? `bg-${currentTheme.primary}-600 text-white shadow-md` : `dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-${currentTheme.primary}-800 bg-gray-100 text-gray-800 hover:bg-${currentTheme.primary}-100`}`}><Palette size={20} /> Seu AELO</button>
-                    <button onClick={() => navigateTo('simular-assinatura')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'simular-assinatura' ? `bg-${currentTheme.primary}-600 text-white shadow-md` : `dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-${currentTheme.primary}-800 bg-gray-100 text-gray-800 hover:bg-${currentTheme.primary}-100`}`}><Calculator size={20} /> Simulador de Assinatura</button> {/* Nova Aba */}
-                    <button onClick={() => navigateTo('blog')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'blog' ? `bg-${currentTheme.primary}-600 text-white shadow-md` : `dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-${currentTheme.primary}-800 bg-gray-100 text-gray-800 hover:bg-${currentTheme.primary}-100`}`}><Rss size={20} /> Blog/Notícias</button> {/* Nova Aba */}
+                    <button onClick={() => navigateTo('seu-aelo')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'seu-aelo' ? `bg-${currentTheme.primary}-600 text-white shadow-md` : `dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-${currentTheme.primary}-800 bg-gray-100 text-gray-800 hover:hover:bg-${currentTheme.primary}-100`}`}><Palette size={20} /> Seu AELO</button>
+                    <button onClick={() => navigateTo('simular-assinatura')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'simular-assinatura' ? `bg-${currentTheme.primary}-600 text-white shadow-md` : `dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-${currentTheme.primary}-800 bg-gray-100 text-gray-800 hover:hover:bg-${currentTheme.primary}-100`}`}><Calculator size={20} /> Simulador de Assinatura</button> {/* Nova Aba */}
+                    <button onClick={() => navigateTo('blog')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'blog' ? `bg-${currentTheme.primary}-600 text-white shadow-md` : `dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-${currentTheme.primary}-800 bg-gray-100 text-gray-800 hover:hover:bg-${currentTheme.primary}-100`}`}><Rss size={20} /> Blog/Notícias</button> {/* Nova Aba */}
                     {/* Alterado para navegar para a página "Trabalhe Conosco" */}
-                    <button onClick={() => navigateTo('trabalhe-conosco')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'trabalhe-conosco' ? `bg-${currentTheme.primary}-600 text-white shadow-md animate-pulse` : `dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-${currentTheme.primary}-800 bg-gray-100 text-gray-800 hover:bg-${currentTheme.primary}-100`}`}><BriefcaseBusiness size={20} /> Trabalhe Conosco</button>
-                    <button onClick={() => navigateTo('compromisso-sustentavel')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'compromisso-sustentavel' ? `bg-${currentTheme.primary}-600 text-white shadow-md` : `dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-${currentTheme.primary}-800 bg-gray-100 text-gray-800 hover:bg-${currentTheme.primary}-100`}`}><Leaf size={20} /> Compromisso Sustentável</button> {/* Nova Aba */}
-                    <button onClick={() => navigateTo('faq')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'faq' ? `bg-${currentTheme.primary}-600 text-white shadow-md` : `dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-${currentTheme.primary}-800 bg-gray-100 text-gray-800 hover:bg-${currentTheme.primary}-100`}`}><Info size={20} /> FAQ</button>
-                    <button onClick={() => navigateTo('termos-condicoes')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'termos-condicoes' ? `bg-${currentTheme.primary}-600 text-white shadow-md` : `dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-${currentTheme.primary}-800 bg-gray-100 text-gray-800 hover:bg-${currentTheme.primary}-100`}`}><FileText size={20} /> Termos</button>
-                    <button onClick={() => navigateTo('contato')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'contato' ? `bg-${currentTheme.primary}-600 text-white shadow-md` : `dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-${currentTheme.primary}-800 bg-gray-100 text-gray-800 hover:bg-${currentTheme.primary}-100`}`}><MessageSquare size={20} /> Contato</button>
+                    <button onClick={() => navigateTo('trabalhe-conosco')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'trabalhe-conosco' ? `bg-${currentTheme.primary}-600 text-white shadow-md animate-pulse` : `dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-${currentTheme.primary}-800 bg-gray-100 text-gray-800 hover:hover:bg-${currentTheme.primary}-100`}`}><BriefcaseBusiness size={20} /> Trabalhe Conosco</button>
+                    <button onClick={() => navigateTo('compromisso-sustentavel')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'compromisso-sustentavel' ? `bg-${currentTheme.primary}-600 text-white shadow-md` : `dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-${currentTheme.primary}-800 bg-gray-100 text-gray-800 hover:hover:bg-${currentTheme.primary}-100`}`}><Leaf size={20} /> Compromisso Sustentável</button> {/* Nova Aba */}
+                    <button onClick={() => navigateTo('faq')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'faq' ? `bg-${currentTheme.primary}-600 text-white shadow-md` : `dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-${currentTheme.primary}-800 bg-gray-100 text-gray-800 hover:hover:bg-${currentTheme.primary}-100`}`}><Info size={20} /> FAQ</button>
+                    <button onClick={() => navigateTo('termos-condicoes')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'termos-condicoes' ? `bg-${currentTheme.primary}-600 text-white shadow-md` : `dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-${currentTheme.primary}-800 bg-gray-100 text-gray-800 hover:hover:bg-${currentTheme.primary}-100`}`}><FileText size={20} /> Termos</button>
+                    <button onClick={() => navigateTo('contato')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'contato' ? `bg-${currentTheme.primary}-600 text-white shadow-md` : `dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-${currentTheme.primary}-800 bg-gray-100 text-gray-800 hover:hover:bg-${currentTheme.primary}-100`}`}><MessageSquare size={20} /> Contato</button>
                 </div>
             </nav>
             
             {/* Botões Flutuantes Enfileirados e Condicionais */}
-            <div className={`fixed bottom-6 left-6 z-50 flex flex-col items-start space-y-2 transition-all duration-300 ${activePage !== 'home' ? 'scale-75 opacity-70' : ''}`}>
+            <div className={`fixed bottom-24 left-6 z-50 flex flex-col items-start space-y-2 transition-all duration-300 ${activePage !== 'home' ? 'scale-75 opacity-70' : ''}`}>
                 {/* Floating Chatbot */}
                 <button
                     onClick={() => setIsChatbotOpen(!isChatbotOpen)}
@@ -1286,7 +1292,7 @@ const App = () => {
 
             {/* Janela do Chatbot */}
             {isChatbotOpen && (
-                <div className={`fixed bottom-24 left-6 w-80 h-96 bg-white dark:bg-gray-800 rounded-lg shadow-2xl z-50 flex flex-col transition-all duration-300 transform ${isChatbotOpen ? 'scale-100 opacity-100' : 'scale-0 opacity-0'}`}>
+                <div className={`fixed bottom-80 left-6 w-80 h-96 bg-white dark:bg-gray-800 rounded-lg shadow-2xl z-60 flex flex-col transition-all duration-300 transform ${isChatbotOpen ? 'scale-100 opacity-100' : 'scale-0 opacity-0'}`}>
                     <div className={`bg-${currentTheme.primary}-600 text-white p-3 rounded-t-lg flex justify-between items-center`}>
                         <h3 className="font-bold">Chat AELO</h3>
                         <button onClick={() => setIsChatbotOpen(false)} className={`p-1 rounded-full hover:bg-${currentTheme.primary}-700 transition-colors`}>
@@ -1358,7 +1364,7 @@ const App = () => {
             {showSendAudioModal && <SendAudioModal onClose={() => setShowSendAudioModal(false)} navigateTo={navigateTo} />}
 
             {/* Conteúdo Principal */}
-            <main className="p-4 md:p-8 flex-grow">
+            <main className="p-4 md:p-8 flex-grow pb-28"> {/* Adicionado pb-28 para dar espaço aos botões flutuantes */}
                 <div key={activePage} className={`relative z-10 transition-opacity duration-300 ease-in-out ${contentVisible ? 'opacity-100' : 'opacity-0'}`}>
                     {activePage === 'home' && (
                         <div className={`p-8 rounded-xl shadow-xl max-w-4xl mx-auto mt-8 text-center animate-fade-in ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>

@@ -34,7 +34,8 @@ const SendAudioModal = ({ onClose, navigateTo }) => {
     const handleWhatsAppClick = () => {
         // Verifica se nome e sobrenome foram preenchidos antes de abrir o WhatsApp
         if (!firstName || !lastName) {
-            alert('Por favor, preencha seu nome e sobrenome antes de prosseguir.');
+            // Substituído alert por console.log para evitar bloqueio em iframes
+            console.log('Por favor, preencha seu nome e sobrenome antes de prosseguir.');
             return;
         }
         let message = `Olá, AELO! Meu nome é ${firstName} ${lastName}. Gostaria de enviar um áudio para a categoria "${selectedCategory}". Já realizei o pagamento e estou pronto(a) para gravar e enviar o áudio.`;
@@ -49,12 +50,13 @@ const SendAudioModal = ({ onClose, navigateTo }) => {
         const file = event.target.files[0];
         if (file) {
             setPaymentProofFile(file);
-            alert(`Comprovante "${file.name}" anexado!`);
+            // Substituído alert por console.log para evitar bloqueio em iframes
+            console.log(`Comprovante "${file.name}" anexado!`);
         }
     };
 
     return (
-        <div className="fixed inset-0 bg-black bg-opacity-70 flex items-center justify-center z-[100]">
+        <div className="fixed inset-0 bg-gray-900/70 flex items-center justify-center z-[100]">
             <div className="bg-white dark:bg-gray-800 p-6 rounded-lg shadow-2xl w-11/12 max-w-md max-h-[90vh] overflow-y-auto relative">
                 <button onClick={onClose} className="absolute top-3 right-3 p-2 rounded-full bg-gray-200 dark:bg-gray-700 hover:bg-gray-300 dark:hover:bg-gray-600 transition-colors">
                     <X size={20} />
@@ -98,7 +100,8 @@ const SendAudioModal = ({ onClose, navigateTo }) => {
                                 tempInput.select();
                                 document.execCommand('copy');
                                 document.body.removeChild(tempInput);
-                                alert('Chave Pix copiada!');
+                                // Substituído alert por console.log para evitar bloqueio em iframes
+                                console.log('Chave Pix copiada!');
                             }} className="mt-2 px-4 py-2 bg-purple-600 text-white rounded-full hover:bg-purple-700 transition-colors flex items-center justify-center gap-1 mx-auto">
                                 <Copy size={16} /> Copiar Chave Pix (CNPJ)
                             </button>
@@ -481,6 +484,7 @@ const App = () => {
     const generateAndPlayAudio = async (prompt, setAudioUrl, setIsLoading) => {
         setIsLoading(true);
         setAudioUrl('');
+        console.log("Iniciando geração de áudio para:", prompt);
 
         try {
             const payload = {
@@ -500,6 +504,7 @@ const App = () => {
             const apiKey = ""; // Sua chave de API real aqui
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
 
+            console.log("Enviando payload para a API:", payload);
             const response = await fetch(apiUrl, {
                 method: 'POST',
                 headers: { 'Content-Type': 'application/json' },
@@ -512,17 +517,28 @@ const App = () => {
             }
 
             const result = await response.json();
+            console.log("Resposta da API recebida:", result);
+
             const part = result?.candidates?.[0]?.content?.parts?.[0];
             const audioData = part?.inlineData?.data;
             const mimeType = part?.inlineData?.mimeType;
 
+            console.log("Dados de áudio:", { audioData: audioData ? "presente" : "ausente", mimeType });
+
             if (audioData && mimeType && mimeType.startsWith("audio/")) {
-                const sampleRate = parseInt(mimeType.match(/rate=(\d+)/)[1], 10);
+                const sampleRateMatch = mimeType.match(/rate=(\d+)/);
+                if (!sampleRateMatch) {
+                    throw new Error("MimeType não contém sample rate.");
+                }
+                const sampleRate = parseInt(sampleRateMatch[1], 10);
+                console.log("Sample Rate detectado:", sampleRate);
+
                 const pcmData = base64ToArrayBuffer(audioData);
                 const pcm16 = new Int16Array(pcmData);
                 const wavBlob = pcmToWav(pcm16, sampleRate);
                 const url = URL.createObjectURL(wavBlob);
                 setAudioUrl(url);
+                console.log("Áudio gerado e URL criada:", url);
             } else {
                 console.error("Estrutura de resposta de áudio inválida.");
             }
@@ -530,6 +546,7 @@ const App = () => {
             console.error("Erro ao gerar áudio:", error);
         } finally {
             setIsLoading(false);
+            console.log("Geração de áudio finalizada.");
         }
     };
     
@@ -741,7 +758,7 @@ const App = () => {
                 <div className="container mx-auto">
                     <button
                         onClick={() => setIsMenuOpen(!isMenuOpen)}
-                        className="absolute top-6 left-6 p-2 rounded-full bg-white bg-opacity-20 hover:bg-opacity-30 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white"
+                        className="absolute top-6 left-6 p-2 rounded-full bg-purple-600 text-white z-50 hover:bg-purple-700 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white"
                         aria-label={isMenuOpen ? "Fechar menu de navegação" : "Abrir menu de navegação"}
                     >
                         {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
@@ -759,7 +776,7 @@ const App = () => {
             {/* Overlay para fechar o menu ao clicar fora */}
             {isMenuOpen && (
                 <div
-                    className="fixed inset-0 bg-black bg-opacity-50 z-40 transition-opacity duration-300"
+                    className="fixed inset-0 bg-black/50 z-40 transition-opacity duration-300"
                     onClick={() => setIsMenuOpen(false)}
                     aria-hidden="true"
                 ></div>
@@ -793,6 +810,7 @@ const App = () => {
                     <button onClick={() => navigateTo('temporadas')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'temporadas' ? 'bg-purple-600 text-white shadow-md' : 'dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-purple-800 bg-gray-100 text-gray-800 hover:bg-purple-100'}`}><CalendarDays size={20} /> Temporadas</button>
                     <button onClick={() => navigateTo('precos')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'precos' ? 'bg-purple-600 text-white shadow-md' : 'dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-purple-800 bg-gray-100 text-gray-800 hover:bg-purple-100'}`}><DollarSign size={20} /> Preços</button>
                     <button onClick={() => navigateTo('como-enviar')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'como-enviar' ? 'bg-purple-600 text-white shadow-md' : 'dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-purple-800 bg-gray-100 text-gray-800 hover:bg-purple-100'}`}><Send size={20} /> Como Enviar Áudios</button>
+                    {/* Alterado para navegar para a página "Trabalhe Conosco" */}
                     <button onClick={() => navigateTo('trabalhe-conosco')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'trabalhe-conosco' ? 'bg-blue-600 text-white shadow-md animate-pulse' : 'dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-blue-800 bg-gray-100 text-gray-800 hover:bg-blue-100'}`}><BriefcaseBusiness size={20} /> Trabalhe Conosco</button>
                     <button onClick={() => navigateTo('faq')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'faq' ? 'bg-purple-600 text-white shadow-md' : 'dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-purple-800 bg-gray-100 text-gray-800 hover:bg-purple-100'}`}><Info size={20} /> FAQ</button>
                     <button onClick={() => navigateTo('termos-condicoes')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'termos-condicoes' ? 'bg-purple-600 text-white shadow-md' : 'dark:bg-gray-700 dark:text-gray-100 dark:hover:bg-purple-800 bg-gray-100 text-gray-800 hover:bg-purple-100'}`}><FileText size={20} /> Termos</button>
@@ -911,7 +929,7 @@ const App = () => {
 
             {/* Conteúdo Principal */}
             <main className="p-4 md:p-8 flex-grow">
-                <div key={activePage} className={`transition-opacity duration-300 ease-in-out ${contentVisible ? 'opacity-100' : 'opacity-0'}`}>
+                <div key={activePage} className={`relative z-10 transition-opacity duration-300 ease-in-out ${contentVisible ? 'opacity-100' : 'opacity-0'}`}>
                     {activePage === 'home' && (
                         <div className={`p-8 rounded-xl shadow-xl max-w-4xl mx-auto mt-8 text-center animate-fade-in ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
                             <h2 className="text-4xl font-extrabold mb-4 flex items-center justify-center gap-3">Bem-vindo(a) à AELO!</h2>
@@ -1219,7 +1237,7 @@ const App = () => {
                                 <p className="mt-4 leading-relaxed flex items-center gap-2">Nossa equipe verificará a solicitação e, se confirmado, faremos a entrega de um brinde surpresa e exclusivo para a pessoa dona da voz! Uma emoção em dobro! <Award size={20} className="text-amber-600"/></p>
                             </div>
                             <div className={`p-6 rounded-lg shadow-md mb-6 transform hover:scale-[1.01] transition-transform duration-200 animate-fade-in-up delay-100 ${isDarkMode ? 'bg-gray-700 border-purple-600 border' : 'bg-purple-50 border-purple-200 border'}`}>
-                                <h3 className="2xl font-semibold text-purple-600 mb-3 flex items-center gap-2"><DollarSign size={24} /> Ticket de até R$1000: Sua Voz Vale Ouro!</h3>
+                                <h3 className="text-2xl font-semibold text-purple-600 mb-3 flex items-center gap-2"><DollarSign size={24} /> Ticket de até R$1000: Sua Voz Vale Ouro!</h3>
                                 <p className="leading-relaxed">Ao enviar qualquer áudio para veiculação com a AELO - Sua Voz em Movimento (seja AELO+ Cliente, Negócio ou Informações Públicas), você automaticamente participa de uma dinâmica especial que pode te garantir um ticket valioso de até R$1000,00!</p>
                                 <p className="mt-4 leading-relaxed flex items-center gap-2">Sua voz não só emociona ou divulga, mas também pode te render um grande prêmio. É a AELO - Sua Voz em Movimento recompensando sua confiança e criatividade! <Trophy size={20} className="text-purple-600"/></p>
                             </div>
@@ -1365,15 +1383,15 @@ const App = () => {
                                     <h3 className="text-xl font-semibold text-purple-600 mb-4 flex items-center justify-center gap-2">
                                         <Volume2 size={24} /> Exemplo de Qualidade de Áudio AELO
                                     </h3>
-                                    {clientAudioUrl ? (
-                                        <audio controls src={clientAudioUrl} className="w-full"></audio>
+                                    {sampleAudioUrl ? (
+                                        <audio controls src={sampleAudioUrl} className="w-full"></audio>
                                     ) : (
                                         <button
-                                            onClick={() => generateAndPlayAudio("Este é um exemplo da qualidade de áudio que a AELO oferece. Sua voz, clara e profissional, ecoando pelas ruas da cidade. Sua voz em movimento.", setClientAudioUrl, setIsClientAudioLoading)}
+                                            onClick={() => generateAndPlayAudio("Este é um exemplo da qualidade de áudio que a AELO oferece. Sua voz, clara e profissional, ecoando pelas ruas da cidade. Sua voz em movimento.", setSampleAudioUrl, setIsSampleAudioLoading)}
                                             className="inline-flex items-center justify-center gap-3 px-6 py-3 bg-purple-600 text-white font-bold rounded-full shadow-lg hover:bg-purple-700 transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed"
-                                            disabled={isClientAudioLoading}
+                                            disabled={isSampleAudioLoading}
                                         >
-                                            {isClientAudioLoading ? (
+                                            {isSampleAudioLoading ? (
                                                 <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
                                                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
                                                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
@@ -1381,7 +1399,7 @@ const App = () => {
                                             ) : (
                                                 <PlayCircle size={22} />
                                             )}
-                                            {isClientAudioLoading ? "Gerando..." : "Gerar e Ouvir Exemplo"}
+                                            {isSampleAudioLoading ? "Gerando..." : "Gerar e Ouvir Exemplo"}
                                         </button>
                                     )}
                                     <p className="mt-2 text-sm text-gray-600 dark:text-gray-300">
@@ -1398,7 +1416,7 @@ const App = () => {
                                 Trabalhe com a AELO: Sua Oportunidade de Crescer! <BriefcaseBusiness size={32} />
                             </h2>
                             <p className="text-lg mb-6 leading-relaxed text-center">
-                                Quer fazer parte de uma equipe inovadora, contribuir para a comunicação da sua cidade e ainda ter a chance de **ganhar acima de R$ 10.000 por mês** veiculando áudios? A AELO - Sua Voz em Movimento está buscando talentos!
+                                Quer fazer parte de uma equipe inovadora, contribuir para a comunicação da sua cidade e ainda ter a chance de ganhar acima de R$ 10.000 por mês veiculando áudios? A AELO - Sua Voz em Movimento está buscando talentos!
                             </p>
 
                             <div className={`p-6 rounded-lg shadow-md mb-6 transform hover:scale-[1.01] transition-transform duration-200 animate-fade-in-up ${isDarkMode ? 'bg-gray-700 border-blue-600 border' : 'bg-blue-50 border-blue-200 border'}`}>
@@ -1406,7 +1424,7 @@ const App = () => {
                                     <DollarSign size={24} /> Potencial de Ganhos Elevado
                                 </h3>
                                 <p className="leading-relaxed">
-                                    Na AELO, valorizamos o seu esforço e dedicação. Com um bom desempenho na veiculação de áudios, você tem a oportunidade de alcançar rendimentos **superiores a R$ 10.000 por mês!** Quanto mais você pedala e mais mensagens veicula, maiores são seus ganhos.
+                                    Na AELO, valorizamos o seu esforço e dedicação. Com um bom desempenho na veiculação de áudios, você tem a oportunidade de alcançar rendimentos superiores a R$ 10.000 por mês! Quanto mais você pedala e mais mensagens veicula, maiores são seus ganhos.
                                 </p>
                                 <p className="mt-4 text-sm text-gray-700 dark:text-gray-300">
                                     *Os ganhos são baseados na produtividade e na quantidade de áudios veiculados. Detalhes sobre o modelo de remuneração serão apresentados na entrevista.
@@ -1419,11 +1437,11 @@ const App = () => {
                                 </h3>
                                 <p className="leading-relaxed">Para fazer parte da nossa equipe de ciclistas, os seguintes itens são essenciais:</p>
                                 <ul className="list-disc list-inside space-y-2 mt-2">
-                                    <li><Bike size={20} className="inline-block mr-2 text-blue-500" /> **Bicicleta:** Em boas condições, para garantir a mobilidade e segurança.</li>
-                                    <li><Volume2 size={20} className="inline-block mr-2 text-blue-500" /> **Caixa de Som Portátil:** Um equipamento de qualidade para veiculação clara dos áudios.</li>
-                                    <li><Users size={20} className="inline-block mr-2 text-blue-500" /> **EPIs (Equipamentos de Proteção Individual):** Capacete, joelheiras, cotoveleiras e colete refletivo para sua segurança no trânsito.</li>
-                                    <li><FileText size={20} className="inline-block mr-2 text-blue-500" /> **Relatório Médico Positivo:** Um atestado de saúde que comprove sua aptidão para a atividade física.</li>
-                                    <li><BriefcaseBusiness size={20} className="inline-block mr-2 text-blue-500" /> **CNPJ Ativo:** Para formalizar sua parceria e garantir todos os benefícios.</li>
+                                    <li><Bike size={20} className="inline-block mr-2 text-blue-500" /> Bicicleta: Em boas condições, para garantir a mobilidade e segurança.</li>
+                                    <li><Volume2 size={20} className="inline-block mr-2 text-blue-500" /> Caixa de Som Portátil: Um equipamento de qualidade para veiculação clara dos áudios.</li>
+                                    <li><Users size={20} className="inline-block mr-2 text-blue-500" /> EPIs (Equipamentos de Proteção Individual): Capacete, joelheiras, cotoveleiras e colete refletivo para sua segurança no trânsito.</li>
+                                    <li><FileText size={20} className="inline-block mr-2 text-blue-500" /> Relatório Médico Positivo: Um atestado de saúde que comprove sua aptidão para a atividade física.</li>
+                                    <li><BriefcaseBusiness size={20} className="inline-block mr-2 text-blue-500" /> CNPJ Ativo: Para formalizar sua parceria e garantir todos os benefícios.</li>
                                 </ul>
                             </div>
 
@@ -1435,10 +1453,13 @@ const App = () => {
                                     Se você se encaixa no perfil e está pronto para pedalar rumo ao sucesso, entre em contato!
                                 </p>
                                 <button
-                                    onClick={() => navigateTo('contato')}
+                                    onClick={() => {
+                                        const whatsappLink = `https://wa.me/5514981150675?text=${encodeURIComponent('Olá, AELO! Tenho interesse em ser um ciclista PJ da AELO.')}`;
+                                        window.open(whatsappLink, '_blank');
+                                    }}
                                     className="inline-flex items-center justify-center px-6 py-3 bg-blue-600 text-white font-bold rounded-full shadow-lg hover:bg-blue-700 transform hover:scale-105 transition-all duration-300 gap-2"
                                 >
-                                    <Mail size={20} /> Enviar Mensagem
+                                    <Mail size={20} /> Enviar Mensagem via WhatsApp
                                 </button>
                             </div>
                         </div>
@@ -1585,22 +1606,13 @@ const App = () => {
                 </div>
             </main>
 
-            {/* Rodapé aprimorado com colunas */}
-            <footer className="bg-gradient-to-r from-purple-800 to-orange-700 text-white text-center p-6 mt-auto rounded-t-xl shadow-inner">
-                <div className="container mx-auto flex flex-col items-center justify-center p-4 md:p-6">
-                    <p className="text-2xl font-bold mb-2">AELO - Sua Voz em Movimento</p>
-                    <div className="grid grid-cols-1 md:grid-cols-2 gap-4 md:gap-8 w-full max-w-2xl text-sm mb-4">
-                        <div className="text-center md:text-left">
-                            <p>Fundador: Arthur Hocc D'Mello</p>
-                            <p>Cidade de Atuação: Bauru, SP</p>
-                        </div>
-                        <div className="text-center md:text-right">
-                            <p>Siga-nos no Instagram:</p>
-                            <p><a href="https://www.instagram.com/aelovoz" target="_blank" rel="noopener noreferrer" className="text-white hover:underline font-semibold">@Aelovoz</a></p>
-                        </div>
-                    </div>
-                    <p className="text-xs md:text-sm mt-4">&copy; {currentYear} Todos os direitos reservados.</p>
-                    <Bike size={24} className="text-white transform transition-transform duration-300 hover:rotate-[360deg] mt-2" />
+            {/* Rodapé aprimorado */}
+            <footer className="bg-gradient-to-r from-purple-800 to-orange-700 text-white text-center p-4 mt-auto rounded-t-xl shadow-inner">
+                <div className="container mx-auto flex flex-col items-center justify-center">
+                    <p className="text-lg font-bold mb-1">AELO - Sua Voz em Movimento</p>
+                    <p className="text-sm">Bauru, SP</p>
+                    <p className="text-xs mt-2">&copy; {currentYear} Todos os direitos reservados.</p>
+                    <Bike size={20} className="text-white transform transition-transform duration-300 hover:rotate-[360deg] mt-2" />
                 </div>
             </footer>
         </div>

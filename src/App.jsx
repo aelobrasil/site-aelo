@@ -401,7 +401,7 @@ const App = () => {
             const prompt = `Gere uma mensagem de confirmação para o envio de um formulário de contato. Use um tone amigável e profissional. Mencione que a AELO - Sua Voz em Movimento recebeu a mensagem de ${formName} e irá responder em breve.`;
             const chatHistory = [{ role: "user", parts: [{ text: prompt }] }];
             const payload = { contents: chatHistory };
-            const apiKey = ""; // Sua chave de API real aqui
+            const apiKey = "AIzaSyA6ir2KbF8dcMBrTGw1tqXO598Qdpv96pQ"; // Sua nova chave de API
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
 
             // Chama a API com tratamento de erros e retentativa
@@ -501,7 +501,7 @@ const App = () => {
                 },
                 model: "gemini-2.5-flash-preview-tts"
             };
-            const apiKey = ""; // Sua chave de API real aqui
+            const apiKey = "AIzaSyA6ir2KbF8dcMBrTGw1tqXO598Qdpv96pQ"; // Sua nova chave de API
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
 
             console.log("Enviando payload para a API:", payload);
@@ -723,7 +723,7 @@ const App = () => {
                 { role: "user", parts: [{ text: aeloKnowledgeBase + "\n\nPergunta do usuário: " + query }] }
             ];
             const payload = { contents: chatHistory };
-            const apiKey = ""; // Sua chave de API real aqui
+            const apiKey = "AIzaSyA6ir2KbF8dcMBrTGw1tqXO598Qdpv96pQ"; // Sua nova chave de API
             const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
 
             const response = await fetch(apiUrl, {

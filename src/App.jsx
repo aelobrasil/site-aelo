@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef } from 'react';
 
 // Importa ícones do Lucide React
-import { Home, Mic, Briefcase, Users, Lightbulb, Trophy, DollarSign, Bike, MessageSquare, CheckCircle, Heart, Leaf, Star, Info, MapPin, Award, RefreshCcw, CalendarDays, Volume2, Search, Gift, Send, Copy, FileText, Mail, Phone, Menu, X, Quote, ChevronLeft, ChevronRight, Scale, Upload, BriefcaseBusiness, Calculator, Rss, ListTodo, Sparkles, TrendingUp, Handshake, Globe, PlayCircle, Instagram, Gamepad2, Zap } from 'lucide-react';
+import { Home, Mic, Briefcase, Users, Lightbulb, Trophy, DollarSign, Bike, MessageSquare, CheckCircle, Heart, Leaf, Star, Info, MapPin, Award, RefreshCcw, CalendarDays, Volume2, Search, Gift, Send, Copy, FileText, Mail, Phone, Menu, X, Quote, ChevronLeft, ChevronRight, Scale, Upload, BriefcaseBusiness, Calculator, Rss, ListTodo, Sparkles, TrendingUp, Handshake, Globe, PlayCircle, Instagram, Gamepad2, Cloud, Wind } from 'lucide-react';
 
 // Modal para o fluxo de envio de áudio
 const SendAudioModal = ({ onClose, navigateTo }) => {
@@ -105,6 +105,8 @@ const SendAudioModal = ({ onClose, navigateTo }) => {
                         <div className={`mb-4 p-3 rounded-lg bg-[#E0E7F0]`}>
                             <p className="font-semibold">Tempo de Áudio Recomendado para "{selectedCategory}":</p>
                             <p className={`text-lg font-bold text-[#034078]`}>{audioDurations[selectedCategory]}</p>
+                            <p className="font-semibold mt-2">Preço:</p>
+                            <p className={`text-lg font-bold text-green-600`}>{prices[selectedCategory]}</p>
                         </div>
 
                         <div className={`mb-4 p-3 rounded-lg text-center bg-[#E0E7F0] border border-[#034078]`}>
@@ -600,9 +602,10 @@ const App = () => {
                     </button>
                     <div className="flex-grow text-center">
                         <div className="flex items-center justify-center mb-1 animate-fade-in-down drop-shadow-lg">
-                            {/* Novo Logotipo AELO */}
-                            <div className="flex items-center justify-center w-14 h-14 rounded-full bg-[#1282A2] text-white shadow-lg mr-3">
-                                <Zap size={32} strokeWidth={2.5} />
+                            {/* Novo Logotipo AELO: Nuvem com Vento */}
+                            <div className="flex items-center justify-center w-14 h-14 rounded-full bg-[#1282A2] text-white shadow-lg mr-3 relative">
+                                <Cloud size={32} strokeWidth={2.5} className="absolute" />
+                                <Wind size={20} strokeWidth={2.5} className="absolute right-2 bottom-2 transform rotate-45" />
                             </div>
                             <h1 className="text-5xl md:text-6xl font-extrabold text-white">
                                 AELO

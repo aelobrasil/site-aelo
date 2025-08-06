@@ -1,7 +1,7 @@
 import React, { useState, useEffect, useRef, createContext, useContext } from 'react';
 
 // Importa ícones do Lucide React
-import { Home, Mic, Briefcase, Users, Lightbulb, Trophy, DollarSign, Bike, MessageSquare, CheckCircle, Heart, Leaf, Star, Info, MapPin, Award, RefreshCcw, CalendarDays, Volume2, Search, Gift, Send, Copy, FileText, Mail, Phone, Menu, X, Quote, ChevronLeft, ChevronRight, Moon, Sun, ChevronDown, Scale, MessageCircle, Upload, BriefcaseBusiness, Palette, Calculator, Rss, ListTodo, Sparkles, TrendingUp, Handshake, Globe, PlayCircle } from 'lucide-react';
+import { Home, Mic, Briefcase, Users, Lightbulb, Trophy, DollarSign, Bike, MessageSquare, CheckCircle, Heart, Leaf, Star, Info, MapPin, Award, RefreshCcw, CalendarDays, Volume2, Search, Gift, Send, Copy, FileText, Mail, Phone, Menu, X, Quote, ChevronLeft, ChevronRight, Moon, Sun, ChevronDown, Scale, Upload, BriefcaseBusiness, Palette, Calculator, Rss, ListTodo, Sparkles, TrendingUp, Handshake, Globe, PlayCircle, Instagram } from 'lucide-react'; // Adicionado Instagram
 
 // --- Contexto de Tema ---
 // Define as paletas de cores
@@ -469,8 +469,6 @@ const App = () => {
     const [pixCopiedMessage, setPixCopiedMessage] = useState('');
     // Estado para controlar a visibilidade do menu lateral
     const [isMenuOpen, setIsMenuOpen] = useState(false);
-    // Estado para o sintetizador de áudio (Tone.js)
-    const synth = useRef(null);
     // Estado para o carrossel de depoimentos
     const [currentTestimonialIndex, setCurrentTestimonialIndex] = useState(0);
 
@@ -480,14 +478,6 @@ const App = () => {
     const [formMessage, setFormMessage] = useState('');
     const [formStatus, setFormStatus] = useState('');
     const [isSubmitting, setIsSubmitting] = useState(false);
-
-    // Estado para controlar a visibilidade do chatbot
-    const [isChatbotOpen, setIsChatbotOpen] = useState(false);
-    // Estados para o chat do chatbot
-    const [chatMessages, setChatMessages] = useState([]);
-    const [currentInput, setCurrentInput] = useState(''); // Alterado para useState
-    const chatContainerRef = useRef(null); // Ref para scroll automático
-    const [isChatbotTyping, setIsChatbotTyping] = useState(false); // Estado para indicar que o bot está digitando
 
     // Estado para controlar a visibilidade do modal de envio de áudio
     const [showSendAudioModal, setShowSendAudioModal] = useState(false);
@@ -502,17 +492,6 @@ const App = () => {
     const [finalCost, setFinalCost] = useState(0);
     const [savings, setSavings] = useState(0);
     const [effectiveDailyCost, setEffectiveDailyCost] = useState(0);
-
-    // Dados para os áudios de cada categoria
-    const [clientAudioUrl, setClientAudioUrl] = useState('');
-    const [isClientAudioLoading, setIsClientAudioLoading] = useState(false);
-    const [businessAudioUrl, setBusinessAudioUrl] = useState('');
-    const [isBusinessAudioLoading, setIsBusinessAudioLoading] = useState(false);
-    const [publicAudioUrl, setPublicAudioUrl] = useState('');
-    const [isPublicAudioLoading, setIsPublicAudioLoading] = useState(false);
-    const [sampleAudioUrl, setSampleAudioUrl] = useState('');
-    const [isSampleAudioLoading, setIsSampleAudioLoading] = useState(false);
-
 
     // Função para formatar moeda
     const formatCurrency = (value) => {
@@ -596,37 +575,6 @@ const App = () => {
         }
     }, [selectedPlan, selectedDuration]);
     // --- Fim Estados para o Simulador de Assinatura ---
-
-    // Inicializa o Tone.js de forma segura no lado do cliente
-    useEffect(() => {
-        // Verifica se Tone.js está disponível globalmente
-        if (window.Tone) {
-            synth.current = new window.Tone.Synth().toDestination();
-        } else {
-            console.warn("Tone.js não encontrado. Certifique-se de que o script está carregado em index.html.");
-        }
-    }, []);
-
-    // Função para tocar o som misterioso
-    const playMysterySound = () => {
-        if (synth.current && window.Tone.context.state !== 'running') {
-            window.Tone.start().then(() => {
-                console.log("Tone.js context started.");
-                const now = window.Tone.now();
-                synth.current.triggerAttackRelease("C#3", "8n", now);
-                synth.current.triggerAttackRelease("G3", "8n", now + 0.3);
-                synth.current.triggerAttackRelease("E4", "16n", now + 0.6);
-            }).catch(e => console.error("Erro ao iniciar Tone.js context:", e));
-        } else if (synth.current) {
-            console.log("Tone.js context já está rodando.");
-            const now = window.Tone.now();
-            synth.current.triggerAttackRelease("C#3", "8n", now);
-            synth.current.triggerAttackRelease("G3", "8n", now + 0.3);
-            synth.current.triggerAttackRelease("E4", "16n", now + 0.6);
-        } else {
-            console.error("Sintetizador Tone.js não inicializado.");
-        }
-    };
 
     // Dados para o blog (placeholders)
     const blogPosts = [
@@ -736,32 +684,6 @@ const App = () => {
         }
     ];
 
-    // Opções iniciais do chatbot
-    const chatbotInitialOptions = [
-        { text: "Sobre a AELO", query: "O que é a AELO?" },
-        { text: "Preços", query: "Quais são os preços dos planos?" },
-        { text: "Termos e Condições", query: "Quais são os termos de uso?" },
-        { text: "Dinâmicas", query: "Quais dinâmicas a AELO oferece?" },
-        { text: "Falar com Humano", query: "Preciso falar com um atendente." }
-    ];
-
-    // Efeito para a mensagem inicial e opções do chatbot
-    useEffect(() => {
-        if (isChatbotOpen && chatMessages.length === 0) {
-            setChatMessages([
-                { sender: 'bot', text: 'Olá, sou Olea, a assistente virtual da AELO - Sua Voz em Movimento. Como posso te ajudar hoje? Escolha uma opção ou digite sua pergunta:' },
-                { sender: 'options', options: chatbotInitialOptions }
-            ]);
-        }
-    }, [isChatbotOpen, chatMessages.length]);
-
-    // Scroll para o final do chat quando novas mensagens chegam
-    useEffect(() => {
-        if (chatContainerRef.current) {
-            chatContainerRef.current.scrollTop = chatContainerRef.current.scrollHeight;
-        }
-    }, [chatMessages]);
-
     // Dados para o FAQ (mantidos)
     const faqData = [
         {
@@ -808,302 +730,6 @@ const App = () => {
 
     // Define o ano atual para o rodapé
     const currentYear = new Date().getFullYear();
-
-    // Base de conhecimento detalhada para o chatbot Olea
-    const aeloKnowledgeBase = `
-        Você é Olea, a assistente virtual da AELO - Sua Voz em Movimento.
-        Sua missão é fornecer informações precisas e relevantes sobre a AELO - Sua Voz em Movimento e seus serviços, planos, processos, termos e dinâmicas.
-        O site oficial da AELO - Sua Voz em Movimento é https://aelo.vercel.app/.
-        O dono da empresa é Arthur Hocc D'Mello.
-        A AELO - Sua Voz em Movimento promove a publicidade local de forma sustentável e eficaz, conectando empresas, informações públicas e a comunidade através de uma plataforma de mobilidade urbana ecologicamente correta, utilizando ciclistas equipados com sistemas de som.
-        Mercado de Atuação: Bauru e cidades vizinhas, com foco em publicidade local e desenvolvimento de comunidades.
-
-        Serviços e Planos de Veiculação:
-        1. AELO+ Cliente: Sua Mensagem Pessoal
-           - Preço: R$ 6,00 por áudio.
-           - Duração Ideal: 15 a 20 segundos.
-           - Reprodução: O dia inteiro.
-           - Ideal para: Mensagens pessoais e emocionantes (amor, aniversário, apoio, pedidos de desculpas, celebração de conquistas).
-
-        2. AELO Negócio: Publicidade com Alma
-           - Em Fila:
-             - Preço: R$ 29,90 o dia todo.
-             - Duração Ideal: 30 segundos a 1 minuto.
-             - Reprodução: Áudio reproduzido em sequência com outros.
-           - Particular:
-             - Preço: R$ 69,90 o dia todo.
-             - Duração Ideal: 30 segundos a 1 minuto.
-             - Reprodução: Apenas o áudio da sua empresa será reproduzido, proporcionando exclusividade.
-           - Ideal para: Anunciar promoções, inaugurações, eventos, lançamento de produtos.
-
-        3. AELO Informações Públicas: Voz para o Bem
-           - Preço: R$ 49,90 por áudio.
-           - Duração Ideal: 30 segundos a 1 minuto e 30 segundos.
-           - Reprodução: O dia todo, com sua mensagem em destaque.
-           - Ideal para: Amplificar causas sociais, avisos comunitários, campanhas de conscientização, eventos beneficentes.
-
-        Processo de Solicitação e Veiculação do Áudio:
-        1. Grave Seu Áudio com Qualidade e Duração Ideal: Use celular/computador.
-           - AELO+ Cliente: 15 a 20 segundos.
-           - AELO Negócio: 30 segundos a 1 minuto.
-           - AELO Informações Públicas: 30 segundos a 1 minuto e 30 segundos.
-        2. Envie o Áudio para a AELO - Sua Voz em Movimento: Via WhatsApp ou Direct do Instagram @Aelovoz. Para uma experiência mais fluida, o envio do áudio pode ser feito diretamente pelo WhatsApp da AELO - Sua Voz em Movimento.
-        3. Forneça os Detalhes da Veiculação: Informe categoria, data, horário preferencial, endereço aproximado (se específico).
-        4. Confirmação e Pagamento: Nossa equipe fará a moderação do áudio. Após aprovação e pagamento (via Pix), seu áudio estará pronto.
-        Chave Pix (CNPJ): 60.676.425/0001-47 (Titular: A A S Fernandes).
-
-        Termos e Condições de Uso:
-        - Moderação de Conteúdo: Todos os áudios são moderados para clareza, objetividade, respeito e adequação.
-          - Conteúdos Estritamente Proibidos: Má-fé, difamação, calúnia, discriminação (racial, de gênero, religiosa, sexual), discurso de ódio, incitação à violência, conteúdo sexualmente explícito/obsceno, informações falsas/enganosas, violação de direitos autorais/propriedade intelectual, ou qualquer conteúdo ilegal/que promova atividades ilícitas.
-          - A AELO - Sua Voz em Movimento se reserva o direito de recusar a veiculação de qualquer áudio que não esteja em conformidade com estas diretrizes.
-        - Política de Reembolso: Não há reembolso caso o cliente desista da veiculação após 30 minutos da confirmação do pagamento, mesmo que o áudio não infrinja regras.
-        - Responsabilidade do Usuário: O usuário é único responsável pelo conteúdo do áudio enviado.
-
-        Dinâmicas AELO - Sua Voz em Movimento:
-        - Achou um Áudio Conhecido? Surpreenda-se!: Grave vídeo do ciclista veiculando o áudio, marque @Aelovoz no Instagram, envie direct com nome do dono da voz e endereço. Recompensa: Brinde surpresa.
-        - Ticket de até R$1000: Sua Voz Vale Ouro!: Ao enviar qualquer áudio, participa de dinâmica para ganhar ticket de até R$1000,00.
-        - O Áudio Misterioso: Desvende o Enigma!: Periodicamente, veiculamos "Áudio Misterioso". Ouça, desvende o enigma e envie resposta para prêmios.
-        - Caça ao Tesouro Sonora: Aventura Urbana!: Em dias específicos, ciclistas veiculam pistas em áudio para encontrar tesouro.
-
-        Contato e Suporte:
-        - E-mail: Aelobrasil@gmail.com
-        - WhatsApp: (14) 98115-0675
-        - Instagram: @Aelovoz
-
-        Instruções de Resposta para Olea:
-        1. Responda de forma linear e conversacional.
-        2. Responda APENAS com base nas informações fornecidas sobre a AELO - Sua Voz em Movimento. Seja concisa, clara e objetiva.
-        3. Se a pergunta do usuário NÃO for diretamente relacionada aos serviços, história, operações, termos ou dinâmicas da AELO, responda EXATAMENTE com a seguinte frase: "Desculpe, sou Olea, a assistente virtual da AELO, e fui programada apenas para responder perguntas sobre a AELO - Sua Voz em Movimento. Para informações diversas, por favor, fale com um de nossos atendentes através do WhatsApp (14) 98115-0675 ou e-mail Aelobrasil@gmail.com."
-    `;
-
-    // Função para enviar mensagem ao chatbot
-    const handleSendMessage = async (messageText, isOption = false) => {
-        if (messageText.trim() === '') return;
-
-        const newUserMessage = { sender: 'user', text: messageText };
-        setChatMessages(prevMessages => [...prevMessages, newUserMessage]);
-        setCurrentInput('');
-        setIsChatbotTyping(true);
-
-        // Lógica para respostas específicas de opções
-        let botResponseText = '';
-        if (isOption) {
-            switch (messageText) {
-                case "O que é a AELO?":
-                    botResponseText = "A AELO - Sua Voz em Movimento é uma empresa inovadora que oferece soluções de comunicação e logística sustentável, utilizando ciclistas equipados com sistemas de som para veicular mensagens em Bauru e cidades vizinhas. Nosso site oficial é https://aelo.vercel.app/. O dono da empresa é Arthur Hocc D'Mello.";
-                    break;
-                case "Quais são os preços dos planos?":
-                    botResponseText = "AELO+ Cliente: R$ 6,00 por áudio. AELO Negócio (Em Fila): R$ 29,90. AELO Negócio (Particular): R$ 69,90. AELO Informações Públicas: R$ 49,90. O pagamento é via Pix para o CNPJ: 60.676.425/0001-47 (Titular: A A S Fernandes).";
-                    break;
-                case "Quais são os termos de uso?":
-                    botResponseText = "Todos os áudios são moderados para garantir que sejam claros, objetivos e respeitosos. Conteúdos proibidos incluem má-fé, discriminação, discurso de ódio, conteúdo sexualmente explícito, informações falsas, e violação de direitos autorais. Não há reembolso após 30 minutos da confirmação do pagamento. O usuário é responsável pelo conteúdo enviado.";
-                    break;
-                case "Quais dinâmicas a AELO oferece?":
-                    botResponseText = "Oferecemos várias dinâmicas! 'Achou um Áudio Conhecido?' (ganhe brinde ao encontrar um áudio), 'Ticket de até R$1000' (participe ao enviar áudio), 'O Áudio Misterioso' (desvende enigmas para prêmios), e 'Caça ao Tesouro Sonora' (siga pistas em áudio pela cidade).";
-                    break;
-                case "Falar com Humano":
-                    botResponseText = "Entendido! Você pode entrar em contato diretamente com nossa equipe via WhatsApp no número (14) 98115-0675 ou por e-mail em Aelobrasil@gmail.com. Estamos prontos para ajudar!";
-                    break;
-                default:
-                    // Se não for uma opção predefinida, use a API Gemini
-                    await callGeminiAPI(messageText);
-                    return;
-            }
-            setChatMessages(prevMessages => [...prevMessages, { sender: 'bot', text: botResponseText }]);
-            setIsChatbotTyping(false);
-        } else {
-            // Se não for uma opção, chame a API Gemini
-            await callGeminiAPI(messageText); // Corrigido para usar messageText
-        }
-    };
-
-    const callGeminiAPI = async (query) => {
-        let chatHistory = [];
-        chatHistory.push({ role: "user", parts: [{ text: aeloKnowledgeBase + "\n\nPergunta do usuário: " + query }] });
-        const payload = { contents: chatHistory };
-        const apiKey = ""; // Sua chave de API
-        const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-05-20:generateContent?key=${apiKey}`;
-
-        const MAX_RETRIES = 3;
-        let retries = 0;
-        let delay = 1000; // 1 second
-
-        while (retries < MAX_RETRIES) {
-            try {
-                const response = await fetch(apiUrl, {
-                    method: 'POST',
-                    headers: { 'Content-Type': 'application/json' },
-                    body: JSON.stringify(payload)
-                });
-
-                // Clona a resposta para que possamos ler seu corpo várias vezes, se necessário
-                const clonedResponse = response.clone();
-
-                if (!response.ok) {
-                    const errorBody = await clonedResponse.text(); // Lê do clone
-                    console.error(`Erro HTTP: ${response.status} - ${errorBody}`);
-                    throw new Error(`Erro HTTP: ${response.status} - ${errorBody}`);
-                }
-
-                let result;
-                try {
-                    result = await response.json(); // Tenta analisar como JSON
-                } catch (jsonError) {
-                    const rawText = await clonedResponse.text(); // Se a análise JSON falhar, lê como texto puro
-                    console.error("Erro ao fazer parse do JSON da API:", jsonError);
-                    console.error("Resposta bruta da API:", rawText);
-                    throw new Error("Resposta da API não é um JSON válido: " + rawText.substring(0, 100) + "..."); // Trunca para o console
-                }
-
-                let botResponseText = "Desculpe, não consegui obter uma resposta no momento. Por favor, tente novamente mais tarde ou entre em contato via WhatsApp.";
-
-                // Verifica se o resultado é válido e tem a estrutura esperada
-                if (result && result.candidates && result.candidates.length > 0 &&
-                    result.candidates[0].content && result.candidates[0].content.parts &&
-                    result.candidates[0].content.parts.length > 0) {
-                    botResponseText = result.candidates[0].content.parts[0].text;
-                } else {
-                    console.warn("Resposta da API Gemini não contém o formato esperado de 'candidates'.", result);
-                    botResponseText = "Desculpe, a resposta da API não está no formato esperado. Por favor, tente novamente ou reformule sua pergunta.";
-                }
-
-                setChatMessages(prevMessages => [...prevMessages, { sender: 'bot', text: botResponseText }]);
-                break; // Sai do loop em caso de sucesso
-            } catch (error) {
-                console.error("Erro na chamada da API do chatbot (tentativa " + (retries + 1) + "):", error);
-                retries++;
-                if (retries < MAX_RETRIES) {
-                    await new Promise(res => setTimeout(res, delay));
-                    delay *= 2; // Backoff exponencial
-                } else {
-                    setChatMessages(prevMessages => [...prevMessages, { sender: 'bot', text: 'Ocorreu um erro ao processar sua solicitação após várias tentativas. Por favor, tente novamente mais tarde.' }]);
-                }
-            } finally {
-                setIsChatbotTyping(false);
-            }
-        }
-    };
-
-    // Funções auxiliares para converter PCM para WAV
-    const pcmToWav = (pcmData, sampleRate) => {
-        const numChannels = 1;
-        const bytesPerSample = 2;
-        const blockAlign = numChannels * bytesPerSample;
-        const byteRate = sampleRate * blockAlign;
-
-        const buffer = new ArrayBuffer(44 + pcmData.length * bytesPerSample);
-        const view = new DataView(buffer);
-
-        // WAV header
-        let offset = 0;
-        const writeString = (str) => {
-            for (let i = 0; i < str.length; i++) view.setUint8(offset++, str.charCodeAt(i));
-        };
-        const writeUint32 = (val) => { view.setUint32(offset, val, true); offset += 4; };
-        const writeUint16 = (val) => { view.setUint16(offset, val, true); offset += 2; };
-
-        writeString('RIFF');
-        writeUint32(36 + pcmData.length * bytesPerSample);
-        writeString('WAVE');
-        writeString('fmt ');
-        writeUint32(16);
-        writeUint16(1);
-        writeUint16(numChannels);
-        writeUint32(sampleRate);
-        writeUint32(byteRate);
-        writeUint16(blockAlign);
-        writeUint16(bytesPerSample * 8);
-        writeString('data');
-        writeUint32(pcmData.length * bytesPerSample);
-
-        // PCM data
-        for (let i = 0; i < pcmData.length; i++) {
-            view.setInt16(offset, pcmData[i], true);
-            offset += 2;
-        }
-
-        return new Blob([view], { type: 'audio/wav' });
-    };
-
-    const base64ToArrayBuffer = (base64) => {
-        const binaryString = atob(base64);
-        const len = binaryString.length;
-        const bytes = new Uint8Array(len);
-        for (let i = 0; i < len; i++) {
-            bytes[i] = binaryString.charCodeAt(i);
-        }
-        return bytes.buffer;
-    };
-
-    // Função genérica para gerar e tocar áudio de exemplo
-    const generateAndPlayAudio = async (prompt, setAudioUrl, setIsLoading) => {
-        setIsLoading(true);
-        setAudioUrl('');
-        console.log("Iniciando geração de áudio para:", prompt);
-
-        try {
-            const payload = {
-                contents: [{
-                    parts: [{ text: prompt }]
-                }],
-                generationConfig: {
-                    responseModalities: ["AUDIO"],
-                    speechConfig: {
-                        voiceConfig: {
-                            prebuiltVoiceConfig: { voiceName: "Puck" } // Usando a voz feminina "Puck"
-                        }
-                    }
-                },
-                model: "gemini-2.5-flash-preview-tts"
-            };
-            const apiKey = "";
-            const apiUrl = `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash-preview-tts:generateContent?key=${apiKey}`;
-
-            console.log("Enviando payload para a API:", payload);
-            const response = await fetch(apiUrl, {
-                method: 'POST',
-                headers: { 'Content-Type': 'application/json' },
-                body: JSON.stringify(payload)
-            });
-            
-            if (!response.ok) {
-                const errorBody = await response.text();
-                throw new Error(`Erro HTTP: ${response.status} - ${errorBody}`);
-            }
-
-            const result = await response.json();
-            console.log("Resposta da API recebida:", result);
-
-            const part = result?.candidates?.[0]?.content?.parts?.[0];
-            const audioData = part?.inlineData?.data;
-            const mimeType = part?.inlineData?.mimeType;
-
-            console.log("Dados de áudio:", { audioData: audioData ? "presente" : "ausente", mimeType });
-
-            if (audioData && mimeType && mimeType.startsWith("audio/")) {
-                const sampleRateMatch = mimeType.match(/rate=(\d+)/);
-                if (!sampleRateMatch) {
-                    throw new Error("MimeType não contém sample rate.");
-                }
-                const sampleRate = parseInt(sampleRateMatch[1], 10);
-                console.log("Sample Rate detectado:", sampleRate);
-
-                const pcmData = base64ToArrayBuffer(audioData);
-                const pcm16 = new Int16Array(pcmData);
-                const wavBlob = pcmToWav(pcm16, sampleRate);
-                const url = URL.createObjectURL(wavBlob);
-                setAudioUrl(url);
-                console.log("Áudio gerado e URL criada:", url);
-            } else {
-                console.error("Estrutura de resposta de áudio inválida ou dados ausentes.");
-            }
-        } catch (error) {
-            console.error("Erro ao gerar áudio:", error);
-        } finally {
-            setIsLoading(false);
-            console.log("Geração de áudio finalizada.");
-        }
-    };
     
     // Dados para os depoimentos (Aumentado para o carrossel)
     const testimonials = [
@@ -1288,15 +914,17 @@ const App = () => {
             
             {/* Botões Flutuantes Enfileirados e Condicionais */}
             <div className={`fixed bottom-24 left-6 z-50 flex flex-col items-start space-y-2 transition-all duration-300 ${activePage !== 'home' ? 'scale-75 opacity-70' : ''}`}>
-                {/* Floating Chatbot */}
-                <button
-                    onClick={() => setIsChatbotOpen(!isChatbotOpen)}
-                    className={`p-4 rounded-full shadow-2xl transform hover:scale-110 transition-all duration-300 ease-in-out flex items-center justify-center ${activePage !== 'home' ? 'p-2 text-sm animate-pulse' : 'p-4'} ${isDarkMode ? `bg-${currentTheme.primary}-700 text-white` : `bg-${currentTheme.primary}-500 text-white`}`}
-                    aria-label="Abrir Chatbot"
-                    title="Abrir Chatbot"
+                {/* Floating Instagram Button (substitui o chatbot) */}
+                <a
+                    href="https://www.instagram.com/aelovoz"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className={`p-4 rounded-full shadow-2xl transform hover:scale-110 transition-all duration-300 ease-in-out flex items-center justify-center ${activePage !== 'home' ? 'p-2 text-sm animate-pulse' : 'p-4'} bg-pink-600 text-white`}
+                    aria-label="Visite nosso Instagram"
+                    title="Visite nosso Instagram"
                 >
-                    <MessageCircle size={activePage !== 'home' ? 20 : 32} />
-                </button>
+                    <Instagram size={activePage !== 'home' ? 20 : 32} />
+                </a>
 
                 {/* Floating WhatsApp */}
                 <a
@@ -1322,76 +950,6 @@ const App = () => {
                 </button>
             </div>
 
-            {/* Janela do Chatbot */}
-            {isChatbotOpen && (
-                <div className={`fixed bottom-80 left-6 w-80 h-96 rounded-lg shadow-2xl z-60 flex flex-col transition-all duration-300 transform ${isChatbotOpen ? 'scale-100 opacity-100' : 'scale-0 opacity-0'} ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
-                    <div className={`p-3 rounded-t-lg flex justify-between items-center ${isDarkMode ? `bg-${currentTheme.primary}-700 text-white` : `bg-${currentTheme.primary}-600 text-white`}`}>
-                        <h3 className="font-bold">Chat AELO</h3>
-                        <button onClick={() => setIsChatbotOpen(false)} className={`p-1 rounded-full hover:bg-${currentTheme.primary}-700 transition-colors`}>
-                            <X size={20} />
-                        </button>
-                    </div>
-                    <div ref={chatContainerRef} className={`flex-grow p-4 overflow-y-auto space-y-3 ${isDarkMode ? `text-${currentTheme.darkText}` : `text-${currentTheme.text}`}`}>
-                        {chatMessages.map((msg, index) => (
-                            <div key={index}>
-                                {msg.sender === 'user' && (
-                                    <div className="flex justify-end">
-                                        <div className={`max-w-[75%] p-2 rounded-lg ${isDarkMode ? `bg-${currentTheme.primary}-600 text-white` : `bg-${currentTheme.primary}-500 text-white`}`}>
-                                            {msg.text}
-                                        </div>
-                                    </div>
-                                )}
-                                {msg.sender === 'bot' && (
-                                    <div className="flex justify-start">
-                                        <div className={`max-w-[75%] p-2 rounded-lg ${isDarkMode ? `bg-gray-700 text-gray-200` : `bg-gray-200 text-gray-800`}`}>
-                                            {msg.text}
-                                        </div>
-                                    </div>
-                                )}
-                                {msg.sender === 'options' && (
-                                    <div className="flex flex-wrap gap-2 justify-center mt-2">
-                                        {msg.options.map((option, optIndex) => (
-                                            <button
-                                                key={optIndex}
-                                                onClick={() => handleSendMessage(option.query, true)}
-                                                className={`px-3 py-1 bg-${currentTheme.primary}-600 text-white rounded-full text-sm hover:bg-${currentTheme.primary}-700 transition-colors`}
-                                            >
-                                                {option.text}
-                                            </button>
-                                        ))}
-                                    </div>
-                                )}
-                            </div>
-                        ))}
-                        {isChatbotTyping && (
-                            <div className="flex justify-start">
-                                <div className={`max-w-[75%] p-2 rounded-lg ${isDarkMode ? `bg-gray-700 text-gray-200` : `bg-gray-200 text-gray-800`}`}>
-                                    <span className="animate-pulse">Digitando...</span>
-                                </div>
-                            </div>
-                        )}
-                    </div>
-                    <div className={`p-3 border-t flex ${isDarkMode ? `border-gray-700` : `border-gray-200`}`}>
-                        <input
-                            type="text"
-                            placeholder="Digite sua mensagem..."
-                            className={`flex-grow p-2 rounded-l-lg border focus:outline-none focus:ring-2 focus:ring-${currentTheme.primary}-600 ${isDarkMode ? `bg-gray-700 border-gray-600 text-${currentTheme.darkText}` : `bg-white border-gray-300 text-${currentTheme.text}`}`}
-                            value={currentInput}
-                            onChange={(e) => setCurrentInput(e.target.value)}
-                            onKeyPress={(e) => { if (e.key === 'Enter') handleSendMessage(currentInput); }}
-                            disabled={isChatbotTyping}
-                        />
-                        <button
-                            onClick={() => handleSendMessage(currentInput)}
-                            className={`p-2 bg-${currentTheme.primary}-600 text-white rounded-r-lg hover:bg-${currentTheme.primary}-700 transition-colors disabled:opacity-50 disabled:cursor-not-allowed`}
-                            disabled={isChatbotTyping}
-                        >
-                            <Send size={20} />
-                        </button>
-                    </div>
-                </div>
-            )}
-
             {/* Modal de Envio de Áudio */}
             {showSendAudioModal && <SendAudioModal onClose={() => setShowSendAudioModal(false)} navigateTo={navigateTo} />}
 
@@ -1399,7 +957,7 @@ const App = () => {
             <main className="p-4 md:p-8 flex-grow pb-28"> {/* Adicionado pb-28 para dar espaço aos botões flutuantes */}
                 <div key={activePage} className={`relative z-10 transition-opacity duration-300 ease-in-out ${contentVisible ? 'opacity-100' : 'opacity-0'}`}>
                     {activePage === 'home' && (
-                        <div className={`p-8 rounded-xl shadow-xl max-w-4xl mx-auto mt-8 text-center animate-fade-in ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
+                        <div className={`p-8 rounded-xl shadow-xl max-w-4xl mx-auto mt-8 text-center animate-fade-in ${isDarkMode ? `bg-${currentTheme.darkBg}` : `bg-${currentTheme.lightBg}`}`}>
                             <h2 className="text-4xl font-extrabold mb-4 flex items-center justify-center gap-3">Bem-vindo(a) à AELO!</h2>
                             <p className="text-lg mb-6 leading-relaxed">Na AELO, sua voz ganha asas e pedala pela cidade, criando conexões inesquecíveis. Transformamos mensagens em experiências sonoras que ecoam pelas ruas, alcançando corações e mentes.</p>
                             <p className={`text-lg mb-8 leading-relaxed flex items-center justify-center gap-2 text-${currentTheme.accent}-500`}>
@@ -1414,7 +972,7 @@ const App = () => {
                     )}
 
                     {activePage === 'categorias' && (
-                        <div className={`p-8 rounded-xl shadow-xl max-w-4xl mx-auto mt-8 animate-fade-in ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
+                        <div className={`p-8 rounded-xl shadow-xl max-w-4xl mx-auto mt-8 animate-fade-in ${isDarkMode ? `bg-${currentTheme.darkBg}` : `bg-${currentTheme.lightBg}`}`}>
                              <h2 className="text-3xl font-bold mb-6 text-center flex items-center justify-center gap-2">Nossas Categorias de Serviço: Conecte-se de Forma Única <Users size={32} /></h2>
                              <p className="text-lg mb-6 leading-relaxed">Oferecemos soluções personalizadas para cada tipo de mensagem, garantindo que sua voz alcance o coração certo. Escolha a que mais ressoa com sua intenção:</p>
                              <div className={`category-box border p-6 rounded-lg shadow-md mb-6 transform hover:scale-[1.01] transition-transform duration-200 animate-fade-in-up ${isDarkMode ? `bg-gray-700 border-${currentTheme.primary}-600` : `bg-${currentTheme.primary}-50 border-${currentTheme.primary}-200`}`}>
@@ -1428,28 +986,6 @@ const App = () => {
                                      <li>Celebração de Conquistas: Formaturas, novos empregos, vitórias que merecem ser celebradas em alto e bom som.</li>
                                  </ul>
                                  <p className="mt-4 leading-relaxed">Como funciona: Grave seu áudio com o coração (seu celular é perfeito!), envie para a AELO e nós o veiculamos com carinho. Simples e impactante!</p>
-                                 <div className={`mt-4 p-4 rounded-lg shadow-inner text-center ${isDarkMode ? 'bg-gray-900' : 'bg-white'}`}>
-                                    <h4 className="font-semibold text-lg mb-2">Exemplo de Áudio:</h4>
-                                    {clientAudioUrl ? (
-                                        <audio controls src={clientAudioUrl} className="w-full"></audio>
-                                    ) : (
-                                        <button
-                                            onClick={() => generateAndPlayAudio("Feliz aniversário, meu amor! Que o seu dia seja tão incrível quanto você. Te amo!", setClientAudioUrl, setIsClientAudioLoading)}
-                                            className={`inline-flex items-center justify-center gap-3 px-6 py-3 bg-${currentTheme.primary}-500 text-white font-bold rounded-full shadow-lg hover:bg-${currentTheme.primary}-600 transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed`}
-                                            disabled={isClientAudioLoading}
-                                        >
-                                            {isClientAudioLoading ? (
-                                                <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                                </svg>
-                                            ) : (
-                                                <PlayCircle size={22} />
-                                            )}
-                                            {isClientAudioLoading ? "Gerando..." : "Ouvir Exemplo"}
-                                        </button>
-                                    )}
-                                </div>
                              </div>
                              <div className={`category-box border p-6 rounded-lg shadow-md mb-6 transform hover:scale-[1.01] transition-transform duration-200 animate-fade-in-up delay-100 ${isDarkMode ? `bg-gray-700 border-${currentTheme.primary}-600` : `bg-${currentTheme.primary}-50 border-${currentTheme.primary}-200`}`}>
                                  <h3 className={`text-2xl font-semibold text-${currentTheme.primary}-600 mb-3 flex items-center gap-2`}><Briefcase size={24} /> AELO Negócio: Sua Marca em Movimento</h3>
@@ -1461,28 +997,6 @@ const App = () => {
                                      <li>Lançamento de Produtos Inovadores: Apresentar novidades ao público de forma dinâmica.</li>
                                  </ul>
                                  <p className="mt-4 leading-relaxed">É a solução ideal para pequenos e médios empreendedores que buscam um alcance direcionado, criativo e que realmente se conecta com a cidade.</p>
-                                 <div className={`mt-4 p-4 rounded-lg shadow-inner text-center ${isDarkMode ? 'bg-gray-900' : 'bg-white'}`}>
-                                    <h4 className="font-semibold text-lg mb-2">Exemplo de Áudio:</h4>
-                                    {businessAudioUrl ? (
-                                        <audio controls src={businessAudioUrl} className="w-full"></audio>
-                                    ) : (
-                                        <button
-                                            onClick={() => generateAndPlayAudio("Atenção, Bauru! A nova loja de doces 'Delícias da Vovó' acaba de abrir na Rua XV de Novembro, 123. Venha provar os nossos bolos caseiros, tortas frescas e doces artesanais. Delícias da Vovó, o sabor da tradição em cada mordida.", setBusinessAudioUrl, setIsBusinessAudioLoading)}
-                                            className={`inline-flex items-center justify-center gap-3 px-6 py-3 bg-${currentTheme.primary}-500 text-white font-bold rounded-full shadow-lg hover:bg-${currentTheme.primary}-600 transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed`}
-                                            disabled={isBusinessAudioLoading}
-                                        >
-                                            {isBusinessAudioLoading ? (
-                                                <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                                </svg>
-                                            ) : (
-                                                <PlayCircle size={22} />
-                                            )}
-                                            {isBusinessAudioLoading ? "Gerando..." : "Ouvir Exemplo"}
-                                        </button>
-                                    )}
-                                </div>
                              </div>
                              <div className={`category-box border p-6 rounded-lg shadow-md transform hover:scale-[1.01] transition-transform duration-200 animate-fade-in-up delay-200 ${isDarkMode ? `bg-gray-700 border-${currentTheme.primary}-600` : `bg-${currentTheme.primary}-50 border-${currentTheme.primary}-200`}`}>
                                  <h3 className={`text-2xl font-semibold text-${currentTheme.primary}-600 mb-3 flex items-center gap-2`}><Info size={24} /> AELO Informações Públicas: Ecoando Boas Causas</h3>
@@ -1493,38 +1007,16 @@ const App = () => {
                                      <li>Avisos Comunitários: Informações cruciais para o bairro ou cidade, entregues de forma eficiente.</li>
                                  </ul>
                                  <p className="mt-4 leading-relaxed">Fazer o bem também tem voz, e a AELO está aqui para amplificar sua mensagem social, alcançando quem mais precisa.</p>
-                                 <div className={`mt-4 p-4 rounded-lg shadow-inner text-center ${isDarkMode ? 'bg-gray-900' : 'bg-white'}`}>
-                                    <h4 className="font-semibold text-lg mb-2">Exemplo de Áudio:</h4>
-                                    {publicAudioUrl ? (
-                                        <audio controls src={publicAudioUrl} className="w-full"></audio>
-                                    ) : (
-                                        <button
-                                            onClick={() => generateAndPlayAudio("A ONG 'Amigos do Bairro' convida a todos para o nosso evento de doação de agasalhos neste sábado na praça central. Contamos com a sua colaboração para aquecer o inverno de quem mais precisa. Juntos, fazemos a diferença!", setPublicAudioUrl, setIsPublicAudioLoading)}
-                                            className={`inline-flex items-center justify-center gap-3 px-6 py-3 bg-${currentTheme.primary}-500 text-white font-bold rounded-full shadow-lg hover:bg-${currentTheme.primary}-600 transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed`}
-                                            disabled={isPublicAudioLoading}
-                                        >
-                                            {isPublicAudioLoading ? (
-                                                <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                                </svg>
-                                            ) : (
-                                                <PlayCircle size={22} />
-                                            )}
-                                            {isPublicAudioLoading ? "Gerando..." : "Ouvir Exemplo"}
-                                        </button>
-                                    )}
-                                </div>
                              </div>
                         </div>
                     )}
 
                     {activePage === 'porque-aelo' && (
-                        <div className={`p-8 rounded-xl shadow-xl max-w-4xl mx-auto mt-8 animate-fade-in ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
+                        <div className={`p-8 rounded-xl shadow-xl max-w-4xl mx-auto mt-8 animate-fade-in ${isDarkMode ? `bg-${currentTheme.darkBg}` : `bg-${currentTheme.lightBg}`}`}>
                              <h2 className="text-3xl font-bold mb-6 text-center flex items-center justify-center gap-2">Por Que Escolher a AELO? A Diferença que Você Ouve! <Star size={32} /></h2>
                              <p className="text-lg mb-6 leading-relaxed">A AELO - Sua Voz em Movimento vai além da publicidade; é uma experiência sonora que cativa. Descubra os diferenciais que nos tornam a escolha perfeita para sua mensagem:</p>
                              <ul className="space-y-4">
-                                 <li className={`p-4 rounded-lg shadow-md flex items-start gap-3 transform hover:scale-[1.01] transition-transform duration-200 animate-fade-in-up ${isDarkMode ? 'bg-gray-700' : 'bg-gray-50'}`}>
+                                 <li className={`p-4 rounded-lg shadow-md flex items-start gap-3 transform hover:scale-[1.01] transition-transform duration-200 animate-fade-in-up ${isDarkMode ? `bg-gray-700` : `bg-gray-50`}`}>
                                      <CheckCircle size={24} className={`text-${currentTheme.primary}-600 mt-1`} />
                                      <div>
                                          <h3 className="text-xl font-semibold">Alcance Hiperlocal e Dinâmico</h3>
@@ -1565,7 +1057,7 @@ const App = () => {
                     
                     {/* Página de Comparativo */}
                     {activePage === 'comparativo' && (
-                        <div className={`p-8 rounded-xl shadow-xl max-w-4xl mx-auto mt-8 animate-fade-in ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
+                        <div className={`p-8 rounded-xl shadow-xl max-w-4xl mx-auto mt-8 animate-fade-in ${isDarkMode ? `bg-${currentTheme.darkBg}` : `bg-${currentTheme.lightBg}`}`}>
                             <h2 className="text-3xl font-bold mb-6 text-center flex items-center justify-center gap-2">
                                 AELO vs. Veiculadores Tradicionais: A Evolução da Sua Voz! <Scale size={32} />
                             </h2>
@@ -1635,7 +1127,7 @@ const App = () => {
                     )}
 
                     {activePage === 'depoimentos' && (
-                        <div className={`p-8 rounded-xl shadow-xl max-w-4xl mx-auto mt-8 animate-fade-in relative ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
+                        <div className={`p-8 rounded-xl shadow-xl max-w-4xl mx-auto mt-8 animate-fade-in relative ${isDarkMode ? `bg-${currentTheme.darkBg}` : `bg-${currentTheme.lightBg}`}`}>
                             <h2 className="text-3xl font-bold mb-6 text-center flex items-center justify-center gap-2">
                                 Histórias de Sucesso AELO: A Voz dos Nossos Clientes <Quote size={32} />
                             </h2>
@@ -1691,7 +1183,7 @@ const App = () => {
                     )}
 
                     {activePage === 'dinamicas' && (
-                        <div className={`p-8 rounded-xl shadow-xl max-w-4xl mx-auto mt-8 animate-fade-in ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
+                        <div className={`p-8 rounded-xl shadow-xl max-w-4xl mx-auto mt-8 animate-fade-in ${isDarkMode ? `bg-${currentTheme.darkBg}` : `bg-${currentTheme.lightBg}`}`}>
                             <h2 className="text-3xl font-bold mb-6 text-center flex items-center justify-center gap-2">Dinâmicas AELO: Sua Chance de Brilhar e Ganhar! <Trophy size={32} /></h2>
                             <p className="text-lg mb-6 leading-relaxed">Na AELO - Sua Voz em Movimento, a interação e a recompensa são parte da nossa essência. Participe das nossas dinâmicas exclusivas e transforme sua experiência em algo ainda mais emocionante e recompensador!</p>
                             <div className={`p-6 rounded-lg shadow-md mb-6 transform hover:scale-[1.01] transition-transform duration-200 animate-fade-in-up ${isDarkMode ? `bg-gray-700 border-${currentTheme.warning}-600 border` : `bg-${currentTheme.warning}-50 border-${currentTheme.warning}-200 border`}`}>
@@ -1713,9 +1205,9 @@ const App = () => {
                                 <h3 className={`text-2xl font-semibold text-${currentTheme.primary}-600 mb-3 flex items-center gap-2`}><Search size={24} /> O Áudio Misterioso: Desvende o Enigma!</h3>
                                 <p className="leading-relaxed">Fique atento(a)! Periodicamente, veicularemos um "Áudio Misterioso". Ouça com atenção, desvende o enigma e envie sua resposta para a AELO - Sua Voz em Movimento para ganhar prêmios!</p>
                                 <div className="mt-4 text-center">
-                                    <button onClick={playMysterySound} className={`inline-flex items-center justify-center gap-3 px-6 py-3 bg-${currentTheme.primary}-500 text-white font-bold rounded-full shadow-lg hover:bg-${currentTheme.primary}-600 transform hover:scale-105 transition-all duration-300`}>
-                                        <PlayCircle size={22} /> Ouvir o Áudio Misterioso
-                                    </button>
+                                    <p className={`${isDarkMode ? `text-gray-300` : `text-gray-700`}`}>
+                                        O áudio misterioso não está disponível no momento devido a atualizações na API.
+                                    </p>
                                 </div>
                             </div>
                             <div className={`p-6 rounded-lg shadow-md transform hover:scale-[1.01] transition-transform duration-200 animate-fade-in-up delay-300 ${isDarkMode ? `bg-gray-700 border-${currentTheme.success}-600 border` : `bg-${currentTheme.success}-50 border-${currentTheme.success}-200 border`}`}>
@@ -1733,7 +1225,7 @@ const App = () => {
                     )}
 
                     {activePage === 'temporadas' && (
-                        <div className={`p-8 rounded-xl shadow-xl max-w-4xl mx-auto mt-8 animate-fade-in ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
+                        <div className={`p-8 rounded-xl shadow-xl max-w-4xl mx-auto mt-8 animate-fade-in ${isDarkMode ? `bg-${currentTheme.darkBg}` : `bg-${currentTheme.lightBg}`}`}>
                             <h2 className="text-3xl font-bold mb-6 text-center flex items-center justify-center gap-2">Temporadas AELO: Conecte-se com o Momento e Amplifique Sua Mensagem! <CalendarDays size={32} /></h2>
                             <p className="text-lg mb-6 leading-relaxed">Na AELO - Sua Voz em Movimento, acreditamos que sua mensagem ganha ainda mais força quando está em sintonia com o espírito do momento. Por isso, operamos em "Temporadas" temáticas, que permitem uma conexão mais profunda e relevante com o público da cidade.</p>
                             <div className={`p-6 rounded-lg shadow-md mb-6 transform hover:scale-[1.01] transition-transform duration-200 animate-fade-in-up ${isDarkMode ? `bg-gray-700 border-${currentTheme.primary}-600 border` : `bg-${currentTheme.primary}-50 border-${currentTheme.primary}-200 border`}`}>
@@ -1763,7 +1255,7 @@ const App = () => {
                     )}
 
                     {activePage === 'precos' && (
-                        <div className={`p-8 rounded-xl shadow-xl max-w-4xl mx-auto mt-8 animate-fade-in ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
+                        <div className={`p-8 rounded-xl shadow-xl max-w-4xl mx-auto mt-8 animate-fade-in ${isDarkMode ? `bg-${currentTheme.darkBg}` : `bg-${currentTheme.lightBg}`}`}>
                             <h2 className="text-3xl font-bold mb-6 text-center flex items-center justify-center gap-2">Invista em Emoção: Nossos Planos AELO! <DollarSign size={32} /></h2>
                             <p className="text-lg mb-6 leading-relaxed">Na AELO - Sua Voz em Movimento, acreditamos que a publicidade de impacto e as mensagens que tocam o coração devem ser acessíveis. Nossos preços são pensados para oferecer o melhor custo-benefício e levar sua voz ainda mais longe.</p>
                             <div className={`price-card border p-6 rounded-lg shadow-md mb-6 text-center transform hover:scale-[1.01] transition-transform duration-200 animate-fade-in-up ${isDarkMode ? `bg-gray-700 border-${currentTheme.primary}-600` : `bg-${currentTheme.primary}-50 border-${currentTheme.primary}-200`}`}>
@@ -1801,14 +1293,14 @@ const App = () => {
                                 <p className="text-lg mb-2">Titular: A A S Fernandes</p>
                                 <button onClick={copyPixKey} className={`inline-flex items-center justify-center px-6 py-3 bg-${currentTheme.primary}-600 text-white font-bold rounded-full shadow-lg hover:bg-${currentTheme.primary}-700 transform hover:scale-105 transition-all duration-300 gap-2 mt-4`} aria-label="Copiar chave Pix"><Copy size={20} /> Copiar Chave Pix</button>
                                 {pixCopiedMessage && (<p className={`text-${currentTheme.success}-500 mt-2 text-sm font-semibold animate-fade-in-up`}>{pixCopiedMessage}</p>)}
-                                <p className={`${isDarkMode ? `text-gray-300` : `text-gray-600`} leading-relaxed mt-4`}>Dica: Copie a chave Pix acima e realize o pagamento. Após a transação, envie o comprovante para nós via WhatsApp ou Instagram <span className={`font-semibold text-${currentTheme.primary}-600`}>@Aelovoz</span> para agilizar a veiculação do seu áudio!</p>
+                                <p className={`${isDarkMode ? `text-gray-300` : `text-gray-600`}`}>Dica: Copie a chave Pix acima e realize o pagamento. Após a transação, envie o comprovante para nós via WhatsApp ou Instagram <span className={`font-semibold text-${currentTheme.primary}-600`}>@Aelovoz</span> para agilizar a veiculação do seu áudio!</p>
                             </div>
                             <p className="text-lg text-center leading-relaxed mt-8 flex items-center justify-center gap-2">Pronto para levar sua voz em movimento? Fale conosco agora mesmo para um orçamento personalizado! <MessageSquare size={20} /></p>
                         </div>
                     )}
 
                     {activePage === 'como-enviar' && (
-                        <div className={`p-8 rounded-xl shadow-xl max-w-4xl mx-auto mt-8 animate-fade-in ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
+                        <div className={`p-8 rounded-xl shadow-xl max-w-4xl mx-auto mt-8 animate-fade-in ${isDarkMode ? `bg-${currentTheme.darkBg}` : `bg-${currentTheme.lightBg}`}`}>
                             <h2 className="text-3xl font-bold mb-6 text-center flex items-center justify-center gap-2">Como Enviar Seus Áudios para a AELO: Simples e Rápido! <Send size={32} /></h2>
                             <p className="text-lg mb-6 leading-relaxed">Levar sua mensagem para as ruas com a AELO é um processo descomplicado. Siga estes passos e veja sua voz ganhar vida:</p>
                             <div className="space-y-6 text-left">
@@ -1851,27 +1343,8 @@ const App = () => {
                                     <h3 className="text-xl font-semibold text-purple-600 mb-4 flex items-center justify-center gap-2">
                                         <Volume2 size={24} /> Exemplo de Qualidade de Áudio AELO
                                     </h3>
-                                    {sampleAudioUrl ? (
-                                        <audio controls src={sampleAudioUrl} className="w-full"></audio>
-                                    ) : (
-                                        <button
-                                            onClick={() => generateAndPlayAudio("Este é um exemplo da qualidade de áudio que a AELO oferece. Sua voz, clara e profissional, ecoando pelas ruas da cidade. Sua voz em movimento.", setSampleAudioUrl, setIsSampleAudioLoading)}
-                                            className={`inline-flex items-center justify-center gap-3 px-6 py-3 bg-${currentTheme.primary}-500 text-white font-bold rounded-full shadow-lg hover:bg-${currentTheme.primary}-600 transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed`}
-                                            disabled={isSampleAudioLoading}
-                                        >
-                                            {isSampleAudioLoading ? (
-                                                <svg className="animate-spin h-5 w-5 text-white" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                                                    <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4"></circle>
-                                                    <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4zm2 5.291A7.962 7.962 0 014 12H0c0 3.042 1.135 5.824 3 7.938l3-2.647z"></path>
-                                                </svg>
-                                            ) : (
-                                                <PlayCircle size={22} />
-                                            )}
-                                            {isSampleAudioLoading ? "Gerando..." : "Gerar e Ouvir Exemplo"}
-                                        </button>
-                                    )}
-                                    <p className={`mt-2 text-sm ${isDarkMode ? `text-gray-300` : `text-gray-600`}`}>
-                                        Clique para gerar um áudio de exemplo e ouvir a qualidade da nossa veiculação.
+                                    <p className={`${isDarkMode ? `text-gray-300` : `text-gray-700`}`}>
+                                        Exemplos de áudio não estão disponíveis no momento devido a atualizações na API.
                                     </p>
                                 </div>
                             </div>
@@ -1879,7 +1352,7 @@ const App = () => {
                     )}
 
                     {activePage === 'aelo-em-acao' && (
-                        <div className={`p-8 rounded-xl shadow-xl max-w-4xl mx-auto mt-8 animate-fade-in ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
+                        <div className={`p-8 rounded-xl shadow-xl max-w-4xl mx-auto mt-8 animate-fade-in ${isDarkMode ? `bg-${currentTheme.darkBg}` : `bg-${currentTheme.lightBg}`}`}>
                             <h2 className="text-3xl font-bold mb-6 text-center flex items-center justify-center gap-2">
                                 AELO em Ação: Histórias e Destaques <Sparkles size={32} />
                             </h2>
@@ -1902,7 +1375,7 @@ const App = () => {
                     )}
 
                     {activePage === 'seu-aelo' && (
-                        <div className={`p-8 rounded-xl shadow-xl max-w-4xl mx-auto mt-8 animate-fade-in ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
+                        <div className={`p-8 rounded-xl shadow-xl max-w-4xl mx-auto mt-8 animate-fade-in ${isDarkMode ? `bg-${currentTheme.darkBg}` : `bg-${currentTheme.lightBg}`}`}>
                             <h2 className="text-3xl font-bold mb-6 text-center flex items-center justify-center gap-2">
                                 Seu AELO: Personalize Sua Experiência! <Palette size={32} />
                             </h2>
@@ -1922,13 +1395,13 @@ const App = () => {
                                         <button
                                             key={index}
                                             onClick={() => setCurrentTheme(palette)}
-                                            className={`p-4 rounded-lg shadow-md flex flex-col items-center justify-center gap-2 transition-all duration-200 transform hover:scale-105 ${currentTheme.name === palette.name ? `border-4 border-${currentTheme.primary}-600` : `border ${isDarkMode ? `border-gray-600` : `border-gray-300`}`} ${isDarkMode ? 'bg-gray-700' : 'bg-white'}`}
+                                            className={`p-4 rounded-lg shadow-md flex flex-col items-center justify-center gap-2 transition-all duration-200 transform hover:scale-105 ${currentTheme.name === palette.name ? `border-4 border-${currentTheme.primary}-600` : `border ${isDarkMode ? `border-gray-600` : `border-gray-300`}`} ${isDarkMode ? `bg-${palette.darkBg.replace('-900', '-700')}` : `bg-${palette.lightBg}`}`}
                                         >
                                             <div className="flex gap-2 mb-2">
                                                 <div className={`w-8 h-8 rounded-full bg-${palette.primary}-600`}></div>
                                                 <div className={`w-8 h-8 rounded-full bg-${palette.accent}-400`}></div>
                                             </div>
-                                            <span className={`text-sm font-medium ${isDarkMode ? `text-${currentTheme.darkText}` : `text-${currentTheme.text}`}`}>{palette.name}</span>
+                                            <span className={`text-sm font-medium ${isDarkMode ? `text-${palette.darkText}` : `text-${palette.text}`}`}>{palette.name}</span>
                                         </button>
                                     ))}
                                 </div>
@@ -1938,23 +1411,18 @@ const App = () => {
 
                             <div>
                                 <h3 className="text-2xl font-semibold mb-4 flex items-center gap-2">
-                                    <MessageCircle size={24} className={`text-${currentTheme.primary}-600`} /> Opções do Chatbot
+                                    <Sparkles size={24} className={`text-${currentTheme.primary}-600`} /> Outras Opções
                                 </h3>
                                 <p className={`${isDarkMode ? `text-gray-300` : `text-gray-700`} mb-4`}>
-                                    Gerencie a sua experiência com a Olea, nossa assistente virtual.
+                                    Aqui você pode gerenciar outras configurações do seu AELO.
                                 </p>
-                                <button
-                                    onClick={() => setChatMessages([])}
-                                    className={`px-6 py-3 bg-${currentTheme.primary}-600 text-white font-bold rounded-lg shadow-md hover:bg-${currentTheme.primary}-700 transition-colors duration-200`}
-                                >
-                                    Redefinir Conversa com Olea
-                                </button>
+                                {/* Removido o botão de redefinir conversa do chatbot */}
                             </div>
                         </div>
                     )}
 
                     {activePage === 'simular-assinatura' && (
-                        <div className={`p-8 rounded-xl shadow-xl max-w-4xl mx-auto mt-8 animate-fade-in ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
+                        <div className={`p-8 rounded-xl shadow-xl max-w-4xl mx-auto mt-8 animate-fade-in ${isDarkMode ? `bg-${currentTheme.darkBg}` : `bg-${currentTheme.lightBg}`}`}>
                             <h2 className="text-3xl font-bold mb-6 text-center flex items-center justify-center gap-2">
                                 Simulador de Assinatura AELO <Calculator size={32} />
                             </h2>
@@ -2044,7 +1512,7 @@ const App = () => {
                     )}
                     
                     {activePage === 'blog' && (
-                        <div className={`p-8 rounded-xl shadow-xl max-w-4xl mx-auto mt-8 animate-fade-in ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
+                        <div className={`p-8 rounded-xl shadow-xl max-w-4xl mx-auto mt-8 animate-fade-in ${isDarkMode ? `bg-${currentTheme.darkBg}` : `bg-${currentTheme.lightBg}`}`}>
                             <h2 className="text-3xl font-bold mb-6 text-center flex items-center justify-center gap-2">
                                 Blog AELO: Fique por Dentro das Novidades! <Rss size={32} />
                             </h2>
@@ -2089,7 +1557,7 @@ const App = () => {
                     )}
                     
                     {activePage === 'trabalhe-conosco' && (
-                        <div className={`p-8 rounded-xl shadow-xl max-w-4xl mx-auto mt-8 animate-fade-in ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
+                        <div className={`p-8 rounded-xl shadow-xl max-w-4xl mx-auto mt-8 animate-fade-in ${isDarkMode ? `bg-${currentTheme.darkBg}` : `bg-${currentTheme.lightBg}`}`}>
                             <h2 className="text-3xl font-bold mb-6 text-center flex items-center justify-center gap-2 text-blue-600 animate-pulse">
                                 Trabalhe com a AELO: Sua Oportunidade de Crescer! <BriefcaseBusiness size={32} />
                             </h2>
@@ -2144,7 +1612,7 @@ const App = () => {
                     )}
 
                     {activePage === 'compromisso-sustentavel' && (
-                        <div className={`p-8 rounded-xl shadow-xl max-w-4xl mx-auto mt-8 animate-fade-in ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
+                        <div className={`p-8 rounded-xl shadow-xl max-w-4xl mx-auto mt-8 animate-fade-in ${isDarkMode ? `bg-${currentTheme.darkBg}` : `bg-${currentTheme.lightBg}`}`}>
                             <h2 className="text-3xl font-bold mb-6 text-center flex items-center justify-center gap-2">
                                 Nosso Compromisso Sustentável: AELO e o Futuro Verde <Leaf size={32} />
                             </h2>
@@ -2185,7 +1653,7 @@ const App = () => {
                     )}
 
                     {activePage === 'faq' && (
-                        <div className={`p-8 rounded-xl shadow-xl max-w-4xl mx-auto mt-8 animate-fade-in ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
+                        <div className={`p-8 rounded-xl shadow-xl max-w-4xl mx-auto mt-8 animate-fade-in ${isDarkMode ? `bg-${currentTheme.darkBg}` : `bg-${currentTheme.lightBg}`}`}>
                             <h2 className="text-3xl font-bold mb-6 text-center flex items-center justify-center gap-2">Perguntas Frequentes <Info size={32} /></h2>
                             <p className="text-lg mb-6 leading-relaxed text-center">Encontre aqui as respostas para as dúvidas mais comuns sobre os nossos serviços e dinâmicas.</p>
                             <div className="space-y-4">
@@ -2210,7 +1678,7 @@ const App = () => {
                     )}
 
                     {activePage === 'termos-condicoes' && (
-                        <div className={`p-8 rounded-xl shadow-xl max-w-4xl mx-auto mt-8 animate-fade-in ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
+                        <div className={`p-8 rounded-xl shadow-xl max-w-4xl mx-auto mt-8 animate-fade-in ${isDarkMode ? `bg-${currentTheme.darkBg}` : `bg-${currentTheme.lightBg}`}`}>
                             <h2 className="text-3xl font-bold mb-6 text-center flex items-center justify-center gap-2">Termos e Condições de Uso da AELO <FileText size={32} /></h2>
                             <p className="text-lg mb-6 leading-relaxed">Ao utilizar os serviços da AELO - Sua Voz em Movimento, você concorda com os seguintes termos e condições, que visam garantir a qualidade, a segurança e a integridade de todas as mensagens veiculadas.</p>
                             <div className="space-y-6 text-left">
@@ -2243,7 +1711,7 @@ const App = () => {
                     )}
 
                     {activePage === 'contato' && (
-                        <div className={`p-8 rounded-xl shadow-xl max-w-4xl mx-auto mt-8 animate-fade-in ${isDarkMode ? 'bg-gray-800' : 'bg-white'}`}>
+                        <div className={`p-8 rounded-xl shadow-xl max-w-4xl mx-auto mt-8 animate-fade-in ${isDarkMode ? `bg-${currentTheme.darkBg}` : `bg-${currentTheme.lightBg}`}`}>
                             <h2 className="text-3xl font-bold mb-6 flex items-center justify-center gap-2">Fale Conosco: Sua Voz é Importante! <MessageSquare size={32} /></h2>
                             <p className="text-lg mb-6 leading-relaxed">Tem alguma dúvida, sugestão ou quer saber mais sobre como a AELO - Sua Voz em Movimento pode amplificar sua mensagem? Preencha o formulário abaixo ou use nossos canais de contato direto.</p>
                             

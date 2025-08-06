@@ -1,23 +1,23 @@
-import React, { useState, useEffect, useRef, createContext, useContext } from 'react';
+import React, { useState, useEffect, useRef } from 'react';
 
 // Importa ícones do Lucide React
-import { Home, Mic, Briefcase, Users, Lightbulb, Trophy, DollarSign, Bike, MessageSquare, CheckCircle, Heart, Leaf, Star, Info, MapPin, Award, RefreshCcw, CalendarDays, Volume2, Search, Gift, Send, Copy, FileText, Mail, Phone, Menu, X, Quote, ChevronLeft, ChevronRight, Scale, Upload, BriefcaseBusiness, Calculator, Rss, ListTodo, Sparkles, TrendingUp, Handshake, Globe, PlayCircle, Instagram } from 'lucide-react';
+import { Home, Mic, Briefcase, Users, Lightbulb, Trophy, DollarSign, Bike, MessageSquare, CheckCircle, Heart, Leaf, Star, Info, MapPin, Award, RefreshCcw, CalendarDays, Volume2, Search, Gift, Send, Copy, FileText, Mail, Phone, Menu, X, Quote, ChevronLeft, ChevronRight, Scale, Upload, BriefcaseBusiness, Calculator, Rss, ListTodo, Sparkles, TrendingUp, Handshake, Globe, PlayCircle, Instagram, Gamepad2, Zap } from 'lucide-react';
 
 // Modal para o fluxo de envio de áudio
 const SendAudioModal = ({ onClose, navigateTo }) => {
     // Cores fixas para o modal
     const modalBg = 'bg-white';
     const modalText = 'text-gray-900';
-    const buttonBg = 'bg-blue-600';
+    const buttonBg = 'bg-[#1282A2]'; // Azul vibrante
     const buttonText = 'text-white';
-    const primaryColor = 'text-blue-600';
-    const successBg = 'bg-green-500';
+    const primaryColor = 'text-[#034078]'; // Azul médio
+    const successBg = 'bg-green-600'; // Verde para sucesso
     const successText = 'text-green-700';
-    const warningBg = 'bg-amber-600';
+    const warningBg = 'bg-[#1282A2]'; // Azul vibrante para anexar comprovante
     const errorText = 'text-red-500';
-    const inputBg = 'bg-white';
-    const inputBorder = 'border-gray-200';
-    const inputOutline = 'outline-blue-600';
+    const inputBg = 'bg-[#F0F4F8]'; // Azul claro acinzentado
+    const inputBorder = 'border-[#A8DADC]'; // Azul claro
+    const inputOutline = 'focus:ring-[#034078]'; // Azul médio para outline
 
     const [selectedCategory, setSelectedCategory] = useState('');
     const [agreedToTerms, setAgreedToTerms] = useState(false);
@@ -77,11 +77,11 @@ const SendAudioModal = ({ onClose, navigateTo }) => {
 
     return (
         <div className="fixed inset-0 bg-gray-900/70 flex items-center justify-center z-[100]">
-            <div className={`p-6 rounded-lg shadow-2xl w-11/12 max-w-md max-h-[90vh] overflow-y-auto relative ${modalBg} ${modalText}`}>
-                <button onClick={onClose} className={`absolute top-3 right-3 p-2 rounded-full bg-gray-100 text-gray-700`}>
+            <div className={`p-6 rounded-xl shadow-2xl w-11/12 max-w-md max-h-[90vh] overflow-y-auto relative ${modalBg} ${modalText} border border-[#A8DADC]`}>
+                <button onClick={onClose} className={`absolute top-4 right-4 p-2 rounded-full bg-[#A8DADC] text-[#0A1128] hover:bg-[#D0D9E5] transition-colors`}>
                     <X size={20} />
                 </button>
-                <h2 className="text-2xl font-bold mb-4 text-center">Envie seu Áudio para a AELO!</h2>
+                <h2 className="text-2xl font-bold mb-4 text-center text-[#034078]">Envie seu Áudio para a AELO!</h2>
 
                 <div className="mb-4">
                     <p className="font-semibold mb-2">1. Escolha a Categoria Desejada:</p>
@@ -93,7 +93,7 @@ const SendAudioModal = ({ onClose, navigateTo }) => {
                                 value={category}
                                 checked={selectedCategory === category}
                                 onChange={(e) => setSelectedCategory(e.target.value)}
-                                className={`form-radio h-4 w-4 ${primaryColor}`}
+                                className={`form-radio h-4 w-4 text-[#034078] focus:ring-[#1282A2]`}
                             />
                             <span className="ml-2">{category}</span>
                         </label>
@@ -102,17 +102,14 @@ const SendAudioModal = ({ onClose, navigateTo }) => {
 
                 {selectedCategory && (
                     <>
-                        <div className={`mb-4 p-3 rounded-lg bg-blue-50`}>
+                        <div className={`mb-4 p-3 rounded-lg bg-[#E0E7F0]`}>
                             <p className="font-semibold">Tempo de Áudio Recomendado para "{selectedCategory}":</p>
-                            <p className={`text-lg font-bold text-blue-700`}>{audioDurations[selectedCategory]}</p>
+                            <p className={`text-lg font-bold text-[#034078]`}>{audioDurations[selectedCategory]}</p>
                         </div>
 
-                        <div className={`mb-4 p-3 rounded-lg text-center ${successBg}`}>
-                            <p className="font-semibold mt-4 mb-2">Preço para "{selectedCategory}":</p>
-                            <p className={`text-3xl font-bold ${successText}`}>{prices[selectedCategory]}</p>
-
+                        <div className={`mb-4 p-3 rounded-lg text-center bg-[#E0E7F0] border border-[#034078]`}>
                             <p className="font-semibold mt-4 mb-2">3. Realize o Pagamento via Pix:</p>
-                            <p className={`text-lg font-bold ${successText}`}>Titular: {pixHolder}</p>
+                            <p className={`text-lg font-bold text-green-600`}>Titular: {pixHolder}</p>
                             <button onClick={() => {
                                 const tempInput = document.createElement('input');
                                 tempInput.value = pixKey;
@@ -121,7 +118,7 @@ const SendAudioModal = ({ onClose, navigateTo }) => {
                                 document.execCommand('copy');
                                 document.body.removeChild(tempInput);
                                 console.log('Chave Pix copiada!');
-                            }} className={`mt-2 px-4 py-2 ${buttonText} rounded-full hover:opacity-90 transition-colors flex items-center justify-center gap-1 mx-auto ${buttonBg}`}>
+                            }} className={`mt-2 px-4 py-2 bg-[#034078] text-white rounded-full hover:bg-[#1282A2] transition-colors flex items-center justify-center gap-1 mx-auto`}>
                                 <Copy size={16} /> Copiar Chave Pix (CNPJ)
                             </button>
                             <p className={`mt-2 text-sm text-gray-700`}>Use a chave Pix copiada para realizar o pagamento em seu aplicativo bancário.</p>
@@ -131,7 +128,7 @@ const SendAudioModal = ({ onClose, navigateTo }) => {
                             <img src={qrCodeUrl} alt="QR Code WhatsApp" className="mx-auto my-4 rounded-lg shadow-md" />
                             
                             <div className="mt-4 flex flex-col items-center">
-                                <label htmlFor="paymentProof" className={`px-4 py-2 text-white rounded-lg hover:opacity-90 transition-colors cursor-pointer flex items-center gap-1 ${warningBg}`}>
+                                <label htmlFor="paymentProof" className={`px-4 py-2 bg-[#1282A2] text-white rounded-lg hover:bg-[#034078] transition-colors cursor-pointer flex items-center gap-1`}>
                                     <Upload size={18} /> Anexar Comprovante (Obrigatório)
                                 </label>
                                 <input
@@ -144,7 +141,7 @@ const SendAudioModal = ({ onClose, navigateTo }) => {
                                 />
                                 {paymentProofFile && <p className="text-sm mt-2">Arquivo: {paymentProofFile.name} anexado.</p>}
                                 {!paymentProofFile && (
-                                    <p className={`text-sm mt-2 ${errorText}`}>O comprovante de pagamento é obrigatório para prosseguir.</p>
+                                    <p className={`text-sm mt-2 text-red-500`}>O comprovante de pagamento é obrigatório para prosseguir.</p>
                                 )}
                             </div>
                         </div>
@@ -158,7 +155,7 @@ const SendAudioModal = ({ onClose, navigateTo }) => {
                         <li>Informe a categoria escolhida e detalhes como data, horário preferencial e endereço (se for para uma pessoa/local específico).</li>
                         <li>Para uma experiência mais fluida, o envio do áudio pode ser feito diretamente pelo WhatsApp da AELO - Sua Voz em Movimento.</li>
                     </ul>
-                    <p className={`mt-2 font-semibold text-red-600`}>Atenção: A qualidade do áudio é fundamental para uma experiência sonora impecável!</p>
+                    <p className={`mt-2 font-semibold text-red-500`}>Atenção: A qualidade do áudio é fundamental para uma experiência sonora impecável!</p>
                 </div>
 
                 {/* Campos para Nome e Sobrenome */}
@@ -169,7 +166,7 @@ const SendAudioModal = ({ onClose, navigateTo }) => {
                         id="firstName"
                         value={firstName}
                         onChange={(e) => setFirstName(e.target.value)}
-                        className={`w-full p-3 rounded-lg border focus:outline-none focus:ring-2 ${inputBg} ${inputBorder} ${modalText} ${inputOutline}`}
+                        className={`w-full p-3 rounded-lg border border-[#A8DADC] bg-[#F0F4F8] focus:outline-none focus:ring-2 focus:ring-[#034078] text-[#0A1128]`}
                         placeholder="Ex: João"
                         required
                     />
@@ -181,7 +178,7 @@ const SendAudioModal = ({ onClose, navigateTo }) => {
                         id="lastName"
                         value={lastName}
                         onChange={(e) => setLastName(e.target.value)}
-                        className={`w-full p-3 rounded-lg border focus:outline-none focus:ring-2 ${inputBg} ${inputBorder} ${modalText} ${inputOutline}`}
+                        className={`w-full p-3 rounded-lg border border-[#A8DADC] bg-[#F0F4F8] focus:outline-none focus:ring-2 focus:ring-[#034078] text-[#0A1128]`}
                         placeholder="Ex: Silva"
                         required
                     />
@@ -195,7 +192,7 @@ const SendAudioModal = ({ onClose, navigateTo }) => {
                         id="howDidYouHear"
                         value={howDidYouHear}
                         onChange={(e) => setHowDidYouHear(e.target.value)}
-                        className={`w-full p-3 rounded-lg border focus:outline-none focus:ring-2 ${inputBg} ${inputBorder} ${modalText} ${inputOutline}`}
+                        className={`w-full p-3 rounded-lg border border-[#A8DADC] bg-[#F0F4F8] focus:outline-none focus:ring-2 focus:ring-[#034078] text-[#0A1128]`}
                         placeholder="Ex: Instagram, Amigo, Pesquisa no Google"
                     />
                 </div>
@@ -206,16 +203,16 @@ const SendAudioModal = ({ onClose, navigateTo }) => {
                             type="checkbox"
                             checked={agreedToTerms}
                             onChange={(e) => setAgreedToTerms(e.target.checked)}
-                            className={`form-checkbox h-4 w-4 ${primaryColor}`}
+                            className={`form-checkbox h-4 w-4 text-[#034078] focus:ring-[#1282A2]`}
                         />
-                        <span className={`ml-2 text-gray-800`}>Aceito os <a href="#" onClick={handleTermsClick} className={`hover:underline ${primaryColor}`}>termos e condições</a> da AELO - Sua Voz em Movimento.</span>
+                        <span className={`ml-2 text-[#0A1128]`}>Aceito os <a href="#" onClick={handleTermsClick} className={`text-[#034078] hover:underline`}>termos e condições</a> da AELO - Sua Voz em Movimento.</span>
                     </label>
                 </div>
 
                 <button
                     onClick={handleWhatsAppClick}
                     disabled={!selectedCategory || !agreedToTerms || !paymentProofFile || !firstName || !lastName}
-                    className={`w-full py-3 text-white font-bold rounded-lg shadow-md hover:opacity-90 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed bg-green-500 flex items-center justify-center gap-2`}
+                    className={`w-full py-3 bg-green-600 text-white font-bold rounded-lg shadow-md hover:bg-green-700 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center gap-2`}
                 >
                     <MessageSquare size={20} /> Enviar Áudio via WhatsApp
                 </button>
@@ -223,7 +220,6 @@ const SendAudioModal = ({ onClose, navigateTo }) => {
         </div>
     );
 };
-
 
 // Componente principal do aplicativo
 const App = () => {
@@ -250,6 +246,18 @@ const App = () => {
     const [finalCost, setFinalCost] = useState(0);
     const [savings, setSavings] = useState(0);
     const [effectiveDailyCost, setEffectiveDailyCost] = useState(0);
+
+    // Função para adicionar a fonte Poppins ao documento
+    useEffect(() => {
+        const link = document.createElement('link');
+        link.href = 'https://fonts.googleapis.com/css2?family=Poppins:wght@400;600;700;800&display=swap';
+        link.rel = 'stylesheet';
+        document.head.appendChild(link);
+
+        return () => {
+            document.head.removeChild(link);
+        };
+    }, []);
 
     const formatCurrency = (value) => {
         return new Intl.NumberFormat('pt-BR', {
@@ -412,25 +420,25 @@ const App = () => {
         {
             id: 1,
             title: "A Voz que Iluminou o Dia na Rotina de Bauru",
-            icon: <Sparkles size={28} className="text-yellow-500" />,
+            icon: <Sparkles size={28} className="text-[#1282A2]" />,
             description: "Em um dia comum em Bauru, João estava se sentindo desanimado com os desafios da vida. De repente, um ciclista da AELO passou, veiculando um áudio motivacional. A mensagem, em movimento, alcançou João no momento certo, e ele sentiu uma onda de esperança, percebendo que sua jornada continuava. A voz da AELO, pedalando pela cidade, transformou seu dia!"
         },
         {
             id: 2,
             title: "O Bom Dia Sonoro que Alegrou a Cidade",
-            icon: <TrendingUp size={28} className="text-amber-500" />,
+            icon: <TrendingUp size={28} className="text-[#034078]" />,
             description: "Maria, uma cliente da AELO, teve a ideia de enviar um 'Super Bom Dia!' para toda a cidade de Bauru. Ela gravou sua mensagem cheia de energia, e a AELO a veiculou por diferentes bairros. O feedback foi incrível! Pessoas nas ruas sorriam e acenavam, e Maria se sentiu realizada por ter espalhado tanta positividade em movimento. Sua voz, em cada pedalada, fez a diferença."
         },
         {
             id: 3,
             title: "A Promoção que Lotou a Pizzaria Saborosa",
-            icon: <Star size={28} className="text-amber-500" />,
+            icon: <Star size={28} className="text-[#1282A2]" />,
             description: "A Pizzaria Saborosa lançou uma nova promoção e precisava de um empurrão. A AELO veiculou o anúncio nas ruas próximas, e o resultado foi imediato: a pizzaria registrou um aumento de 30% nas vendas no primeiro fim de semana da campanha. O som atraiu os clientes diretamente para o sabor!"
         },
         {
             id: 4,
             title: "Achou o Áudio e Ganhou um Presente!",
-            icon: <Award size={28} className="text-blue-500" />,
+            icon: <Award size={28} className="text-[#034078]" />,
             description: "Durante nossa dinâmica 'Achou um Áudio Conhecido?', a Ana Paula reconheceu a voz da sua irmã veiculando uma mensagem de apoio. Ela gravou o vídeo, nos enviou e sua irmã recebeu um brinde exclusivo da AELO! A emoção de ser encontrado pela voz é indescritível."
         }
     ];
@@ -485,37 +493,37 @@ const App = () => {
             quote: "O pedido de casamento foi mágico! Ouvir minha voz ecoando na praça onde nos conhecemos... Inesquecível. AELO tornou tudo perfeito!",
             name: "Lucas M.",
             service: "AELO+ Cliente",
-            icon: <Heart size={24} className="text-yellow-500" />
+            icon: <Heart size={24} className="text-pink-600" />
         },
         {
             quote: "A inauguração da nossa cafeteria foi um sucesso! A propaganda na AELO atraiu muita gente do bairro. O retorno foi imediato e superou as expectativas.",
             name: "Juliana P.",
             service: "AELO Negócio",
-            icon: <Briefcase size={24} className="text-yellow-500" />
+            icon: <Briefcase size={24} className="text-[#034078]" />
         },
         {
             quote: "Conseguimos muitos voluntários para nossa campanha de doação de agasalhos. AELO foi fundamental para espalhar a mensagem pela comunidade.",
             name: "ONG Mãos que Ajudam",
             service: "AELO Informações Públicas",
-            icon: <Info size={24} className="text-blue-500" />
+            icon: <Info size={24} className="text-[#1282A2]" />
         },
         {
             quote: "Ouvir a voz dos meus filhos me parabenizando pelo meu aniversário enquanto eu caminhava na rua... me emocionei demais! Uma surpresa maravilhosa.",
             name: "Silvia R.",
             service: "AELO+ Cliente",
-            icon: <Gift size={24} className="text-yellow-500" />
+            icon: <Gift size={24} className="text-yellow-600" />
         },
         {
             quote: "A veiculação da AELO divulgou nosso bazar de roupas usadas e superou as expectativas de público. Foi uma solução de baixo custo com um resultado incrível!",
             name: "Bazar da Ana",
             service: "AELO Negócio",
-            icon: <DollarSign size={24} className="text-green-500" />
+            icon: <DollarSign size={24} className="text-green-600" />
         },
         {
             quote: "Usamos a AELO para divulgar um evento de adoção de animais. O áudio com os latidos e miados chamou muita atenção e a maioria dos bichinhos encontrou um lar!",
             name: "Abrigo Patas Felizes",
             service: "AELO Informações Públicas",
-            icon: <Heart size={24} className="text-red-500" />
+            icon: <Heart size={24} className="text-red-600" />
         }
     ];
 
@@ -579,24 +587,34 @@ const App = () => {
     };
 
     return (
-        <div className="min-h-screen font-inter antialiased flex flex-col transition-colors duration-300 bg-gray-100 text-gray-900">
+        <div className="min-h-screen font-poppins antialiased flex flex-col bg-[#F0F4F8] text-[#0A1128]">
             {/* Header aprimorado */}
-            <header className="p-6 shadow-xl rounded-b-3xl relative text-center bg-gradient-to-r from-black to-blue-600">
-                <div className="container mx-auto">
+            <header className="p-6 md:p-8 shadow-lg rounded-b-3xl relative text-center bg-gradient-to-r from-[#034078] to-[#0A1128] text-white border-b border-[#A8DADC]">
+                <div className="container mx-auto flex justify-between items-center">
                     <button
                         onClick={() => setIsMenuOpen(!isMenuOpen)}
-                        className="absolute top-6 left-6 p-2 rounded-full bg-black text-white z-50 hover:bg-gray-800 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-white"
+                        className="p-2 rounded-full bg-[#1282A2] text-white z-50 hover:bg-[#034078] transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-[#A8DADC]"
                         aria-label={isMenuOpen ? "Fechar menu de navegação" : "Abrir menu de navegação"}
                     >
                         {isMenuOpen ? <X size={28} /> : <Menu size={28} />}
                     </button>
-                    <h1 className="text-6xl md:text-7xl font-extrabold mb-1 animate-fade-in-down drop-shadow-lg text-white">
-                        AELO
-                    </h1>
-                    <p className="text-xl md:text-2xl font-semibold flex items-center justify-center gap-2 animate-fade-in-down delay-200 text-shadow-sm text-yellow-300">
-                        Sua Voz em Movimento
-                        <Bike size={28} className="text-yellow-300 transform transition-transform duration-300 hover:rotate-[360deg]" />
-                    </p>
+                    <div className="flex-grow text-center">
+                        <div className="flex items-center justify-center mb-1 animate-fade-in-down drop-shadow-lg">
+                            {/* Novo Logotipo AELO */}
+                            <div className="flex items-center justify-center w-14 h-14 rounded-full bg-[#1282A2] text-white shadow-lg mr-3">
+                                <Zap size={32} strokeWidth={2.5} />
+                            </div>
+                            <h1 className="text-5xl md:text-6xl font-extrabold text-white">
+                                AELO
+                            </h1>
+                        </div>
+                        <p className="text-lg md:text-xl font-semibold flex items-center justify-center gap-2 animate-fade-in-down delay-200 text-shadow-sm text-[#A8DADC]">
+                            Sua Voz em Movimento
+                            <Bike size={24} className="text-[#A8DADC] transform transition-transform duration-300 hover:rotate-[360deg]" />
+                        </p>
+                    </div>
+                    {/* Placeholder para alinhar o título ao centro se o botão estiver à esquerda */}
+                    <div className="w-12"></div> 
                 </div>
             </header>
 
@@ -610,35 +628,34 @@ const App = () => {
             )}
 
             {/* Navegação Lateral (Sidebar) */}
-            <nav className={`fixed inset-y-0 left-0 p-6 shadow-xl z-50 w-64 transform transition-transform duration-300 ease-in-out overflow-y-auto bg-white ${isMenuOpen ? 'translate-x-0' : '-translate-x-full'}`}>
+            <nav className={`fixed inset-y-0 left-0 p-6 shadow-xl z-50 w-64 bg-white transform transition-transform duration-300 ease-in-out overflow-y-auto ${isMenuOpen ? 'translate-x-0' : '-translate-x-full'} border-r border-[#A8DADC]`}>
                 <div className="flex justify-end items-center mb-6">
                     <button
                         onClick={() => setIsMenuOpen(false)}
-                        className="p-2 rounded-full bg-gray-100 text-gray-700 transition-all duration-300 focus:outline-none focus:ring-2 focus:ring-gray-400"
+                        className="p-2 rounded-full bg-[#A8DADC] text-[#0A1128] hover:bg-[#D0D9E5] transition-colors focus:outline-none focus:ring-2 focus:ring-[#034078]"
                         aria-label="Fechar menu de navegação"
                     >
                         <X size={24} />
                     </button>
                 </div>
-                <div className="flex flex-col gap-4">
-                    <button onClick={() => navigateTo('home')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'home' ? `bg-blue-600 text-white shadow-md` : `bg-white text-gray-900 hover:bg-blue-100`}`}><Home size={20} /> Início</button>
-                    <button onClick={() => navigateTo('categorias')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'categorias' ? `bg-blue-600 text-white shadow-md` : `bg-white text-gray-900 hover:bg-blue-100`}`}><Briefcase size={20} /> Categorias</button>
-                    <button onClick={() => navigateTo('porque-aelo')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'porque-aelo' ? `bg-blue-600 text-white shadow-md` : `bg-white text-gray-900 hover:bg-blue-100`}`}><Lightbulb size={20} /> Por Que AELO?</button>
-                    <button onClick={() => navigateTo('comparativo')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'comparativo' ? `bg-blue-600 text-white shadow-md` : `bg-white text-gray-900 hover:bg-blue-100`}`}><Scale size={20} /> AELO vs. Tradicionais</button>
-                    <button onClick={() => navigateTo('depoimentos')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'depoimentos' ? `bg-blue-600 text-white shadow-md` : `bg-white text-gray-900 hover:bg-blue-100`}`}><Quote size={20} /> Depoimentos</button>
-                    <button onClick={() => navigateTo('dinamicas')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'dinamicas' ? `bg-blue-600 text-white shadow-md` : `bg-white text-gray-900 hover:bg-blue-100`}`}><Trophy size={20} /> Dinâmicas</button>
-                    <button onClick={() => navigateTo('temporadas')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'temporadas' ? `bg-blue-600 text-white shadow-md` : `bg-white text-gray-900 hover:bg-blue-100`}`}><CalendarDays size={20} /> Temporadas</button>
-                    <button onClick={() => navigateTo('precos')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'precos' ? `bg-blue-600 text-white shadow-md` : `bg-white text-gray-900 hover:bg-blue-100`}`}><DollarSign size={20} /> Preços</button>
-                    <button onClick={() => navigateTo('como-enviar')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'como-enviar' ? `bg-blue-600 text-white shadow-md` : `bg-white text-gray-900 hover:bg-blue-100`}`}><Send size={20} /> Como Enviar Áudios</button>
-                    <button onClick={() => navigateTo('aelo-em-acao')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'aelo-em-acao' ? `bg-blue-600 text-white shadow-md` : `bg-white text-gray-900 hover:bg-blue-100`}`}><Sparkles size={20} /> AELO em Ação</button>
-                    {/* Botão 'Seu AELO' removido */}
-                    <button onClick={() => navigateTo('simular-assinatura')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'simular-assinatura' ? `bg-blue-600 text-white shadow-md` : `bg-white text-gray-900 hover:bg-blue-100`}`}><Calculator size={20} /> Simulador de Assinatura</button>
-                    <button onClick={() => navigateTo('blog')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'blog' ? `bg-blue-600 text-white shadow-md` : `bg-white text-gray-900 hover:bg-blue-100`}`}><Rss size={20} /> Blog/Notícias</button>
-                    <button onClick={() => navigateTo('trabalhe-conosco')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'trabalhe-conosco' ? `bg-blue-600 text-white shadow-md animate-pulse` : `bg-white text-gray-900 hover:bg-blue-100`}`}><BriefcaseBusiness size={20} /> Trabalhe Conosco</button>
-                    <button onClick={() => navigateTo('compromisso-sustentavel')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'compromisso-sustentavel' ? `bg-blue-600 text-white shadow-md` : `bg-white text-gray-900 hover:bg-blue-100`}`}><Leaf size={20} /> Compromisso Sustentável</button>
-                    <button onClick={() => navigateTo('faq')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'faq' ? `bg-blue-600 text-white shadow-md` : `bg-white text-gray-900 hover:bg-blue-100`}`}><Info size={20} /> FAQ</button>
-                    <button onClick={() => navigateTo('termos-condicoes')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'termos-condicoes' ? `bg-blue-600 text-white shadow-md` : `bg-white text-gray-900 hover:bg-blue-100`}`}><FileText size={20} /> Termos</button>
-                    <button onClick={() => navigateTo('contato')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'contato' ? `bg-blue-600 text-white shadow-md` : `bg-white text-gray-900 hover:bg-blue-100`}`}><MessageSquare size={20} /> Contato</button>
+                <div className="flex flex-col gap-3">
+                    <button onClick={() => navigateTo('home')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'home' ? 'bg-[#034078] text-white shadow-md' : 'bg-[#E0E7F0] text-[#0A1128] hover:bg-[#D0D9E5]'}`}><Home size={20} /> Início</button>
+                    <button onClick={() => navigateTo('categorias')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'categorias' ? 'bg-[#034078] text-white shadow-md' : 'bg-[#E0E7F0] text-[#0A1128] hover:bg-[#D0D9E5]'}`}><Briefcase size={20} /> Categorias</button>
+                    <button onClick={() => navigateTo('porque-aelo')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'porque-aelo' ? 'bg-[#034078] text-white shadow-md' : 'bg-[#E0E7F0] text-[#0A1128] hover:bg-[#D0D9E5]'}`}><Lightbulb size={20} /> Por Que AELO?</button>
+                    <button onClick={() => navigateTo('comparativo')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'comparativo' ? 'bg-[#034078] text-white shadow-md' : 'bg-[#E0E7F0] text-[#0A1128] hover:bg-[#D0D9E5]'}`}><Scale size={20} /> AELO vs. Tradicionais</button>
+                    <button onClick={() => navigateTo('depoimentos')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'depoimentos' ? 'bg-[#034078] text-white shadow-md' : 'bg-[#E0E7F0] text-[#0A1128] hover:bg-[#D0D9E5]'}`}><Quote size={20} /> Depoimentos</button>
+                    <button onClick={() => navigateTo('dinamicas')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'dinamicas' ? 'bg-[#034078] text-white shadow-md' : 'bg-[#E0E7F0] text-[#0A1128] hover:bg-[#D0D9E5]'}`}><Trophy size={20} /> Dinâmicas</button>
+                    <button onClick={() => navigateTo('temporadas')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'temporadas' ? 'bg-[#034078] text-white shadow-md' : 'bg-[#E0E7F0] text-[#0A1128] hover:bg-[#D0D9E5]'}`}><CalendarDays size={20} /> Temporadas</button>
+                    <button onClick={() => navigateTo('precos')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'precos' ? 'bg-[#034078] text-white shadow-md' : 'bg-[#E0E7F0] text-[#0A1128] hover:bg-[#D0D9E5]'}`}><DollarSign size={20} /> Preços</button>
+                    <button onClick={() => navigateTo('como-enviar')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'como-enviar' ? 'bg-[#034078] text-white shadow-md' : 'bg-[#E0E7F0] text-[#0A1128] hover:bg-[#D0D9E5]'}`}><Send size={20} /> Como Enviar Áudios</button>
+                    <button onClick={() => navigateTo('aelo-em-acao')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'aelo-em-acao' ? 'bg-[#034078] text-white shadow-md' : 'bg-[#E0E7F0] text-[#0A1128] hover:bg-[#D0D9E5]'}`}><Sparkles size={20} /> AELO em Ação</button>
+                    <button onClick={() => navigateTo('simular-assinatura')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'simular-assinatura' ? 'bg-[#034078] text-white shadow-md' : 'bg-[#E0E7F0] text-[#0A1128] hover:bg-[#D0D9E5]'}`}><Calculator size={20} /> Simulador de Assinatura</button>
+                    <button onClick={() => navigateTo('blog')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'blog' ? 'bg-[#034078] text-white shadow-md' : 'bg-[#E0E7F0] text-[#0A1128] hover:bg-[#D0D9E5]'}`}><Rss size={20} /> Blog/Notícias</button>
+                    <button onClick={() => navigateTo('trabalhe-conosco')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'trabalhe-conosco' ? 'bg-[#034078] text-white shadow-md animate-pulse' : 'bg-[#E0E7F0] text-[#0A1128] hover:bg-[#D0D9E5]'}`}><BriefcaseBusiness size={20} /> Trabalhe Conosco</button>
+                    <button onClick={() => navigateTo('compromisso-sustentavel')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'compromisso-sustentavel' ? 'bg-[#034078] text-white shadow-md' : 'bg-[#E0E7F0] text-[#0A1128] hover:bg-[#D0D9E5]'}`}><Leaf size={20} /> Compromisso Sustentável</button>
+                    <button onClick={() => navigateTo('faq')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'faq' ? 'bg-[#034078] text-white shadow-md' : 'bg-[#E0E7F0] text-[#0A1128] hover:bg-[#D0D9E5]'}`}><Info size={20} /> FAQ</button>
+                    <button onClick={() => navigateTo('termos-condicoes')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'termos-condicoes' ? 'bg-[#034078] text-white shadow-md' : 'bg-[#E0E7F0] text-[#0A1128] hover:bg-[#D0D9E5]'}`}><FileText size={20} /> Termos</button>
+                    <button onClick={() => navigateTo('contato')} className={`w-full text-left px-4 py-3 rounded-lg font-semibold transition-all duration-300 flex items-center gap-3 transform hover:scale-[1.02] ${activePage === 'contato' ? 'bg-[#034078] text-white shadow-md' : 'bg-[#E0E7F0] text-[#0A1128] hover:bg-[#D0D9E5]'}`}><MessageSquare size={20} /> Contato</button>
                 </div>
             </nav>
             
@@ -649,8 +666,7 @@ const App = () => {
                     href="https://www.instagram.com/aelovoz"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="p-2 rounded-full shadow-2xl transform hover:scale-110 transition-all duration-300 ease-in-out flex items-center justify-center"
-                    style={{ backgroundColor: '#E1306C', color: 'white' }}
+                    className="p-3 rounded-full shadow-lg transform hover:scale-110 transition-all duration-300 ease-in-out flex items-center justify-center bg-pink-600 text-white"
                     aria-label="Visite nosso Instagram"
                     title="Visite nosso Instagram"
                 >
@@ -662,8 +678,7 @@ const App = () => {
                     href="https://wa.me/5514981150675"
                     target="_blank"
                     rel="noopener noreferrer"
-                    className="p-2 rounded-full shadow-2xl transform hover:scale-110 transition-all duration-300 ease-in-out flex items-center justify-center"
-                    style={{ backgroundColor: '#25D366', color: 'white' }}
+                    className="p-3 rounded-full shadow-lg transform hover:scale-110 transition-all duration-300 ease-in-out flex items-center justify-center bg-green-600 text-white"
                     aria-label="Fale Conosco no WhatsApp"
                     title="Fale Conosco no WhatsApp"
                 >
@@ -673,7 +688,7 @@ const App = () => {
                 {/* Fixed "Envie seu Áudio" Button */}
                 <button
                     onClick={() => setShowSendAudioModal(true)}
-                    className="px-4 py-2 rounded-full shadow-2xl transform hover:scale-110 transition-all duration-300 ease-in-out flex items-center justify-center font-bold text-sm bg-yellow-400 text-gray-900"
+                    className="px-5 py-3 rounded-full shadow-lg transform hover:scale-110 transition-all duration-300 ease-in-out flex items-center justify-center font-bold text-sm bg-[#1282A2] text-white"
                     aria-label="Envie seu Áudio"
                     title="Envie seu Áudio"
                 >
@@ -689,473 +704,577 @@ const App = () => {
             <main className="p-4 md:p-8 flex-grow pb-28">
                 <div key={activePage} className={`relative z-10 transition-opacity duration-300 ease-in-out ${contentVisible ? 'opacity-100' : 'opacity-0'}`}>
                     {activePage === 'home' && (
-                        <div className="p-8 rounded-xl shadow-xl max-w-4xl mx-auto mt-8 text-center animate-fade-in bg-blue-50">
-                            <h2 className="text-4xl font-extrabold mb-4 flex items-center justify-center gap-3 text-gray-900">Bem-vindo(a) à AELO!</h2>
-                            <p className="text-lg mb-6 leading-relaxed text-gray-900">Na AELO, sua voz ganha asas e pedala pela cidade, criando conexões inesquecíveis. Transformamos mensagens em experiências sonoras que ecoam pelas ruas, alcançando corações e mentes.</p>
-                            <p className="text-lg mb-8 leading-relaxed flex items-center justify-center gap-2 text-yellow-500">
-                                <Mic size={28} className="text-yellow-500" />
-                                <span className="font-semibold">Bauru & Região</span>
+                        <section className="bg-white p-8 rounded-xl shadow-lg max-w-5xl mx-auto mt-8 text-center animate-fade-in border border-[#A8DADC]">
+                            <h2 className="text-4xl md:text-5xl font-extrabold mb-4 text-[#0A1128] leading-tight">
+                                Sua Voz em Movimento: A Publicidade que Transforma
+                            </h2>
+                            <p className="text-lg md:text-xl mb-8 leading-relaxed text-gray-700">
+                                Na AELO, levamos sua mensagem para as ruas de Bauru e região de forma inovadora, sustentável e memorável. Conecte-se com seu público de um jeito único!
                             </p>
-                            <div className="p-4 rounded-lg font-semibold flex items-center justify-center gap-2 border shadow-sm bg-blue-100 text-blue-800 border-blue-200">
-                                <Info size={20} />
-                                Fique de olho nas nossas Temporadas Temáticas para uma conexão ainda mais profunda com o público! Explore a aba "Temporadas" e saiba como sua voz pode se encaixar perfeitamente no momento.
+                            <div className="flex flex-col sm:flex-row justify-center items-center gap-4">
+                                <button onClick={() => navigateTo('como-enviar')} className="px-8 py-4 bg-[#034078] text-white font-bold rounded-full shadow-lg hover:bg-[#1282A2] transition-colors transform hover:scale-105 flex items-center gap-2">
+                                    <Send size={20} /> Envie Seu Áudio Agora!
+                                </button>
+                                <button onClick={() => navigateTo('precos')} className="px-8 py-4 bg-[#1282A2] text-white font-bold rounded-full shadow-lg hover:bg-[#034078] transition-colors transform hover:scale-105 flex items-center gap-2">
+                                    <DollarSign size={20} /> Veja Nossos Preços
+                                </button>
                             </div>
-                        </div>
+
+                            <div className="mt-12 grid grid-cols-1 md:grid-cols-3 gap-8 text-left">
+                                <div className="p-6 rounded-lg shadow-md bg-[#E0E7F0] border border-[#A8DADC] animate-fade-in-up">
+                                    <Users size={32} className="text-[#034078] mb-3" />
+                                    <h3 className="text-xl font-semibold text-[#0A1128] mb-2">Conexão Humana</h3>
+                                    <p className="text-gray-700">Mensagens que tocam o coração e criam laços reais com a comunidade.</p>
+                                </div>
+                                <div className="p-6 rounded-lg shadow-md bg-[#E0E7F0] border border-[#A8DADC] animate-fade-in-up delay-100">
+                                    <Leaf size={32} className="text-green-600 mb-3" />
+                                    <h3 className="text-xl font-semibold text-[#0A1128] mb-2">Sustentabilidade</h3>
+                                    <p className="text-gray-700">Publicidade "verde" com bicicletas, reduzindo o impacto ambiental.</p>
+                                </div>
+                                <div className="p-6 rounded-lg shadow-md bg-[#E0E7F0] border border-[#A8DADC] animate-fade-in-up delay-200">
+                                    <Trophy size={32} className="text-yellow-600 mb-3" />
+                                    <h3 className="text-xl font-semibold text-[#0A1128] mb-2">Engajamento</h3>
+                                    <p className="text-gray-700">Dinâmicas e surpresas que transformam a cidade em um palco interativo.</p>
+                                </div>
+                            </div>
+                        </section>
                     )}
 
                     {activePage === 'categorias' && (
-                        <div className="p-8 rounded-xl shadow-xl max-w-4xl mx-auto mt-8 animate-fade-in bg-blue-50">
-                             <h2 className="text-3xl font-bold mb-6 text-center flex items-center justify-center gap-2 text-gray-900">Nossas Categorias de Serviço: Conecte-se de Forma Única <Users size={32} /></h2>
-                             <p className="text-lg mb-6 leading-relaxed text-gray-900">Oferecemos soluções personalizadas para cada tipo de mensagem, garantindo que sua voz alcance o coração certo. Escolha a que mais ressoa com sua intenção:</p>
-                             <div className="category-box border p-6 rounded-lg shadow-md mb-6 transform hover:scale-[1.01] transition-transform duration-200 animate-fade-in-up bg-white border-blue-600">
-                                 <h3 className="text-2xl font-semibold mb-3 flex items-center gap-2 text-blue-600"><Heart size={24} /> AELO+ Cliente: Emoção que Pedala</h3>
-                                 <p className="leading-relaxed text-gray-900">A categoria mais pessoal e emocionante, perfeita para momentos que merecem ser eternizados:</p>
-                                 <ul className="list-disc list-inside space-y-2 mt-2 text-gray-900">
-                                     <li>Declarações de Amor: Um pedido de casamento inesquecível, uma homenagem tocante.</li>
-                                     <li>Feliz Aniversário Inesquecível: Sua voz, suas risadas, suas memórias mais queridas.</li>
-                                     <li>Palavras Amigas/Apoio: Conforto, incentivo e carinho em momentos cruciais.</li>
-                                     <li>Pedidos de Desculpas Sinceros: A emoção da sua voz para a reconciliação.</li>
-                                     <li>Celebração de Conquistas: Formaturas, novos empregos, vitórias que merecem ser celebradas em alto e bom som.</li>
-                                 </ul>
-                                 <p className="mt-4 leading-relaxed text-gray-900">Como funciona: Grave seu áudio com o coração (seu celular é perfeito!), envie para a AELO e nós o veiculamos com carinho. Simples e impactante!</p>
-                             </div>
-                             <div className="category-box border p-6 rounded-lg shadow-md mb-6 transform hover:scale-[1.01] transition-transform duration-200 animate-fade-in-up delay-100 bg-white border-blue-600">
-                                 <h3 className="text-2xl font-semibold mb-3 flex items-center gap-2 text-blue-600"><Briefcase size={24} /> AELO Negócio: Sua Marca em Movimento</h3>
-                                 <p className="leading-relaxed text-gray-900">A publicidade que o seu negócio precisa para se destacar na paisagem urbana. Ideal para:</p>
-                                 <ul className="list-disc list-inside space-y-2 mt-2 text-gray-900">
-                                     <li>Anunciar Promoções Irresistíveis: Ofertas relâmpago, cupons de desconto que chamam a atenção.</li>
-                                     <li>Inaugurações Memoráveis: Divulgar a abertura da sua loja ou serviço de forma criativa.</li>
-                                     <li>Eventos Vibrantes: Convidar para feiras, workshops, espetáculos que não podem ser perdidos.</li>
-                                     <li>Lançamento de Produtos Inovadores: Apresentar novidades ao público de forma dinâmica.</li>
-                                 </ul>
-                                 <p className="mt-4 leading-relaxed text-gray-900">É a solução ideal para pequenos e médios empreendedores que buscam um alcance direcionado, criativo e que realmente se conecta com a cidade.</p>
-                             </div>
-                             <div className="category-box border p-6 rounded-lg shadow-md transform hover:scale-[1.01] transition-transform duration-200 animate-fade-in-up delay-200 bg-white border-blue-600">
-                                 <h3 className="text-2xl font-semibold mb-3 flex items-center gap-2 text-blue-600"><Info size={24} /> AELO Informações Públicas: Ecoando Boas Causas</h3>
-                                 <p className="leading-relaxed text-gray-900">Uma categoria dedicada a amplificar causas sociais e avisos comunitários importantes. Use a AELO para:</p>
-                                 <ul className="list-disc list-inside space-y-2 mt-2 text-gray-900">
-                                     <li>Campanhas de Conscientização: Saúde, meio ambiente, segurança, e tudo que importa para a comunidade.</li>
-                                     <li>Eventos Beneficentes: Divulgar ações de ONGs, pedidos de voluntários, e iniciativas solidárias.</li>
-                                     <li>Avisos Comunitários: Informações cruciais para o bairro ou cidade, entregues de forma eficiente.</li>
-                                 </ul>
-                                 <p className="mt-4 leading-relaxed text-gray-900">Fazer o bem também tem voz, e a AELO está aqui para amplificar sua mensagem social, alcançando quem mais precisa.</p>
-                             </div>
-                        </div>
+                        <section className="bg-white p-8 rounded-xl shadow-lg max-w-5xl mx-auto mt-8 animate-fade-in border border-[#A8DADC]">
+                            <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center text-[#0A1128]">
+                                Nossas Categorias de Serviço: Sua Mensagem, Seu Impacto
+                            </h2>
+                            <p className="text-lg mb-10 leading-relaxed text-gray-700 text-center">
+                                A AELO oferece soluções personalizadas para cada necessidade. Escolha a categoria que melhor se alinha à sua voz e ao seu objetivo:
+                            </p>
+
+                            <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
+                                <div className="category-card bg-[#E0E7F0] p-6 rounded-xl shadow-md border border-[#A8DADC] transform hover:scale-[1.02] transition-transform duration-300 animate-fade-in-up">
+                                    <div className="flex items-center justify-center w-16 h-16 rounded-full bg-[#034078] text-white mx-auto mb-4">
+                                        <Heart size={32} />
+                                    </div>
+                                    <h3 className="text-2xl font-bold text-[#0A1128] mb-3 text-center">AELO+ Cliente</h3>
+                                    <p className="text-gray-700 leading-relaxed text-center">
+                                        Mensagens pessoais e emocionantes para celebrar momentos únicos: aniversários, pedidos de casamento, declarações de amor e apoio.
+                                    </p>
+                                    <ul className="list-disc list-inside text-gray-600 mt-4 space-y-1">
+                                        <li>Declarações de Amor</li>
+                                        <li>Feliz Aniversário Inesquecível</li>
+                                        <li>Palavras de Apoio</li>
+                                    </ul>
+                                </div>
+
+                                <div className="category-card bg-[#E0E7F0] p-6 rounded-xl shadow-md border border-[#A8DADC] transform hover:scale-[1.02] transition-transform duration-300 animate-fade-in-up delay-100">
+                                    <div className="flex items-center justify-center w-16 h-16 rounded-full bg-[#034078] text-white mx-auto mb-4">
+                                        <Briefcase size={32} />
+                                    </div>
+                                    <h3 className="text-2xl font-bold text-[#0A1128] mb-3 text-center">AELO Negócio</h3>
+                                    <p className="text-gray-700 leading-relaxed text-center">
+                                        Publicidade dinâmica para o seu empreendimento: promoções, inaugurações e eventos que precisam de destaque na cidade.
+                                    </p>
+                                    <ul className="list-disc list-inside text-gray-600 mt-4 space-y-1">
+                                        <li>Anúncios de Promoções</li>
+                                        <li>Inaugurações e Lançamentos</li>
+                                        <li>Divulgação de Eventos</li>
+                                    </ul>
+                                </div>
+
+                                <div className="category-card bg-[#E0E7F0] p-6 rounded-xl shadow-md border border-[#A8DADC] transform hover:scale-[1.02] transition-transform duration-300 animate-fade-in-up delay-200">
+                                    <div className="flex items-center justify-center w-16 h-16 rounded-full bg-[#034078] text-white mx-auto mb-4">
+                                        <Info size={32} />
+                                    </div>
+                                    <h3 className="text-2xl font-bold text-[#0A1128] mb-3 text-center">AELO Informações Públicas</h3>
+                                    <p className="text-gray-700 leading-relaxed text-center">
+                                        Amplifique causas sociais e avisos comunitários importantes, promovendo o bem-estar e a conscientização na cidade.
+                                    </p>
+                                    <ul className="list-disc list-inside text-gray-600 mt-4 space-y-1">
+                                        <li>Campanhas de Conscientização</li>
+                                        <li>Eventos Beneficentes</li>
+                                        <li>Avisos Comunitários</li>
+                                    </ul>
+                                </div>
+                            </div>
+                        </section>
                     )}
 
                     {activePage === 'porque-aelo' && (
-                        <div className="p-8 rounded-xl shadow-xl max-w-4xl mx-auto mt-8 animate-fade-in bg-blue-50">
-                             <h2 className="text-3xl font-bold mb-6 text-center flex items-center justify-center gap-2 text-gray-900">Por Que Escolher a AELO? A Diferença que Você Ouve! <Star size={32} /></h2>
-                             <p className="text-lg mb-6 leading-relaxed text-gray-900">A AELO - Sua Voz em Movimento vai além da publicidade; é uma experiência sonora que cativa. Descubra os diferenciais que nos tornam a escolha perfeita para sua mensagem:</p>
-                             <ul className="space-y-4">
-                                 <li className="p-4 rounded-lg shadow-md flex items-start gap-3 transform hover:scale-[1.01] transition-transform duration-200 animate-fade-in-up bg-white">
-                                     <CheckCircle size={24} className="text-blue-600 mt-1" />
-                                     <div>
-                                         <h3 className="text-xl font-semibold text-gray-900">Alcance Hiperlocal e Dinâmico</h3>
-                                         <p className="text-gray-600">Sua mensagem em movimento, alcançando ruas, bairros e públicos específicos com precisão e energia. Não é um anúncio parado, é uma voz que se integra ao ritmo da cidade.</p>
-                                     </div>
-                                 </li>
-                                 <li className="p-4 rounded-lg shadow-md flex items-start gap-3 transform hover:scale-[1.01] transition-transform duration-200 animate-fade-in-up delay-100 bg-white">
-                                     <CheckCircle size={24} className="text-blue-600 mt-1" />
-                                     <div>
-                                         <h3 className="text-xl font-semibold text-gray-900">Engajamento Inovador e Memorável</h3>
-                                         <p className="text-gray-600">Em um mundo de distrações visuais, o som inesperado de uma bicicleta captura a atenção e gera curiosidade genuína. Sua mensagem é ouvida em média 10 vezes por ciclo de veiculação, garantindo que ela seja fixada na mente.</p>
-                                     </div>
-                                 </li>
-                                 <li className="p-4 rounded-lg shadow-md flex items-start gap-3 transform hover:scale-[1.01] transition-transform duration-200 animate-fade-in-up delay-200 bg-white">
-                                     <CheckCircle size={24} className="text-blue-600 mt-1" />
-                                     <div>
-                                         <h3 className="text-xl font-semibold text-gray-900">Qualidade Sonora e Conteúdo Moderado</h3>
-                                         <p className="text-gray-600">Todos os áudios passam por um rigoroso processo de moderação. Garantimos clareza, objetividade e a melhor qualidade de som, para que sua mensagem chegue perfeita e sem ruídos indesejados, transmitindo profissionalismo e cuidado.</p>
-                                     </div>
-                                 </li>
-                                 <li className="p-4 rounded-lg shadow-md flex items-start gap-3 transform hover:scale-[1.01] transition-transform duration-200 animate-fade-in-up delay-300 bg-white">
-                                     <CheckCircle size={24} className="text-blue-600 mt-1" />
-                                     <div>
-                                         <h3 className="text-xl font-semibold text-gray-900">Sustentabilidade e Imagem Positiva</h3>
-                                         <p className="text-gray-600">Nossa publicidade é "verde" de verdade! Ao usar bicicletas, promovemos um marketing ecológico e associamos sua marca a valores de responsabilidade ambiental, saúde e inovação consciente.</p>
-                                     </div>
-                                 </li>
-                                 <li className="p-4 rounded-lg shadow-md flex items-start gap-3 transform hover:scale-[1.01] transition-transform duration-200 animate-fade-in-up delay-400 bg-white">
-                                     <CheckCircle size={24} className="text-blue-600 mt-1" />
-                                     <div>
-                                         <h3 className="text-xl font-semibold text-gray-900">A Magia da Conexão Humana</h3>
-                                         <p className="text-gray-600">Não é apenas um som; é uma voz levada por um ciclista, uma pessoa real que interage com a cidade. Essa presença humana cria uma conexão mais autêntica e emocional com quem ouve, tornando sua mensagem inesquecível e humana.</p>
-                                     </div>
-                                 </li>
-                             </ul>
-                        </div>
+                        <section className="bg-white p-8 rounded-xl shadow-lg max-w-5xl mx-auto mt-8 animate-fade-in border border-[#A8DADC]">
+                            <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center text-[#0A1128]">
+                                Por Que AELO? A Diferença que Você Sente e Ouve
+                            </h2>
+                            <p className="text-lg mb-10 leading-relaxed text-gray-700 text-center">
+                                Escolher a AELO é optar por uma comunicação que vai além do convencional. Descubra os pilares que nos tornam únicos:
+                            </p>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                <div className="feature-card bg-[#E0E7F0] p-6 rounded-xl shadow-md border border-[#A8DADC] flex flex-col items-center text-center transform hover:scale-[1.02] transition-transform duration-300 animate-fade-in-up">
+                                    <CheckCircle size={40} className="text-[#034078] mb-4" />
+                                    <h3 className="text-xl font-semibold text-[#0A1128] mb-2">Alcance Dinâmico e Preciso</h3>
+                                    <p className="text-gray-700">Sua mensagem em movimento, atingindo o público certo, no lugar certo, com agilidade e impacto.</p>
+                                </div>
+                                <div className="feature-card bg-[#E0E7F0] p-6 rounded-xl shadow-md border border-[#A8DADC] flex flex-col items-center text-center transform hover:scale-[1.02] transition-transform duration-300 animate-fade-in-up delay-100">
+                                    <Lightbulb size={40} className="text-yellow-600 mb-4" />
+                                    <h3 className="text-xl font-semibold text-[#0A1128] mb-2">Engajamento Inovador</h3>
+                                    <p className="text-gray-700">Cative a atenção com a originalidade da publicidade sonora em bicicleta, gerando curiosidade e memorização.</p>
+                                </div>
+                                <div className="feature-card bg-[#E0E7F0] p-6 rounded-xl shadow-md border border-[#A8DADC] flex flex-col items-center text-center transform hover:scale-[1.02] transition-transform duration-300 animate-fade-in-up delay-200">
+                                    <Volume2 size={40} className="text-[#1282A2] mb-4" />
+                                    <h3 className="text-xl font-semibold text-[#0A1128] mb-2">Qualidade Sonora Impecável</h3>
+                                    <p className="text-gray-700">Áudios moderados e veiculados com a mais alta qualidade, garantindo que sua mensagem seja clara e profissional.</p>
+                                </div>
+                                <div className="feature-card bg-[#E0E7F0] p-6 rounded-xl shadow-md border border-[#A8DADC] flex flex-col items-center text-center transform hover:scale-[1.02] transition-transform duration-300 animate-fade-in-up delay-300">
+                                    <Leaf size={40} className="text-green-600 mb-4" />
+                                    <h3 className="text-xl font-semibold text-[#0A1128] mb-2">Compromisso Sustentável</h3>
+                                    <p className="text-gray-700">Escolha uma publicidade que contribui para um meio ambiente mais limpo e uma cidade mais saudável.</p>
+                                </div>
+                                <div className="feature-card bg-[#E0E7F0] p-6 rounded-xl shadow-md border border-[#A8DADC] flex flex-col items-center text-center transform hover:scale-[1.02] transition-transform duration-300 animate-fade-in-up delay-400">
+                                    <Handshake size={40} className="text-orange-600 mb-4" />
+                                    <h3 className="text-xl font-semibold text-[#0A1128] mb-2">Conexão Humana Autêntica</h3>
+                                    <p className="text-gray-700">Nossos ciclistas criam uma interação genuína, tornando sua mensagem mais próxima e memorável.</p>
+                                </div>
+                                <div className="feature-card bg-[#E0E7F0] p-6 rounded-xl shadow-md border border-[#A8DADC] flex flex-col items-center text-center transform hover:scale-[1.02] transition-transform duration-300 animate-fade-in-up delay-500">
+                                    <Award size={40} className="text-red-600 mb-4" />
+                                    <h3 className="text-xl font-semibold text-[#0A1128] mb-2">Resultados Comprovados</h3>
+                                    <p className="text-gray-700">Clientes satisfeitos e campanhas de sucesso que demonstram o poder da AELO.</p>
+                                </div>
+                            </div>
+                        </section>
                     )}
                     
                     {/* Página de Comparativo */}
                     {activePage === 'comparativo' && (
-                        <div className="p-8 rounded-xl shadow-xl max-w-4xl mx-auto mt-8 animate-fade-in bg-blue-50">
-                            <h2 className="text-3xl font-bold mb-6 text-center flex items-center justify-center gap-2 text-gray-900">
-                                AELO vs. Veiculadores Tradicionais: A Evolução da Sua Voz! <Scale size={32} />
+                        <section className="bg-white p-8 rounded-xl shadow-lg max-w-5xl mx-auto mt-8 animate-fade-in border border-[#A8DADC]">
+                            <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center text-[#0A1128]">
+                                AELO vs. O Tradicional: A Evolução da Sua Publicidade
                             </h2>
-                            <p className="text-lg mb-8 leading-relaxed text-center text-gray-900">
-                                No cenário da publicidade e comunicação, a escolha do método de veiculação faz toda a diferença. Compare a abordagem inovadora da AELO - Sua Voz em Movimento com os tradicionais carros de som e descubra por que somos a melhor opção para sua mensagem.
+                            <p className="text-lg mb-10 leading-relaxed text-gray-700 text-center">
+                                Compare a inovação da AELO com os métodos tradicionais de veiculação e descubra a escolha inteligente para sua mensagem.
                             </p>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                            <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
                                 {/* Coluna AELO */}
-                                <div className="p-6 rounded-lg shadow-md transform hover:scale-[1.01] transition-transform duration-200 animate-fade-in-up bg-white border border-blue-600">
-                                    <h3 className="text-2xl font-semibold mb-4 flex items-center gap-2 text-blue-600">
-                                        <Bike size={28} /> AELO: Sua Voz em Movimento
+                                <div className="p-8 rounded-xl shadow-lg bg-[#E0E7F0] border-2 border-[#034078] transform hover:scale-[1.01] transition-transform duration-300 animate-fade-in-up">
+                                    <h3 className="text-2xl font-bold mb-6 flex items-center gap-3 text-[#0A1128]">
+                                        <Bike size={36} className="text-[#034078]" /> AELO: A Voz do Futuro
                                     </h3>
-                                    <ul className="space-y-4">
+                                    <ul className="space-y-5 text-gray-700">
                                         <li>
-                                            <h4 className="font-bold text-lg text-gray-900">Facilidade e Estilo Facilitado:</h4>
-                                            <p className="text-gray-600">Você tem o control total do seu marketing. Grave seu áudio com o celular, envie para nós e pronto! Simples, rápido e sem burocracia.</p>
+                                            <strong className="text-[#0A1128]">Facilidade e Agilidade:</strong> Grave seu áudio com o celular e envie. Processo descomplicado e rápido.
                                         </li>
                                         <li>
-                                            <h4 className="font-bold text-lg text-gray-900">Preços e Economia Incomparáveis:</h4>
-                                            <p className="text-gray-600">Nossos preços começam em apenas <span className="font-semibold text-green-600">R$ 6,00</span> por áudio, com veiculação o dia inteiro (das 8h às 18h). Um custo-benefício que os veiculadores tradicionais não conseguem igualar.</p>
+                                            <strong className="text-[#0A1128]">Custo-Benefício Imbatível:</strong> Preços a partir de R$ 6,00 por áudio, com veiculação o dia inteiro. Mais impacto por menos investimento.
                                         </li>
                                         <li>
-                                            <h4 className="font-bold text-lg text-gray-900">Categorias Diversificadas e Humanizadas:</h4>
-                                            <p className="text-gray-600">Além de anúncios para negócios, oferecemos as categorias AELO+ Cliente (para mensagens pessoais e emocionantes) e AELO Informações Públicas (para causas humanitárias e comunitárias). Levamos sua voz para quem mais precisa, de forma autêntica e impactante.</p>
+                                            <strong className="text-[#0A1128]">Engajamento Autêntico:</strong> A presença humana do ciclista cria uma conexão genuína, capturando a atenção de forma orgânica.
                                         </li>
                                         <li>
-                                            <h4 className="font-bold text-lg text-gray-900">Maior Alcance e Mais Rápido:</h4>
-                                            <p className="text-gray-600">Nossos ciclistas atendem toda a cidade de Bauru e região, alcançando áreas específicas com agilidade e dinamismo. Sua mensagem não fica presa a uma rota fixa, ela se move com a cidade.</p>
+                                            <strong className="text-[#0A1128]">Sustentabilidade:</strong> Publicidade ecológica que promove a mobilidade urbana e a consciência ambiental.
                                         </li>
                                         <li>
-                                            <h4 className="font-bold text-lg text-gray-900">Conexão Humana e Engajamento:</h4>
-                                            <p className="text-gray-600">A presença do ciclista cria uma interação mais genuína. O som inesperado da bicicleta com sua mensagem gera curiosidade e memorização, destacando-se no ambiente urbano.</p>
+                                            <strong className="text-[#0A1128]">Alcance Segmentado:</strong> Leve sua mensagem para bairros e pontos específicos com flexibilidade e dinamismo.
                                         </li>
                                     </ul>
                                 </div>
 
                                 {/* Coluna Veiculadores Tradicionais */}
-                                <div className="p-6 rounded-lg shadow-md transform hover:scale-[1.01] transition-transform duration-200 animate-fade-in-up delay-100 bg-white border border-blue-600">
-                                    <h3 className="text-2xl font-semibold mb-4 flex items-center gap-2 text-blue-600">
-                                        <Volume2 size={28} /> Carros de Som: O Passado da Veiculação
+                                <div className="p-8 rounded-xl shadow-lg bg-[#E0E7F0] border-2 border-[#A8DADC] transform hover:scale-[1.01] transition-transform duration-300 animate-fade-in-up delay-100">
+                                    <h3 className="text-2xl font-bold mb-6 flex items-center gap-3 text-gray-700">
+                                        <Volume2 size={36} className="text-gray-600" /> Carros de Som: O Passado
                                     </h3>
-                                    <ul className="space-y-4">
+                                    <ul className="space-y-5 text-gray-700">
                                         <li>
-                                            <h4 className="font-bold text-lg text-gray-900">Custo Elevado por Pouco Serviço:</h4>
-                                            <p className="text-gray-600">Os carros de som geralmente cobram muito mais por um serviço com alcance limitado e menos flexibilidade, tornando-o menos acessível para pequenos empreendedores e mensagens pessoais.</p>
+                                            <strong className="text-gray-800">Processo Burocrático:</strong> Geralmente exige mais etapas e tempo para veiculação.
                                         </li>
                                         <li>
-                                            <h4 className="font-bold text-lg text-gray-900">Alcance Limitado e Menos Dinâmico:</h4>
-                                            <p className="text-gray-600">Ficam restritos a rotas pré-definidas e horários fixos, perdendo a oportunidade de alcançar públicos em áreas de grande fluxo que mudam ao longo do dia.</p>
+                                            <strong className="text-gray-800">Custo Elevado:</strong> Preços mais altos por um alcance genérico e menos direcionado.
                                         </li>
                                         <li>
-                                            <h4 className="font-bold text-lg text-gray-900">Menos Engajamento:</h4>
-                                            <p className="text-gray-600">A presença constante e por vezes intrusiva pode levar à saturação e à ignorância por parte do público, que já está acostumado com esse tipo de anúncio.</p>
+                                            <strong className="text-gray-800">Menor Engajamento:</strong> Muitas vezes ignorado pelo público devido à saturação e falta de interação.
                                         </li>
                                         <li>
-                                            <h4 className="font-bold text-lg text-gray-900">Foco Exclusivo em Publicidade Comercial:</h4>
-                                            <p className="text-gray-600">Geralmente, não oferecem opções para mensagens pessoais, declarações ou campanhas humanitárias, limitando o tipo de comunicação que pode ser veiculada.</p>
+                                            <strong className="text-gray-800">Impacto Ambiental:</strong> Contribui para a poluição sonora e atmosférica nas cidades.
+                                        </li>
+                                        <li>
+                                            <strong className="text-gray-800">Rotas Fixas:</strong> Menos flexibilidade para adaptar a veiculação a áreas de maior interesse.
                                         </li>
                                     </ul>
                                 </div>
                             </div>
-                            <p className="text-lg text-center leading-relaxed mt-8 flex items-center justify-center gap-2 text-gray-900">
-                                Escolha a AELO - Sua Voz em Movimento e leve sua voz para o futuro, com mais impacto, economia e conexão humana!
+                            <p className="text-lg text-center leading-relaxed mt-12 text-[#034078] font-semibold">
+                                Escolha a AELO e faça sua voz ser ouvida de forma mais inteligente, eficaz e responsável!
                             </p>
-                        </div>
+                        </section>
                     )}
 
                     {activePage === 'depoimentos' && (
-                        <div className="p-8 rounded-xl shadow-xl max-w-4xl mx-auto mt-8 animate-fade-in relative bg-blue-50">
-                            <h2 className="text-3xl font-bold mb-6 text-center flex items-center justify-center gap-2 text-gray-900">
-                                Histórias de Sucesso AELO: A Voz dos Nossos Clientes <Quote size={32} />
+                        <section className="bg-white p-8 rounded-xl shadow-lg max-w-5xl mx-auto mt-8 animate-fade-in relative border border-[#A8DADC]">
+                            <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center text-[#0A1128]">
+                                Histórias que Inspiram: A Voz dos Nossos Clientes
                             </h2>
-                            <p className="text-lg mb-8 leading-relaxed text-center text-gray-900">
-                                Nada fala mais alto sobre nosso impacto do que as histórias de quem confiou sua voz à AELO - Sua Voz em Movimento. Veja como transformamos mensagens em momentos inesquecíveis e resultados concretos.
+                            <p className="text-lg mb-10 leading-relaxed text-gray-700 text-center">
+                                Nada nos orgulha mais do que ver o impacto real que a AELO gera na vida das pessoas e nos negócios. Conheça algumas de nossas histórias de sucesso:
                             </p>
                             
                             {/* Carrossel de depoimentos */}
-                            <div className="relative">
-                                <div className="p-6 rounded-lg border-l-4 transform transition-all duration-300 ease-in-out shadow-md bg-white border-blue-600">
-                                    <Quote size={32} className="text-blue-300 mb-4" />
-                                    <p key={currentTestimonialIndex} className="text-lg italic leading-relaxed mb-4 animate-fade-in-up text-gray-900">"{testimonials[currentTestimonialIndex].quote}"</p>
-                                    <div className="flex items-center justify-end gap-4">
-                                        <div className="text-right">
-                                            <p className="font-bold text-gray-900">{testimonials[currentTestimonialIndex].name}</p>
-                                            <p className="text-gray-600 text-sm">{testimonials[currentTestimonialIndex].service}</p>
-                                        </div>
-                                        <div className="p-3 rounded-full shadow-inner bg-white">
-                                            {testimonials[currentTestimonialIndex].icon}
-                                        </div>
+                            <div className="relative bg-[#E0E7F0] p-8 rounded-xl shadow-inner border border-[#A8DADC]">
+                                <div className="flex items-center justify-center mb-6">
+                                    <Quote size={48} className="text-gray-500 opacity-70" />
+                                </div>
+                                <p key={currentTestimonialIndex} className="text-xl italic leading-relaxed mb-6 text-center text-gray-700 animate-fade-in-up">"{testimonials[currentTestimonialIndex].quote}"</p>
+                                <div className="flex flex-col sm:flex-row items-center justify-center gap-4 text-center sm:text-right">
+                                    <div className="p-4 rounded-full bg-[#A8DADC] shadow-md">
+                                        {testimonials[currentTestimonialIndex].icon}
+                                    </div>
+                                    <div>
+                                        <p className="font-bold text-[#0A1128] text-lg">{testimonials[currentTestimonialIndex].name}</p>
+                                        <p className="text-gray-600 text-md">{testimonials[currentTestimonialIndex].service}</p>
                                     </div>
                                 </div>
                                 
                                 {/* Botões de navegação */}
                                 <button
                                     onClick={prevTestimonial}
-                                    className="absolute top-1/2 left-4 -translate-y-1/2 p-2 rounded-full shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 bg-white hover:bg-gray-100 focus:ring-blue-600"
+                                    className="absolute top-1/2 left-4 -translate-y-1/2 p-3 rounded-full bg-[#F0F4F8] shadow-lg text-[#034078] hover:bg-[#A8DADC] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#1282A2]"
                                     aria-label="Depoimento anterior"
                                 >
-                                    <ChevronLeft size={24} className="text-gray-600" />
+                                    <ChevronLeft size={28} />
                                 </button>
                                 <button
                                     onClick={nextTestimonial}
-                                    className="absolute top-1/2 right-4 -translate-y-1/2 p-2 rounded-full shadow-lg transition-all duration-200 focus:outline-none focus:ring-2 bg-white hover:bg-gray-100 focus:ring-blue-600"
+                                    className="absolute top-1/2 right-4 -translate-y-1/2 p-3 rounded-full bg-[#F0F4F8] shadow-lg text-[#034078] hover:bg-[#A8DADC] transition-all duration-200 focus:outline-none focus:ring-2 focus:ring-[#1282A2]"
                                     aria-label="Próximo depoimento"
                                 >
-                                    <ChevronRight size={24} className="text-gray-600" />
+                                    <ChevronRight size={28} />
                                 </button>
                             </div>
                             
                             {/* Indicadores de posição (dots) */}
-                            <div className="flex justify-center items-center gap-2 mt-8">
+                            <div className="flex justify-center items-center gap-3 mt-8">
                                 {testimonials.map((_, index) => (
                                     <button
                                         key={index}
-                                    onClick={() => setCurrentTestimonialIndex(index)}
-                                        className={`w-3 h-3 rounded-full transition-all duration-300 ${currentTestimonialIndex === index ? 'bg-blue-600' : 'bg-gray-300 hover:bg-gray-400'}`}
+                                        onClick={() => setCurrentTestimonialIndex(index)}
+                                        className={`w-3 h-3 rounded-full transition-all duration-300 ${currentTestimonialIndex === index ? 'bg-[#034078]' : 'bg-[#A8DADC] hover:bg-[#D0D9E5]'}`}
                                         aria-label={`Ir para o depoimento ${index + 1}`}
                                     ></button>
                                 ))}
                             </div>
-                        </div>
+                        </section>
                     )}
 
                     {activePage === 'dinamicas' && (
-                        <div className="p-8 rounded-xl shadow-xl max-w-4xl mx-auto mt-8 animate-fade-in bg-blue-50">
-                            <h2 className="text-3xl font-bold mb-6 text-center flex items-center justify-center gap-2 text-gray-900">Dinâmicas AELO: Sua Chance de Brilhar e Ganhar! <Trophy size={32} /></h2>
-                            <p className="text-lg mb-6 leading-relaxed text-gray-900">Na AELO - Sua Voz em Movimento, a interação e a recompensa são parte da nossa essência. Participe das nossas dinâmicas exclusivas e transforme sua experiência em algo ainda mais emocionante e recompensador!</p>
-                            <div className="p-6 rounded-lg shadow-md mb-6 transform hover:scale-[1.01] transition-transform duration-200 animate-fade-in-up bg-white border border-amber-600">
-                                <h3 className="text-2xl font-semibold mb-3 flex items-center gap-2 text-amber-600"><Mic size={24} /> Achou um Áudio Conhecido? Surpreenda-se!</h3>
-                                <p className="leading-relaxed text-gray-900">Você ouviu um áudio da AELO - Sua Voz em Movimento que reconheceu? Talvez seja a voz de um amigo, um familiar ou até a sua própria mensagem ecoando pela cidade!</p>
-                                <ul className="list-disc list-inside space-y-2 mt-2 text-gray-900">
-                                    <li>Grave um vídeo do ciclista AELO veiculando o áudio.</li>
-                                    <li>Marque a AELO no seu Instagram <span className="font-semibold text-blue-600">@Aelovoz</span>.</li>
-                                    <li>Envie o vídeo para nós via direct, informando o nome da pessoa dona da voz e o endereço aproximado de onde a ouviu.</li>
-                                </ul>
-                                <p className="mt-4 leading-relaxed flex items-center gap-2 text-gray-900">Nossa equipe verificará a solicitação e, se confirmado, faremos a entrega de um brinde surpresa e exclusivo para a pessoa dona da voz! Uma emoção em dobro! <Award size={20} className="text-amber-600"/></p>
-                            </div>
-                            <div className="p-6 rounded-lg shadow-md mb-6 transform hover:scale-[1.01] transition-transform duration-200 animate-fade-in-up delay-100 bg-white border border-blue-600">
-                                <h3 className="text-2xl font-semibold mb-3 flex items-center gap-2 text-blue-600"><DollarSign size={24} /> Ticket de até R$1000: Sua Voz Vale Ouro!</h3>
-                                <p className="leading-relaxed text-gray-900">Ao enviar qualquer áudio para veiculação com a AELO - Sua Voz em Movimento (seja AELO+ Cliente, Negócio ou Informações Públicas), você automaticamente participa de uma dinâmica especial que pode te garantir um ticket valioso de até R$1000,00!</p>
-                                <p className="mt-4 leading-relaxed flex items-center gap-2 text-gray-900">Sua voz não só emociona ou divulga, mas também pode te render um grande prêmio. É a AELO - Sua Voz em Movimento recompensando sua confiança e criatividade! <Trophy size={20} className="text-blue-600"/></p>
-                            </div>
-                            <div className="p-6 rounded-lg shadow-md mb-6 transform hover:scale-[1.01] transition-transform duration-200 animate-fade-in-up delay-200 bg-white border border-blue-600">
-                                <h3 className="text-2xl font-semibold mb-3 flex items-center gap-2 text-blue-600"><Search size={24} /> O Áudio Misterioso: Desvende o Enigma!</h3>
-                                <p className="leading-relaxed text-gray-900">Fique atento(a)! Periodicamente, veicularemos um "Áudio Misterioso". Ouça com atenção, desvende o enigma e envie sua resposta para a AELO - Sua Voz em Movimento para ganhar prêmios!</p>
-                                <div className="mt-4 text-center">
-                                    <p className="text-gray-700">
-                                        O áudio misterioso não está disponível no momento devido a atualizações na API.
+                        <section className="bg-white p-8 rounded-xl shadow-lg max-w-5xl mx-auto mt-8 animate-fade-in border border-[#A8DADC]">
+                            <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center text-[#0A1128]">
+                                Dinâmicas AELO: Interação, Diversão e Recompensas!
+                            </h2>
+                            <p className="text-lg mb-10 leading-relaxed text-gray-700 text-center">
+                                Transforme a cidade em um palco de experiências com as dinâmicas exclusivas da AELO. Participe e tenha a chance de ganhar prêmios incríveis!
+                            </p>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div className="dynamic-card bg-[#E0E7F0] p-6 rounded-xl shadow-md border border-[#A8DADC] transform hover:scale-[1.02] transition-transform duration-300 animate-fade-in-up">
+                                    <div className="flex items-center justify-center w-16 h-16 rounded-full bg-yellow-600 text-white mx-auto mb-4">
+                                        <Mic size={32} />
+                                    </div>
+                                    <h3 className="text-2xl font-bold text-[#0A1128] mb-3 text-center">Achou um Áudio Conhecido?</h3>
+                                    <p className="text-gray-700 leading-relaxed text-center">
+                                        Ouça atentamente! Se você reconhecer um áudio veiculado pela AELO, grave um vídeo do ciclista, marque-nos no Instagram (@Aelovoz) e envie o vídeo. O dono da voz pode ganhar um brinde exclusivo!
+                                    </p>
+                                </div>
+
+                                <div className="dynamic-card bg-[#E0E7F0] p-6 rounded-xl shadow-md border border-[#A8DADC] transform hover:scale-[1.02] transition-transform duration-300 animate-fade-in-up delay-100">
+                                    <div className="flex items-center justify-center w-16 h-16 rounded-full bg-[#034078] text-white mx-auto mb-4">
+                                        <DollarSign size={32} />
+                                    </div>
+                                    <h3 className="text-2xl font-bold text-[#0A1128] mb-3 text-center">Ticket de até R$1000</h3>
+                                    <p className="text-gray-700 leading-relaxed text-center">
+                                        Ao enviar qualquer áudio para veiculação, você automaticamente participa de uma dinâmica especial que pode te premiar com um ticket valioso de até R$1000,00!
+                                    </p>
+                                </div>
+
+                                <div className="dynamic-card bg-[#E0E7F0] p-6 rounded-xl shadow-md border border-[#A8DADC] transform hover:scale-[1.02] transition-transform duration-300 animate-fade-in-up delay-200">
+                                    <div className="flex items-center justify-center w-16 h-16 rounded-full bg-[#1282A2] text-white mx-auto mb-4">
+                                        <Search size={32} />
+                                    </div>
+                                    <h3 className="text-2xl font-bold text-[#0A1128] mb-3 text-center">O Áudio Misterioso</h3>
+                                    <p className="text-gray-700 leading-relaxed text-center">
+                                        Fique ligado! Periodicamente, veicularemos um "Áudio Misterioso". Desvende o enigma e envie sua resposta para a AELO para ganhar prêmios! (Funcionalidade em atualização)
+                                    </p>
+                                </div>
+
+                                <div className="dynamic-card bg-[#E0E7F0] p-6 rounded-xl shadow-md border border-[#A8DADC] transform hover:scale-[1.02] transition-transform duration-300 animate-fade-in-up delay-300">
+                                    <div className="flex items-center justify-center w-16 h-16 rounded-full bg-green-600 text-white mx-auto mb-4">
+                                        <MapPin size={32} />
+                                    </div>
+                                    <h3 className="text-2xl font-bold text-[#0A1128] mb-3 text-center">Caça ao Tesouro Sonora</h3>
+                                    <p className="text-gray-700 leading-relaxed text-center">
+                                        Prepare-se para uma aventura urbana! Siga as pistas em áudio veiculadas por nossos ciclistas em dias específicos para encontrar um tesouro escondido na cidade!
                                     </p>
                                 </div>
                             </div>
-                            <div className="p-6 rounded-lg shadow-md transform hover:scale-[1.01] transition-transform duration-200 animate-fade-in-up delay-300 bg-white border border-green-600">
-                                <h3 className="text-2xl font-semibold mb-3 flex items-center gap-2 text-green-600"><MapPin size={24} /> Caça ao Tesouro Sonora: Aventura Urbana!</h3>
-                                <p className="leading-relaxed text-gray-900">Prepare-se para uma aventura! Em dias específicos, nossos ciclistas veiculam pistas em áudio, transformando a cidade em um grande jogo. Siga as pistas para encontrar o tesouro!</p>
-                                <div className="flex justify-center items-center gap-4 mt-4 text-green-400">
-                                    <Search size={28} />
-                                    <span className="text-2xl font-mono">→</span>
-                                    <Bike size={28} />
-                                    <span className="text-2xl font-mono">→</span>
-                                    <Gift size={32} className="text-green-600" />
-                                </div>
-                            </div>
-                        </div>
+                        </section>
                     )}
 
                     {activePage === 'temporadas' && (
-                        <div className="p-8 rounded-xl shadow-xl max-w-4xl mx-auto mt-8 animate-fade-in bg-blue-50">
-                            <h2 className="text-3xl font-bold mb-6 text-center flex items-center justify-center gap-2 text-gray-900">Temporadas AELO: Conecte-se com o Momento e Amplifique Sua Mensagem! <CalendarDays size={32} /></h2>
-                            <p className="text-lg mb-6 leading-relaxed text-gray-900">Na AELO - Sua Voz em Movimento, acreditamos que sua mensagem ganha ainda mais força quando está em sintonia com o espírito do momento. Por isso, operamos em "Temporadas" temáticas, que permitem uma conexão mais profunda e relevante com o público da cidade.</p>
-                            <div className="p-6 rounded-lg shadow-md mb-6 transform hover:scale-[1.01] transition-transform duration-200 animate-fade-in-up bg-white border border-blue-600">
-                                <h3 className="text-2xl font-semibold mb-3 flex items-center gap-2 text-blue-600"><Volume2 size={24} /> Como Funcionam as Temporadas AELO?</h3>
-                                <p className="leading-relaxed text-gray-900">Cada temporada tem um tema central cuidadosamente escolhido, que reflete eventos, sentimentos ou celebrações do período. Isso nos permite criar um ambiente sonoro na cidade que ressoa diretamente com o que as pessoas estão vivenciando e sentindo.</p>
-                                <ul className="list-disc list-inside space-y-2 mt-2 text-gray-900">
-                                    <li>Mensagens de amor e carinho podem ter um destaque especial na "Temporada Áudio do Coração".</li>
-                                    <li>Campanhas de sustentabilidade e bem-estar brilham na "Temporada Áudio Verde".</li>
-                                    <li>Anúncios de eventos e promoções ganham ainda mais visibilidade na "Temporada Áudio Ação".</li>
-                                    <li>Anúncios de eventos e promoções ganham ainda mais visibilidade na "Temporada Áudio Ação".</li>
-                                </ul>
+                        <section className="bg-white p-8 rounded-xl shadow-lg max-w-5xl mx-auto mt-8 animate-fade-in border border-[#A8DADC]">
+                            <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center text-[#0A1128]">
+                                Temporadas AELO: Conecte Sua Mensagem com o Momento
+                            </h2>
+                            <p className="text-lg mb-10 leading-relaxed text-gray-700 text-center">
+                                As Temporadas AELO potencializam sua mensagem, alinhando-a com o espírito e os eventos da cidade. Sua voz ganha ainda mais relevância!
+                            </p>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div className="season-card bg-[#E0E7F0] p-6 rounded-xl shadow-md border border-[#A8DADC] transform hover:scale-[1.02] transition-transform duration-300 animate-fade-in-up">
+                                    <div className="flex items-center justify-center w-16 h-16 rounded-full bg-[#034078] text-white mx-auto mb-4">
+                                        <Volume2 size={32} />
+                                    </div>
+                                    <h3 className="text-2xl font-bold text-[#0A1128] mb-3 text-center">Como Funcionam?</h3>
+                                    <p className="text-gray-700 leading-relaxed text-center">
+                                        Cada temporada possui um tema central que reflete celebrações, sentimentos ou eventos do período, criando um ambiente sonoro coeso na cidade.
+                                    </p>
+                                    <ul className="list-disc list-inside text-gray-600 mt-4 space-y-1">
+                                        <li>Temas alinhados com o calendário.</li>
+                                        <li>Maior ressonância com o público.</li>
+                                    </ul>
+                                </div>
+
+                                <div className="season-card bg-[#E0E7F0] p-6 rounded-xl shadow-md border border-[#A8DADC] transform hover:scale-[1.02] transition-transform duration-300 animate-fade-in-up delay-100">
+                                    <div className="flex items-center justify-center w-16 h-16 rounded-full bg-green-600 text-white mx-auto mb-4">
+                                        <Leaf size={32} />
+                                    </div>
+                                    <h3 className="text-2xl font-bold text-[#0A1128] mb-3 text-center">Exemplos de Temporadas</h3>
+                                    <p className="text-gray-700 leading-relaxed text-center">
+                                        Já tivemos e teremos temporadas como "Áudio Verde" (sustentabilidade), "Áudio do Coração" (amor e amizade) e "Áudio Ação" (eventos e promoções).
+                                    </p>
+                                    <ul className="list-disc list-inside text-gray-600 mt-4 space-y-1">
+                                        <li>Áudio Verde: Meio ambiente e bem-estar.</li>
+                                        <li>Áudio do Coração: Amor, amizade, gratidão.</li>
+                                        <li>Áudio Ação: Comércio e eventos.</li>
+                                    </ul>
+                                </div>
+
+                                <div className="season-card bg-[#E0E7F0] p-6 rounded-xl shadow-md border border-[#A8DADC] transform hover:scale-[1.02] transition-transform duration-300 animate-fade-in-up delay-200 col-span-full">
+                                    <div className="flex items-center justify-center w-16 h-16 rounded-full bg-yellow-600 text-white mx-auto mb-4">
+                                        <RefreshCcw size={32} />
+                                    </div>
+                                    <h3 className="text-2xl font-bold text-[#0A1128] mb-3 text-center">Participe e Potencialize</h3>
+                                    <p className="text-gray-700 leading-relaxed text-center">
+                                        Alinhe o conteúdo do seu áudio com o tema da temporada vigente para maximizar a ressonância e o impacto da sua mensagem.
+                                    </p>
+                                </div>
                             </div>
-                            <div className="p-6 rounded-lg shadow-md mb-6 transform hover:scale-[1.01] transition-transform duration-200 animate-fade-in-up delay-100 bg-white border border-blue-600">
-                                <h3 className="text-2xl font-semibold mb-3 flex items-center gap-2 text-blue-600"><Leaf size={24} /> Exemplos de Temporadas Anteriores e Futuras</h3>
-                                <ul className="list-disc list-inside space-y-2 mt-2 text-gray-900">
-                                    <li>Temporada Áudio Verde: Foco em sustentabilidade, meio ambiente, vida saudável e bem-estar.</li>
-                                    <li>Temporada Áudio do Coração: Celebração do amor, amizade, gratidão e conexões humanas.</li>
-                                    <li>Temporada Áudio Ação: Impulso para o comércio local, grandes eventos, lançamentos e novidades.</li>
-                                    <li>Temporada Áudio Festas: Mensagens especiais para datas comemorativas e celebrações.</li>
-                                </ul>
-                            </div>
-                            <div className="p-6 rounded-lg shadow-md transform hover:scale-[1.01] transition-transform duration-200 animate-fade-in-up delay-200 bg-white border border-blue-600">
-                                <h3 className="text-2xl font-semibold mb-3 flex items-center gap-2 text-blue-600"><RefreshCcw size={24} /> Como Participar e Potencializar Sua Mensagem</h3>
-                                <p className="leading-relaxed text-gray-900">Para participar e maximizar o impacto, basta alinhar o conteúdo do seu áudio com o tema da temporada vigente. Embora não seja obrigatório, essa sintonia potencializa a ressonância da sua mensagem com o público.</p>
-                            </div>
-                        </div>
+                        </section>
                     )}
 
                     {activePage === 'precos' && (
-                        <div className="p-8 rounded-xl shadow-xl max-w-4xl mx-auto mt-8 animate-fade-in bg-blue-50">
-                            <h2 className="text-3xl font-bold mb-6 text-center flex items-center justify-center gap-2 text-gray-900">Invista em Emoção: Nossos Planos AELO! <DollarSign size={32} /></h2>
-                            <p className="text-lg mb-6 leading-relaxed text-gray-900">Na AELO - Sua Voz em Movimento, acreditamos que a publicidade de impacto e as mensagens que tocam o coração devem ser acessíveis. Nossos preços são pensados para oferecer o melhor custo-benefício e levar sua voz ainda mais longe.</p>
-                            <div className="price-card border p-6 rounded-lg shadow-md mb-6 text-center transform hover:scale-[1.01] transition-transform duration-200 animate-fade-in-up bg-white border-blue-600">
-                                <h3 className="text-2xl font-semibold mb-3 flex items-center justify-center gap-2 text-blue-600"><Heart size={28} /> AELO+ Cliente: Sua Mensagem Pessoal</h3>
-                                <p className="text-3xl font-bold mb-2 text-gray-900">R$ 6,00</p>
-                                <p className="text-gray-600">por áudio (reproduzido o dia inteiro)</p>
-                                <p className="mt-4 leading-relaxed text-gray-900">Sua mensagem pessoal e emocionante veiculada para aquela pessoa especial durante todo o dia, criando um momento inesquecível.</p>
-                            </div>
-                            <div className="price-card border p-6 rounded-lg shadow-md mb-6 text-center transform hover:scale-[1.01] transition-transform duration-200 animate-fade-in-up delay-100 bg-white border-blue-600">
-                                <h3 className="text-2xl font-semibold mb-3 flex items-center justify-center gap-2 text-blue-600"><Briefcase size={28} /> AELO Negócio: Publicidade com Alma</h3>
-                                <div className="flex flex-col md:flex-row justify-center items-center md:items-start gap-6 mt-4">
-                                    <div className="flex-1">
-                                        <p className="text-2xl font-bold mb-1 text-gray-900">Em Fila</p>
-                                        <p className="text-3xl font-bold mb-2 text-gray-900">R$ 29,90</p>
-                                        <p className="text-gray-600">o dia todo</p>
-                                        <p className="mt-2 text-sm leading-relaxed text-gray-900">Seu áudio será reproduzido na fila de propagandas do dia, uma após a outra, garantindo visibilidade contínua.</p>
+                        <section className="bg-white p-8 rounded-xl shadow-lg max-w-5xl mx-auto mt-8 animate-fade-in border border-[#A8DADC]">
+                            <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center text-[#0A1128]">
+                                Invista em Emoção e Resultado: Nossos Planos AELO
+                            </h2>
+                            <p className="text-lg mb-10 leading-relaxed text-gray-700 text-center">
+                                Oferecemos planos flexíveis e acessíveis para que sua voz alcance o público certo, com o melhor custo-benefício.
+                            </p>
+
+                            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
+                                {/* AELO+ Cliente */}
+                                <div className="price-card bg-[#E0E7F0] p-6 rounded-xl shadow-md border-2 border-[#034078] text-center transform hover:scale-[1.02] transition-transform duration-300 animate-fade-in-up">
+                                    <div className="flex items-center justify-center w-16 h-16 rounded-full bg-[#034078] text-white mx-auto mb-4">
+                                        <Heart size={32} />
                                     </div>
-                                    <div className="flex-1 border-t md:border-t-0 md:border-l border-blue-300 pt-4 md:pt-0 md:pl-6">
-                                        <p className="text-2xl font-bold mb-1 text-gray-900">Particular</p>
-                                        <p className="text-3xl font-bold mb-2 text-gray-900">R$ 69,90</p>
-                                        <p className="text-gray-600">o dia todo</p>
-                                        <p className="mt-2 text-sm leading-relaxed text-gray-900">Apenas o áudio da sua empresa será reproduzido durante todo o dia, proporcionando exclusividade e máximo impacto.</p>
+                                    <h3 className="text-2xl font-bold text-[#0A1128] mb-3">AELO+ Cliente</h3>
+                                    <p className="text-5xl font-extrabold text-green-600 mb-2">R$ 6<span className="text-xl font-normal text-gray-700">,00</span></p>
+                                    <p className="text-gray-600 mb-4">por áudio (veiculação o dia inteiro)</p>
+                                    <p className="text-gray-700 leading-relaxed">
+                                        Ideal para mensagens pessoais e emocionantes que buscam criar um momento inesquecível.
+                                    </p>
+                                </div>
+
+                                {/* AELO Negócio - Em Fila */}
+                                <div className="price-card bg-[#E0E7F0] p-6 rounded-xl shadow-md border-2 border-[#034078] text-center transform hover:scale-[1.02] transition-transform duration-300 animate-fade-in-up delay-100">
+                                    <div className="flex items-center justify-center w-16 h-16 rounded-full bg-[#034078] text-white mx-auto mb-4">
+                                        <Briefcase size={32} />
                                     </div>
+                                    <h3 className="text-2xl font-bold text-[#0A1128] mb-3">AELO Negócio</h3>
+                                    <p className="text-xl font-bold text-gray-700 mb-2">Plano Em Fila</p>
+                                    <p className="text-5xl font-extrabold text-green-600 mb-2">R$ 29<span className="text-xl font-normal text-gray-700">,90</span></p>
+                                    <p className="text-gray-600 mb-4">por dia</p>
+                                    <p className="text-gray-700 leading-relaxed">
+                                        Seu anúncio é veiculado em sequência com outros, garantindo visibilidade contínua e acessível.
+                                    </p>
+                                </div>
+
+                                {/* AELO Negócio - Particular */}
+                                <div className="price-card bg-[#E0E7F0] p-6 rounded-xl shadow-md border-2 border-[#034078] text-center transform hover:scale-[1.02] transition-transform duration-300 animate-fade-in-up delay-200">
+                                    <div className="flex items-center justify-center w-16 h-16 rounded-full bg-[#034078] text-white mx-auto mb-4">
+                                        <Briefcase size={32} />
+                                    </div>
+                                    <h3 className="text-2xl font-bold text-[#0A1128] mb-3">AELO Negócio</h3>
+                                    <p className="text-xl font-bold text-gray-700 mb-2">Plano Particular</p>
+                                    <p className="text-5xl font-extrabold text-green-600 mb-2">R$ 69<span className="text-xl font-normal text-gray-700">,90</span></p>
+                                    <p className="text-gray-600 mb-4">por dia</p>
+                                    <p className="text-gray-700 leading-relaxed">
+                                        Exclusividade total: apenas o áudio da sua empresa é veiculado durante todo o dia.
+                                    </p>
+                                </div>
+
+                                {/* AELO Informações Públicas */}
+                                <div className="price-card bg-[#E0E7F0] p-6 rounded-xl shadow-md border-2 border-[#034078] text-center transform hover:scale-[1.02] transition-transform duration-300 animate-fade-in-up delay-300 col-span-full lg:col-span-1 lg:col-start-2">
+                                    <div className="flex items-center justify-center w-16 h-16 rounded-full bg-[#034078] text-white mx-auto mb-4">
+                                        <Info size={32} />
+                                    </div>
+                                    <h3 className="text-2xl font-bold text-[#0A1128] mb-3">AELO Informações Públicas</h3>
+                                    <p className="text-5xl font-extrabold text-green-600 mb-2">R$ 49<span className="text-xl font-normal text-gray-700">,90</span></p>
+                                    <p className="text-gray-600 mb-4">por áudio o dia todo</p>
+                                    <p className="text-gray-700 leading-relaxed">
+                                        Amplifique causas sociais e avisos comunitários, gerando impacto positivo na comunidade.
+                                    </p>
                                 </div>
                             </div>
-                            <div className="price-card border p-6 rounded-lg shadow-md text-center transform hover:scale-[1.01] transition-transform duration-200 animate-fade-in-up delay-200 bg-white border-blue-600">
-                                <h3 className="text-2xl font-semibold mb-3 flex items-center justify-center gap-2 text-blue-600"><Info size={28} /> AELO Informações Públicas: Voz para o Bem</h3>
-                                <p className="text-3xl font-bold mb-2 text-gray-900">R$ 49,90</p>
-                                <p className="text-gray-600">por áudio o dia todo</p>
-                                <p className="mt-4 leading-relaxed text-gray-900">Amplifique causas sociais e avisos comunitários, com sua mensagem em destaque o dia inteiro, gerando impacto positivo na comunidade.</p>
+
+                            <div className="bg-[#E0E7F0] p-8 rounded-xl shadow-lg mt-12 text-center border border-green-600 animate-fade-in-up delay-400">
+                                <h3 className="text-2xl font-bold mb-4 text-green-600 flex items-center justify-center gap-2">
+                                    <DollarSign size={28} className="text-green-600" /> Pagamento Simples via Pix
+                                </h3>
+                                <p className="text-xl font-bold mb-2 text-[#0A1128]">Chave Pix (CNPJ): <span className="font-semibold text-[#034078]">60.676.425/0001-47</span></p>
+                                <p className="text-lg mb-4 text-gray-700">Titular: A A S Fernandes</p>
+                                <button onClick={copyPixKey} className="inline-flex items-center justify-center px-8 py-4 bg-[#034078] text-white font-bold rounded-full shadow-lg hover:bg-[#1282A2] transform hover:scale-105 transition-all duration-300 gap-2" aria-label="Copiar chave Pix"><Copy size={20} /> Copiar Chave Pix</button>
+                                {pixCopiedMessage && (<p className="mt-4 text-sm font-semibold text-green-600 animate-fade-in-up">{pixCopiedMessage}</p>)}
+                                <p className="text-gray-600 mt-4">Dica: Copie a chave Pix acima e realize o pagamento. Após a transação, envie o comprovante para nós via WhatsApp ou Instagram <span className="font-semibold text-[#034078]">@Aelovoz</span> para agilizar a veiculação do seu áudio!</p>
                             </div>
-                            <div className="p-6 rounded-lg shadow-md mt-8 text-center animate-fade-in-up delay-300 bg-white border border-green-600">
-                                <h3 className="text-2xl font-semibold mb-3 flex items-center justify-center gap-2 text-green-600"><DollarSign size={28} /> Pagamento Simples via Pix</h3>
-                                <p className="text-xl font-bold mb-2 text-gray-900">Chave Pix (CNPJ): <span className="font-semibold text-blue-600">60.676.425/0001-47</span></p>
-                                <p className="text-lg mb-2 text-gray-900">Titular: A A S Fernandes</p>
-                                <button onClick={copyPixKey} className="inline-flex items-center justify-center px-6 py-3 text-white font-bold rounded-full shadow-lg hover:opacity-90 transform hover:scale-105 transition-all duration-300 gap-2 mt-4 bg-blue-600" aria-label="Copiar chave Pix"><Copy size={20} /> Copiar Chave Pix</button>
-                                {pixCopiedMessage && (<p className="mt-2 text-sm font-semibold animate-fade-in-up text-green-500">{pixCopiedMessage}</p>)}
-                                <p className="text-gray-600">Dica: Copie a chave Pix acima e realize o pagamento. Após a transação, envie o comprovante para nós via WhatsApp ou Instagram <span className="font-semibold text-blue-600">@Aelovoz</span> para agilizar a veiculação do seu áudio!</p>
-                            </div>
-                            <p className="text-lg text-center leading-relaxed mt-8 flex items-center justify-center gap-2 text-gray-900">Pronto para levar sua voz em movimento? Fale conosco agora mesmo para um orçamento personalizado! <MessageSquare size={20} /></p>
-                        </div>
+                        </section>
                     )}
 
                     {activePage === 'como-enviar' && (
-                        <div className="p-8 rounded-xl shadow-xl max-w-4xl mx-auto mt-8 animate-fade-in bg-blue-50">
-                            <h2 className="text-3xl font-bold mb-6 text-center flex items-center justify-center gap-2 text-gray-900">Como Enviar Seus Áudios para a AELO: Simples e Rápido! <Send size={32} /></h2>
-                            <p className="text-lg mb-6 leading-relaxed text-gray-900">Levar sua mensagem para as ruas com a AELO é um processo descomplicado. Siga estes passos e veja sua voz ganhar vida:</p>
-                            <div className="space-y-6 text-left">
-                                <div className="p-5 rounded-lg shadow-md flex items-start gap-4 transform hover:scale-[1.01] transition-transform duration-200 animate-fade-in-up bg-white">
-                                    <div className="flex-shrink-0 w-8 h-8 text-white rounded-full flex items-center justify-center text-lg font-bold bg-blue-600">1</div>
+                        <section className="bg-white p-8 rounded-xl shadow-lg max-w-5xl mx-auto mt-8 animate-fade-in border border-[#A8DADC]">
+                            <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center text-[#0A1128]">
+                                Envie Seu Áudio para a AELO: Simples, Rápido e Eficaz!
+                            </h2>
+                            <p className="text-lg mb-10 leading-relaxed text-gray-700 text-center">
+                                Levar sua mensagem para as ruas com a AELO é um processo descomplicado. Siga estes passos e veja sua voz ganhar vida:
+                            </p>
+                            <div className="space-y-8 text-left">
+                                <div className="step-card bg-[#E0E7F0] p-6 rounded-xl shadow-md flex flex-col md:flex-row items-center gap-6 border border-[#A8DADC] transform hover:scale-[1.01] transition-transform duration-300 animate-fade-in-up">
+                                    <div className="flex-shrink-0 w-16 h-16 text-white rounded-full flex items-center justify-center text-3xl font-extrabold bg-[#034078] shadow-md">1</div>
                                     <div>
-                                        <h3 className="text-xl font-semibold mb-1 flex items-center gap-2 text-gray-900"><Mic size={20} /> Grave Seu Áudio com Qualidade e Duração Ideal</h3>
-                                        <p className="text-gray-600">Use seu celular, computador ou qualquer dispositivo para gravar a mensagem que deseja veicular. A qualidade do áudio é fundamental para uma experiência sonora impecável!</p>
-                                        <ul className="list-disc list-inside space-y-1 mt-2 text-gray-600">
-                                            <li><span className="font-semibold text-blue-700">AELO+ Cliente (Pessoais)</span>: 15 a 20 segundos.</li>
-                                            <li><span className="font-semibold text-blue-700">AELO Negócio:</span> 30 segundos a 1 minuto.</li>
-                                            <li><span className="font-semibold text-blue-700">AELO Informações Públicas:</span> 30 segundos a 1 minuto e 30 segundos.</li>
+                                        <h3 className="text-2xl font-bold text-[#0A1128] mb-2 flex items-center gap-2"><Mic size={24} className="text-yellow-600" /> Grave Seu Áudio com Qualidade e Duração Ideal</h3>
+                                        <p className="text-gray-700">Use seu celular, computador ou qualquer dispositivo para gravar a mensagem que deseja veicular. A qualidade do áudio é fundamental para uma experiência sonora impecável!</p>
+                                        <ul className="list-disc list-inside text-gray-600 mt-3 space-y-1">
+                                            <li><span className="font-semibold text-[#0A1128]">AELO+ Cliente (Pessoais)</span>: 15 a 20 segundos.</li>
+                                            <li><span className="font-semibold text-[#0A1128]">AELO Negócio:</span> 30 segundos a 1 minuto.</li>
+                                            <li><span className="font-semibold text-[#0A1128]">AELO Informações Públicas:</span> 30 segundos a 1 minuto e 30 segundos.</li>
                                         </ul>
                                     </div>
                                 </div>
-                                <div className="p-5 rounded-lg shadow-md flex items-start gap-4 transform hover:scale-[1.01] transition-transform duration-200 animate-fade-in-up delay-100 bg-white">
-                                    <div className="flex-shrink-0 w-8 h-8 text-white rounded-full flex items-center justify-center text-lg font-bold bg-blue-600">2</div>
+                                <div className="step-card bg-[#E0E7F0] p-6 rounded-xl shadow-md flex flex-col md:flex-row items-center gap-6 border border-[#A8DADC] transform hover:scale-[1.01] transition-transform duration-300 animate-fade-in-up delay-100">
+                                    <div className="flex-shrink-0 w-16 h-16 text-white rounded-full flex items-center justify-center text-3xl font-extrabold bg-[#034078] shadow-md">2</div>
                                     <div>
-                                        <h3 className="text-xl font-semibold mb-1 flex items-center gap-2 text-gray-900"><Upload size={20} /> Envie o Áudio para a AELO</h3>
-                                        <p className="text-gray-600">Após a gravação, envie seu áudio diretamente para a nossa equipe. Você pode fazer isso de forma muito prática pelo nosso WhatsApp ou via Direct do Instagram <span className="font-semibold text-blue-600">@Aelovoz</span>. Escolha o canal que for mais conveniente para você!</p>
+                                        <h3 className="text-2xl font-bold text-[#0A1128] mb-2 flex items-center gap-2"><Upload size={24} className="text-yellow-600" /> Envie o Áudio para a AELO</h3>
+                                        <p className="text-gray-700">Após a gravação, envie seu áudio diretamente para a nossa equipe. Você pode fazer isso de forma muito prática pelo nosso WhatsApp ou via Direct do Instagram <span className="font-semibold text-[#0A1128]">@Aelovoz</span>. Escolha o canal que for mais conveniente para você!</p>
                                         <p className="mt-2 text-gray-600">Para uma experiência mais fluida, o envio do áudio pode ser feito diretamente pelo WhatsApp da AELO - Sua Voz em Movimento.</p>
                                     </div>
                                 </div>
-                                <div className="p-5 rounded-lg shadow-md flex items-start gap-4 transform hover:scale-[1.01] transition-transform duration-200 animate-fade-in-up delay-200 bg-white">
-                                    <div className="flex-shrink-0 w-8 h-8 text-white rounded-full flex items-center justify-center text-lg font-bold bg-blue-600">3</div>
+                                <div className="step-card bg-[#E0E7F0] p-6 rounded-xl shadow-md flex flex-col md:flex-row items-center gap-6 border border-[#A8DADC] transform hover:scale-[1.01] transition-transform duration-300 animate-fade-in-up delay-200">
+                                    <div className="flex-shrink-0 w-16 h-16 text-white rounded-full flex items-center justify-center text-3xl font-extrabold bg-[#034078] shadow-md">3</div>
                                     <div>
-                                        <h3 className="text-xl font-semibold mb-1 flex items-center gap-2 text-gray-900"><ListTodo size={20} /> Forneça os Detalhes da Veiculação</h3>
-                                        <p className="text-gray-600">Junto com o áudio, nos informe a categoria que melhor se encaixa (AELO+ Cliente, AELO Negócio, AELO Informações Públicas) e os detalhes essenciais da veiculação: data, horário preferencial, e o endereço aproximado se for para uma pessoa ou local específico.</p>
+                                        <h3 className="text-2xl font-bold text-[#0A1128] mb-2 flex items-center gap-2"><ListTodo size={24} className="text-yellow-600" /> Forneça os Detalhes da Veiculação</h3>
+                                        <p className="text-gray-700">Junto com o áudio, nos informe a categoria que melhor se encaixa (AELO+ Cliente, AELO Negócio, AELO Informações Públicas) e os detalhes essenciais da veiculação: data, horário preferencial, e o endereço aproximado se for para uma pessoa ou local específico.</p>
                                     </div>
                                 </div>
-                                <div className="p-5 rounded-lg shadow-md flex items-start gap-4 transform hover:scale-[1.01] transition-transform duration-200 animate-fade-in-up delay-300 bg-white">
-                                    <div className="flex-shrink-0 w-8 h-8 text-white rounded-full flex items-center justify-center text-lg font-bold bg-blue-600">4</div>
+                                <div className="step-card bg-[#E0E7F0] p-6 rounded-xl shadow-md flex flex-col md:flex-row items-center gap-6 border border-[#A8DADC] transform hover:scale-[1.01] transition-transform duration-300 animate-fade-in-up delay-300">
+                                    <div className="flex-shrink-0 w-16 h-16 text-white rounded-full flex items-center justify-center text-3xl font-extrabold bg-[#034078] shadow-md">4</div>
                                     <div>
-                                        <h3 className="text-xl font-semibold mb-1 flex items-center gap-2 text-gray-900"><CheckCircle size={20} /> Confirmação e Pagamento</h3>
-                                        <p className="text-gray-600">Nossa equipe fará a moderação do áudio para garantir a melhor qualidade e confirmará todos os detalhes com você. Após sua aprovação e o pagamento (via Pix, por exemplo), seu áudio estará pronto para ir para as ruas e encantar a cidade!</p>
+                                        <h3 className="text-2xl font-bold text-[#0A1128] mb-2 flex items-center gap-2"><CheckCircle size={24} className="text-yellow-600" /> Confirmação e Pagamento</h3>
+                                        <p className="text-gray-700">Nossa equipe fará a moderação do áudio para garantir a melhor qualidade e confirmará todos os detalhes com você. Após sua aprovação e o pagamento (via Pix, por exemplo), seu áudio estará pronto para ir para as ruas e encantar a cidade!</p>
                                     </div>
                                 </div>
                                 {/* Player de Áudio de Exemplo na página "Como Enviar" */}
-                                <div className="p-5 rounded-lg shadow-md text-center transform hover:scale-[1.01] transition-transform duration-200 animate-fade-in-up delay-400 bg-white">
-                                    <h3 className="text-xl font-semibold mb-4 flex items-center justify-center gap-2 text-purple-600">
-                                        <PlayCircle size={24} /> Exemplo de Qualidade de Áudio AELO
+                                <div className="bg-[#E0E7F0] p-6 rounded-xl shadow-md text-center transform hover:scale-[1.01] transition-transform duration-200 animate-fade-in-up delay-400 border border-[#A8DADC]">
+                                    <h3 className="text-2xl font-bold mb-4 flex items-center justify-center gap-2 text-[#1282A2]">
+                                        <PlayCircle size={28} className="text-[#1282A2]" /> Exemplo de Qualidade de Áudio AELO
                                     </h3>
                                     <p className="text-gray-700">
                                         Exemplos de áudio não estão disponíveis no momento devido a atualizações na API.
                                     </p>
                                 </div>
                             </div>
-                        </div>
+                        </section>
                     )}
 
                     {activePage === 'aelo-em-acao' && (
-                        <div className="p-8 rounded-xl shadow-xl max-w-4xl mx-auto mt-8 animate-fade-in bg-blue-50">
-                            <h2 className="text-3xl font-bold mb-6 text-center flex items-center justify-center gap-2 text-gray-900">
-                                AELO em Ação: Histórias e Destaques <Sparkles size={32} />
+                        <section className="bg-white p-8 rounded-xl shadow-lg max-w-5xl mx-auto mt-8 animate-fade-in border border-[#A8DADC]">
+                            <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center text-[#0A1128]">
+                                AELO em Ação: Histórias que Fazem a Diferença
                             </h2>
-                            <p className="text-lg mb-8 leading-relaxed text-center text-gray-900">
-                                Veja como a AELO - Sua Voz em Movimento transforma mensagens em momentos inesquecíveis e resultados reais. Conheça algumas de nossas histórias de sucesso e o impacto que geramos!
+                            <p className="text-lg mb-10 leading-relaxed text-gray-700 text-center">
+                                Veja como a AELO - Sua Voz em Movimento transforma mensagens em momentos inesquecíveis e resultados reais na comunidade de Bauru.
                             </p>
 
-                            <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                 {aeloInActionStories.map((story) => (
-                                    <div key={story.id} className="p-5 rounded-lg shadow-md transform hover:scale-[1.01] transition-transform duration-200 animate-fade-in-up bg-white">
-                                        <div className="flex items-center gap-3 mb-3">
-                                            {story.icon}
-                                            <h3 className="text-xl font-semibold text-blue-600">{story.title}</h3>
+                                    <div key={story.id} className="story-card bg-[#E0E7F0] p-6 rounded-xl shadow-md border border-[#A8DADC] transform hover:scale-[1.02] transition-transform duration-300 animate-fade-in-up">
+                                        <div className="flex items-center gap-4 mb-4">
+                                            <div className="flex-shrink-0 w-14 h-14 rounded-full bg-[#034078] text-white flex items-center justify-center shadow-md">
+                                                {story.icon}
+                                            </div>
+                                            <h3 className="text-xl font-bold text-[#0A1128]">{story.title}</h3>
                                         </div>
-                                        <p className="text-gray-600">{story.description}</p>
+                                        <p className="text-gray-700 leading-relaxed">{story.description}</p>
                                     </div>
                                 ))}
                             </div>
-                        </div>
+                        </section>
                     )}
 
                     {activePage === 'simular-assinatura' && (
-                        <div className="p-8 rounded-xl shadow-xl max-w-4xl mx-auto mt-8 animate-fade-in bg-blue-50">
-                            <h2 className="text-3xl font-bold mb-6 text-center flex items-center justify-center gap-2 text-gray-900">
-                                Simulador de Assinatura AELO <Calculator size={32} />
+                        <section className="bg-white p-8 rounded-xl shadow-lg max-w-5xl mx-auto mt-8 animate-fade-in border border-[#A8DADC]">
+                            <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center text-[#0A1128]">
+                                Simulador de Assinatura AELO: Planeje Sua Economia
                             </h2>
-                            <p className="text-lg mb-8 leading-relaxed text-center text-gray-900">
-                                Planeje sua veiculação com a AELO e descubra as vantagens de assinar nossos planos! Calcule sua economia e o custo-benefício de cada opção.
+                            <p className="text-lg mb-10 leading-relaxed text-gray-700 text-center">
+                                Descubra as vantagens de assinar nossos planos! Calcule sua economia e o custo-benefício de cada opção de veiculação.
                             </p>
 
-                            <div className="space-y-6">
+                            <div className="space-y-8">
                                 {/* Seleção de Plano */}
-                                <div className="p-5 rounded-lg shadow-md bg-white">
-                                    <h3 className="text-xl font-semibold mb-3 flex items-center gap-2 text-gray-900">
-                                        <Briefcase size={20} className="text-blue-600" /> 1. Escolha o Plano
+                                <div className="bg-[#E0E7F0] p-6 rounded-xl shadow-md border border-[#A8DADC]">
+                                    <h3 className="text-xl font-bold mb-4 flex items-center gap-2 text-[#0A1128]">
+                                        <Briefcase size={24} className="text-[#034078]" /> 1. Escolha o Plano
                                     </h3>
-                                    <div className="flex flex-col sm:flex-row gap-4">
-                                        <label className="flex items-center cursor-pointer p-3 rounded-lg border hover:opacity-90 transition-colors flex-1 bg-white border-gray-300">
+                                    <div className="flex flex-col sm:flex-row gap-6">
+                                        <label className="flex items-center cursor-pointer p-4 rounded-lg border border-[#A8DADC] bg-white hover:bg-[#F0F4F8] transition-colors flex-1 shadow-sm">
                                             <input
                                                 type="radio"
                                                 name="planType"
                                                 value="emFila"
                                                 checked={selectedPlan === 'emFila'}
                                                 onChange={(e) => setSelectedPlan(e.target.value)}
-                                                className="form-radio h-4 w-4 text-blue-600"
+                                                className="form-radio h-5 w-5 text-[#034078] focus:ring-[#1282A2]"
                                             />
-                                            <span className="ml-2 font-medium text-gray-900">AELO Negócio - Em Fila (R$ 29,90/dia)</span>
+                                            <span className="ml-3 font-medium text-[#0A1128]">AELO Negócio - Em Fila (R$ 29,90/dia)</span>
                                         </label>
-                                        <label className="flex items-center cursor-pointer p-3 rounded-lg border hover:opacity-90 transition-colors flex-1 bg-white border-gray-300">
+                                        <label className="flex items-center cursor-pointer p-4 rounded-lg border border-[#A8DADC] bg-white hover:bg-[#F0F4F8] transition-colors flex-1 shadow-sm">
                                             <input
                                                 type="radio"
                                                 name="planType"
                                                 value="particular"
                                                 checked={selectedPlan === 'particular'}
                                                 onChange={(e) => setSelectedPlan(e.target.value)}
-                                                className="form-radio h-4 w-4 text-blue-600"
+                                                className="form-radio h-5 w-5 text-[#034078] focus:ring-[#1282A2]"
                                             />
-                                            <span className="ml-2 font-medium text-gray-900">AELO Negócio - Particular (R$ 69,90/dia)</span>
+                                            <span className="ml-3 font-medium text-[#0A1128]">AELO Negócio - Particular (R$ 69,90/dia)</span>
                                         </label>
                                     </div>
                                 </div>
 
                                 {/* Seleção de Duração */}
-                                <div className="p-5 rounded-lg shadow-md bg-white">
-                                    <h3 className="text-xl font-semibold mb-3 flex items-center gap-2 text-gray-900">
-                                        <CalendarDays size={20} className="text-blue-600" /> 2. Escolha a Duração da Assinatura
+                                <div className="bg-[#E0E7F0] p-6 rounded-xl shadow-md border border-[#A8DADC]">
+                                    <h3 className="text-xl font-bold mb-4 flex items-center gap-2 text-[#0A1128]">
+                                        <CalendarDays size={24} className="text-[#034078]" /> 2. Escolha a Duração da Assinatura
                                     </h3>
                                     <select
                                         value={selectedDuration}
                                         onChange={(e) => setSelectedDuration(e.target.value)}
-                                        className="w-full p-3 rounded-lg border focus:outline-none focus:ring-2 bg-white border-gray-200 text-gray-900 outline-blue-600"
+                                        className="w-full p-3 rounded-lg border border-[#A8DADC] bg-white text-[#0A1128] focus:outline-none focus:ring-2 focus:ring-[#034078]"
                                     >
                                         <option value="">Selecione a Duração</option>
                                         <option value="7d">1 Semana (7 dias)</option>
@@ -1168,23 +1287,23 @@ const App = () => {
 
                                 {/* Resultados da Simulação */}
                                 {selectedPlan && selectedDuration && (
-                                    <div className="p-5 rounded-lg shadow-md border-l-4 bg-white border-green-600">
-                                        <h3 className="text-xl font-semibold mb-3 flex items-center gap-2 text-gray-900">
-                                            <CheckCircle size={20} className="text-green-600" /> Resultados da Simulação
+                                    <div className="bg-green-100 p-6 rounded-xl shadow-md border-l-4 border-green-600 animate-fade-in-up">
+                                        <h3 className="text-xl font-bold mb-4 flex items-center gap-2 text-green-600">
+                                            <CheckCircle size={24} className="text-green-600" /> Resultados da Simulação
                                         </h3>
-                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-lg">
-                                            <p className="text-gray-900"><strong>Custo Diário Normal:</strong> <span className="font-bold text-blue-600">{formatCurrency(dailyCost)}</span></p>
-                                            <p className="text-gray-900"><strong>Duração Total:</strong> <span className="font-bold text-blue-600">{totalDays} dias</span></p>
-                                            <p className="text-gray-900"><strong>Custo Base (sem desconto):</strong> <span className="font-bold line-through text-amber-600">{formatCurrency(baseCost)}</span></p>
-                                            <p className="text-gray-900"><strong>Desconto Aplicado:</strong> <span className="font-bold text-green-600">{formatPercentage(discountPercentage)}</span></p>
-                                            <p className="col-span-full text-2xl font-bold text-gray-900">
-                                                Custo Total da Assinatura: <span className="text-blue-700">{formatCurrency(finalCost)}</span>
+                                        <div className="grid grid-cols-1 md:grid-cols-2 gap-4 text-lg text-[#0A1128]">
+                                            <p><strong>Custo Diário Normal:</strong> <span className="font-bold text-[#034078]">{formatCurrency(dailyCost)}</span></p>
+                                            <p><strong>Duração Total:</strong> <span className="font-bold text-[#034078]">{totalDays} dias</span></p>
+                                            <p><strong>Custo Base (sem desconto):</strong> <span className="font-bold line-through text-red-600">{formatCurrency(baseCost)}</span></p>
+                                            <p><strong>Desconto Aplicado:</strong> <span className="font-bold text-green-600">{formatPercentage(discountPercentage)}</span></p>
+                                            <p className="col-span-full text-2xl font-bold text-[#0A1128]">
+                                                Custo Total da Assinatura: <span className="text-[#034078]">{formatCurrency(finalCost)}</span>
                                             </p>
-                                            <p className="col-span-full text-xl font-bold text-gray-900">
-                                                Economia Total: <span className="text-green-700">{formatCurrency(savings)}</span>
+                                            <p className="col-span-full text-xl font-bold text-green-600">
+                                                Economia Total: <span className="text-green-600">{formatCurrency(savings)}</span>
                                             </p>
-                                            <p className="col-span-full text-xl font-bold text-gray-900">
-                                                Custo Diário Efetivo: <span className="text-blue-700">{formatCurrency(effectiveDailyCost)}</span>
+                                            <p className="col-span-full text-xl font-bold text-[#0A1128]">
+                                                Custo Diário Efetivo: <span className="text-[#034078]">{formatCurrency(effectiveDailyCost)}</span>
                                             </p>
                                         </div>
                                         <p className="mt-4 text-sm text-gray-700">
@@ -1193,44 +1312,44 @@ const App = () => {
                                     </div>
                                 )}
                             </div>
-                        </div>
+                        </section>
                     )}
                     
                     {activePage === 'blog' && (
-                        <div className="p-8 rounded-xl shadow-xl max-w-4xl mx-auto mt-8 animate-fade-in bg-blue-50">
-                            <h2 className="text-3xl font-bold mb-6 text-center flex items-center justify-center gap-2 text-gray-900">
-                                Blog AELO: Fique por Dentro das Novidades! <Rss size={32} />
+                        <section className="bg-white p-8 rounded-xl shadow-lg max-w-5xl mx-auto mt-8 animate-fade-in border border-[#A8DADC]">
+                            <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center text-[#0A1128]">
+                                Blog AELO: Notícias, Dicas e Insights
                             </h2>
-                            <p className="text-lg mb-8 leading-relaxed text-center text-gray-900">
-                                Explore nossos artigos, dicas e notícias sobre publicidade, sustentabilidade e o impacto da AELO na comunidade.
+                            <p className="text-lg mb-10 leading-relaxed text-gray-700 text-center">
+                                Explore nossos artigos e fique por dentro das últimas tendências em publicidade sonora, sustentabilidade e o impacto da AELO na comunidade.
                             </p>
 
                             {selectedBlogPost ? (
-                                <div className="p-6 rounded-lg shadow-md bg-white">
+                                <div className="bg-[#E0E7F0] p-8 rounded-xl shadow-md border border-[#A8DADC]">
                                     <button
                                         onClick={() => setSelectedBlogPost(null)}
-                                        className="mb-4 inline-flex items-center gap-2 px-4 py-2 text-white rounded-full hover:opacity-90 transition-colors bg-blue-600"
+                                        className="mb-6 inline-flex items-center gap-2 px-6 py-3 bg-[#034078] text-white rounded-full hover:bg-[#1282A2] transition-colors transform hover:scale-105"
                                     >
                                         <ChevronLeft size={20} /> Voltar para o Blog
                                     </button>
-                                    <h3 className="text-3xl font-bold mb-3 text-blue-600">{selectedBlogPost.title}</h3>
-                                    <p className="text-sm mb-4 text-gray-500">
+                                    <h3 className="text-3xl font-bold mb-4 text-[#0A1128]">{selectedBlogPost.title}</h3>
+                                    <p className="text-sm mb-6 text-gray-600">
                                         Por {selectedBlogPost.author} em {selectedBlogPost.date}
                                     </p>
-                                    <div className="prose max-w-none text-gray-900" dangerouslySetInnerHTML={{ __html: selectedBlogPost.content }} />
+                                    <div className="prose max-w-none text-gray-700 leading-relaxed" dangerouslySetInnerHTML={{ __html: selectedBlogPost.content }} />
                                 </div>
                             ) : (
-                                <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+                                <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
                                     {blogPosts.map((post) => (
-                                        <div key={post.id} className="p-5 rounded-lg shadow-md transform hover:scale-[1.01] transition-transform duration-200 bg-white">
-                                            <h3 className="text-xl font-semibold mb-2 text-blue-600">{post.title}</h3>
-                                            <p className="text-sm mb-3 text-gray-500">
+                                        <div key={post.id} className="blog-card bg-[#E0E7F0] p-6 rounded-xl shadow-md border border-[#A8DADC] transform hover:scale-[1.02] transition-transform duration-300 animate-fade-in-up">
+                                            <h3 className="text-xl font-bold mb-3 text-[#0A1128]">{post.title}</h3>
+                                            <p className="text-sm mb-4 text-gray-600">
                                                 Por {post.author} em {post.date}
                                             </p>
-                                            <p className="mb-4 text-gray-600">{post.snippet}</p>
+                                            <p className="mb-5 text-gray-700 leading-relaxed">{post.snippet}</p>
                                             <button
                                                 onClick={() => setSelectedBlogPost(post)}
-                                                className="inline-flex items-center gap-2 px-4 py-2 text-gray-900 rounded-full hover:opacity-90 transition-colors bg-yellow-500"
+                                                className="inline-flex items-center gap-2 px-5 py-2 bg-[#1282A2] text-white rounded-full hover:bg-[#034078] transition-colors transform hover:scale-105 font-semibold"
                                             >
                                                 Leia Mais <ChevronRight size={16} />
                                             </button>
@@ -1238,49 +1357,55 @@ const App = () => {
                                     ))}
                                 </div>
                             )}
-                        </div>
+                        </section>
                     )}
                     
                     {activePage === 'trabalhe-conosco' && (
-                        <div className="p-8 rounded-xl shadow-xl max-w-4xl mx-auto mt-8 animate-fade-in bg-blue-50">
-                            <h2 className="text-3xl font-bold mb-6 text-center flex items-center justify-center gap-2 text-blue-600 animate-pulse">
-                                Trabalhe com a AELO: Sua Oportunidade de Crescer! <BriefcaseBusiness size={32} />
+                        <section className="bg-white p-8 rounded-xl shadow-lg max-w-5xl mx-auto mt-8 animate-fade-in border border-[#A8DADC]">
+                            <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center text-[#0A1128] animate-pulse">
+                                Trabalhe Conosco: Pedale Rumo ao Sucesso com a AELO!
                             </h2>
-                            <p className="text-lg mb-6 leading-relaxed text-center text-gray-900">
+                            <p className="text-lg mb-10 leading-relaxed text-gray-700 text-center">
                                 Quer fazer parte de uma equipe inovadora, contribuir para a comunicação da sua cidade e ainda ter a chance de ganhar acima de R$ 10.000 por mês veiculando áudios? A AELO - Sua Voz em Movimento está buscando talentos!
                             </p>
 
-                            <div className="p-6 rounded-lg shadow-md mb-6 transform hover:scale-[1.01] transition-transform duration-200 animate-fade-in-up bg-white border border-blue-600">
-                                <h3 className="text-2xl font-semibold mb-3 flex items-center gap-2 text-blue-600">
-                                    <DollarSign size={24} /> Potencial de Ganhos Elevado
-                                </h3>
-                                <p className="leading-relaxed text-gray-900">
-                                    Na AELO, valorizamos o seu esforço e dedicação. Com um bom desempenho na veiculação de áudios, você tem a oportunidade de alcançar rendimentos superiores a R$ 10.000 por mês! Quanto mais você pedala e mais mensagens veicula, maiores são seus ganhos.
-                                </p>
-                                <p className="mt-4 text-sm text-gray-700">
-                                    *Os ganhos são baseados na produtividade e na quantidade de áudios veiculados. Detalhes sobre o modelo de remuneração serão apresentados na entrevista.
-                                </p>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div className="job-feature-card bg-[#E0E7F0] p-6 rounded-xl shadow-md border border-[#A8DADC] transform hover:scale-[1.02] transition-transform duration-300 animate-fade-in-up">
+                                    <div className="flex items-center justify-center w-16 h-16 rounded-full bg-[#034078] text-white mx-auto mb-4">
+                                        <DollarSign size={32} />
+                                    </div>
+                                    <h3 className="text-xl font-bold text-[#0A1128] mb-3 text-center">Potencial de Ganhos Elevado</h3>
+                                    <p className="text-gray-700 leading-relaxed text-center">
+                                        Com um bom desempenho na veiculação de áudios, você tem a oportunidade de alcançar rendimentos superiores a R$ 10.000 por mês!
+                                    </p>
+                                    <p className="mt-4 text-sm text-gray-600 text-center">
+                                        *Os ganhos são baseados na produtividade e na quantidade de áudios veiculados. Detalhes sobre o modelo de remuneração serão apresentados na entrevista.
+                                    </p>
+                                </div>
+
+                                <div className="job-feature-card bg-[#E0E7F0] p-6 rounded-xl shadow-md border border-[#A8DADC] transform hover:scale-[1.02] transition-transform duration-300 animate-fade-in-up delay-100">
+                                    <div className="flex items-center justify-center w-16 h-16 rounded-full bg-[#034078] text-white mx-auto mb-4">
+                                        <CheckCircle size={32} />
+                                    </div>
+                                    <h3 className="text-xl font-bold text-[#0A1128] mb-3 text-center">Requisitos Essenciais</h3>
+                                    <p className="text-gray-700 leading-relaxed text-center">
+                                        Para fazer parte da nossa equipe de ciclistas, os seguintes itens são essenciais:
+                                    </p>
+                                    <ul className="list-disc list-inside text-gray-700 mt-4 space-y-2">
+                                        <li><Bike size={20} className="text-[#034078] inline-block mr-2" /> Bicicleta em boas condições.</li>
+                                        <li><Volume2 size={20} className="text-[#034078] inline-block mr-2" /> Caixa de som portátil de qualidade.</li>
+                                        <li><Users size={20} className="text-[#034078] inline-block mr-2" /> EPIs (Capacete, joelheiras, etc.) para sua segurança.</li>
+                                        <li><FileText size={20} className="text-[#034078] inline-block mr-2" /> Relatório médico positivo.</li>
+                                        <li><BriefcaseBusiness size={20} className="text-[#034078] inline-block mr-2" /> CNPJ ativo para formalização.</li>
+                                    </ul>
+                                </div>
                             </div>
 
-                            <div className="p-6 rounded-lg shadow-md mb-6 transform hover:scale-[1.01] transition-transform duration-200 animate-fade-in-up delay-100 bg-white border border-blue-600">
-                                <h3 className="text-2xl font-semibold mb-3 flex items-center gap-2 text-blue-600">
-                                    <CheckCircle size={24} /> O Que Você Precisa Ter
+                            <div className="bg-[#E0E7F0] p-8 rounded-xl shadow-lg mt-12 text-center border border-[#034078] animate-fade-in-up delay-200">
+                                <h3 className="text-2xl font-bold mb-4 text-[#0A1128] flex items-center justify-center gap-2">
+                                    <MessageSquare size={28} className="text-[#034078]" /> Interessado? Fale Conosco!
                                 </h3>
-                                <p className="leading-relaxed text-gray-900">Para fazer parte da nossa equipe de ciclistas, os seguintes itens são essenciais:</p>
-                                <ul className="list-disc list-inside space-y-2 mt-2 text-gray-900">
-                                    <li><Bike size={20} className="text-blue-500 inline-block mr-2" /> Bicicleta: Em boas condições, para garantir a mobilidade e segurança.</li>
-                                    <li><Volume2 size={20} className="text-blue-500 inline-block mr-2" /> Caixa de Som Portátil: Um equipamento de qualidade para veiculação clara dos áudios.</li>
-                                    <li><Users size={20} className="text-blue-500 inline-block mr-2" /> EPIs (Equipamentos de Proteção Individual): Capacete, joelheiras, cotoveleiras e colete refletivo para sua segurança no trânsito.</li>
-                                    <li><FileText size={20} className="text-blue-500 inline-block mr-2" /> Relatório Médico Positivo: Um atestado de saúde que comprove sua aptidão para a atividade física.</li>
-                                    <li><BriefcaseBusiness size={20} className="text-blue-500 inline-block mr-2" /> CNPJ Ativo: Para formalizar sua parceria e garantir todos os benefícios.</li>
-                                </ul>
-                            </div>
-
-                            <div className="p-6 rounded-lg shadow-md text-center animate-fade-in-up delay-200 bg-white border border-blue-600">
-                                <h3 className="text-2xl font-semibold mb-3 flex items-center justify-center gap-2 text-blue-600">
-                                    <MessageSquare size={24} /> Interessado? Fale Conosco!
-                                </h3>
-                                <p className="leading-relaxed mb-4 text-gray-900">
+                                <p className="leading-relaxed mb-6 text-gray-700">
                                     Se você se encaixa no perfil e está pronto para pedalar rumo ao sucesso, entre em contato!
                                 </p>
                                 <button
@@ -1288,90 +1413,98 @@ const App = () => {
                                         const whatsappLink = `https://wa.me/5514981150675?text=${encodeURIComponent('Olá, AELO! Tenho interesse em ser um ciclista PJ da AELO.')}`;
                                         window.open(whatsappLink, '_blank');
                                     }}
-                                    className="inline-flex items-center justify-center px-6 py-3 text-white font-bold rounded-full shadow-lg hover:opacity-90 transform hover:scale-105 transition-all duration-300 gap-2 bg-blue-600"
+                                    className="inline-flex items-center justify-center px-8 py-4 bg-[#034078] text-white font-bold rounded-full shadow-lg hover:bg-[#1282A2] transform hover:scale-105 transition-all duration-300 gap-2"
                                 >
                                     <Mail size={20} /> Enviar Mensagem via WhatsApp
                                 </button>
                             </div>
-                        </div>
+                        </section>
                     )}
 
                     {activePage === 'compromisso-sustentavel' && (
-                        <div className="p-8 rounded-xl shadow-xl max-w-4xl mx-auto mt-8 animate-fade-in bg-blue-50">
-                            <h2 className="text-3xl font-bold mb-6 text-center flex items-center justify-center gap-2 text-gray-900">
-                                Nosso Compromisso Sustentável: AELO e o Futuro Verde <Leaf size={32} />
+                        <section className="bg-white p-8 rounded-xl shadow-lg max-w-5xl mx-auto mt-8 animate-fade-in border border-[#A8DADC]">
+                            <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center text-[#0A1128]">
+                                Nosso Compromisso Sustentável: AELO e o Futuro Verde
                             </h2>
-                            <p className="text-lg mb-8 leading-relaxed text-center text-gray-900">
-                                Na AELO - Sua Voz em Movimento, a sustentabilidade não é apenas uma palavra, é a essência do nosso negócio. Acreditamos em um futuro onde a comunicação e o respeito ao meio ambiente caminham juntos.
+                            <p className="text-lg mb-10 leading-relaxed text-gray-700 text-center">
+                                Na AELO, a sustentabilidade é a essência do nosso negócio. Acreditamos em um futuro onde a comunicação e o respeito ao meio ambiente caminham juntos.
                             </p>
 
-                            <div className="space-y-6">
-                                <div className="p-5 rounded-lg shadow-md flex items-start gap-4 transform hover:scale-[1.01] transition-transform duration-200 animate-fade-in-up bg-white">
-                                    <Bike size={24} className="text-blue-600 flex-shrink-0 mt-1" />
-                                    <div>
-                                        <h3 className="text-xl font-semibold mb-1 text-gray-900">Mobilidade Urbana Consciente</h3>
-                                        <p className="text-gray-600">
-                                            Nossa escolha pela bicicleta como principal meio de veiculação é um pilar do nosso compromisso. Reduzimos a emissão de carbono, diminuímos o trânsito e promovemos um estilo de vida mais saudável para nossos ciclistas e para a cidade.
-                                        </p>
+                            <div className="grid grid-cols-1 md:grid-cols-2 gap-8">
+                                <div className="sustainability-card bg-[#E0E7F0] p-6 rounded-xl shadow-md flex flex-col items-center text-center border border-[#A8DADC] transform hover:scale-[1.02] transition-transform duration-300 animate-fade-in-up">
+                                    <div className="flex items-center justify-center w-16 h-16 rounded-full bg-green-600 text-white mx-auto mb-4">
+                                        <Bike size={32} />
                                     </div>
+                                    <h3 className="text-xl font-bold text-[#0A1128] mb-3">Mobilidade Urbana Consciente</h3>
+                                    <p className="text-gray-700 leading-relaxed">
+                                        Nossa escolha pela bicicleta reduz a emissão de carbono, diminui o trânsito e promove um estilo de vida mais saudável.
+                                    </p>
                                 </div>
-                                <div className="p-5 rounded-lg shadow-md flex items-start gap-4 transform hover:scale-[1.01] transition-transform duration-200 animate-fade-in-up delay-100 bg-white">
-                                    <Globe size={24} className="text-blue-600 flex-shrink-0 mt-1" />
-                                    <div>
-                                        <h3 className="text-xl font-semibold mb-1 text-gray-900">Impacto Ambiental Positivo</h3>
-                                        <p className="text-gray-600">
-                                            Ao optar pela AELO, você contribui diretamente para uma cidade mais limpa e com menos poluição sonora e atmosférica. É uma publicidade que faz bem para o seu negócio e para o planeta.
-                                        </p>
+                                <div className="sustainability-card bg-[#E0E7F0] p-6 rounded-xl shadow-md flex flex-col items-center text-center border border-[#A8DADC] transform hover:scale-[1.02] transition-transform duration-300 animate-fade-in-up delay-100">
+                                    <div className="flex items-center justify-center w-16 h-16 rounded-full bg-green-600 text-white mx-auto mb-4">
+                                        <Globe size={32} />
                                     </div>
+                                    <h3 className="text-xl font-bold text-[#0A1128] mb-3">Impacto Ambiental Positivo</h3>
+                                    <p className="text-gray-700 leading-relaxed">
+                                        Ao optar pela AELO, você contribui diretamente para uma cidade mais limpa, com menos poluição sonora e atmosférica.
+                                    </p>
                                 </div>
-                                <div className="p-5 rounded-lg shadow-md flex items-start gap-4 transform hover:scale-[1.01] transition-transform duration-200 animate-fade-in-up delay-200 bg-white">
-                                    <Handshake size={24} className="text-blue-600 flex-shrink-0 mt-1" />
-                                    <div>
-                                        <h3 className="text-xl font-semibold mb-1 text-gray-900">Parceria com a Comunidade</h3>
-                                        <p className="text-gray-600">
-                                            Além do impacto ambiental, nossa operação fortalece a economia local e incentiva a prática de atividades físicas. Somos parte ativa na construção de uma comunidade mais engajada e consciente.
-                                        </p>
+                                <div className="sustainability-card bg-[#E0E7F0] p-6 rounded-xl shadow-md flex flex-col items-center text-center border border-[#A8DADC] transform hover:scale-[1.02] transition-transform duration-300 animate-fade-in-up delay-200 col-span-full">
+                                    <div className="flex items-center justify-center w-16 h-16 rounded-full bg-green-600 text-white mx-auto mb-4">
+                                        <Handshake size={32} />
                                     </div>
+                                    <h3 className="text-xl font-bold text-[#0A1128] mb-3">Parceria com a Comunidade</h3>
+                                    <p className="text-gray-700 leading-relaxed">
+                                        Nossa operação fortalece a economia local e incentiva a prática de atividades físicas, construindo uma comunidade mais engajada.
+                                    </p>
                                 </div>
                             </div>
-                        </div>
+                        </section>
                     )}
 
                     {activePage === 'faq' && (
-                        <div className="p-8 rounded-xl shadow-xl max-w-4xl mx-auto mt-8 animate-fade-in bg-blue-50">
-                            <h2 className="text-3xl font-bold mb-6 text-center flex items-center justify-center gap-2 text-gray-900">Perguntas Frequentes <Info size={32} /></h2>
-                            <p className="text-lg mb-6 leading-relaxed text-center text-gray-900">Encontre aqui as respostas para as dúvidas mais comuns sobre os nossos serviços e dinâmicas.</p>
+                        <section className="bg-white p-8 rounded-xl shadow-lg max-w-5xl mx-auto mt-8 animate-fade-in border border-[#A8DADC]">
+                            <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center text-[#0A1128]">
+                                Perguntas Frequentes (FAQ)
+                            </h2>
+                            <p className="text-lg mb-10 leading-relaxed text-gray-700 text-center">
+                                Encontre aqui as respostas para as dúvidas mais comuns sobre os nossos serviços e dinâmicas.
+                            </p>
                             <div className="space-y-4">
                                 {faqData.map((item, index) => (
-                                    <div key={index} className="rounded-lg overflow-hidden shadow-md transition-all duration-300 bg-white">
+                                    <div key={index} className="rounded-xl overflow-hidden shadow-md bg-[#E0E7F0] border border-[#A8DADC] transition-all duration-300">
                                         <button
-                                            className="w-full text-left p-4 font-semibold text-xl flex justify-between items-center transition-colors duration-200 hover:opacity-90 bg-white text-gray-900"
+                                            className="w-full text-left p-5 font-semibold text-xl flex justify-between items-center bg-[#A8DADC] text-[#0A1128] hover:bg-[#D0D9E5] transition-colors rounded-t-xl"
                                             onClick={() => setOpenFaqIndex(openFaqIndex === index ? null : index)}
                                         >
                                             {item.question}
-                                            <ChevronDown size={24} className={`transform transition-transform duration-300 ${openFaqIndex === index ? 'rotate-180' : 'rotate-0'}`} />
+                                            <ChevronLeft size={24} className={`transform transition-transform duration-300 ${openFaqIndex === index ? '-rotate-90' : 'rotate-90'}`} />
                                         </button>
                                         <div
-                                            className={`p-4 transition-all duration-300 ease-in-out overflow-hidden ${openFaqIndex === index ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0 p-0'}`}
+                                            className={`p-5 transition-all duration-300 ease-in-out overflow-hidden text-gray-700 ${openFaqIndex === index ? 'max-h-96 opacity-100' : 'max-h-0 opacity-0 p-0'}`}
                                         >
-                                            <p className="text-gray-700">{item.answer}</p>
+                                            <p>{item.answer}</p>
                                         </div>
                                     </div>
                                 ))}
                             </div>
-                        </div>
+                        </section>
                     )}
 
                     {activePage === 'termos-condicoes' && (
-                        <div className="p-8 rounded-xl shadow-xl max-w-4xl mx-auto mt-8 animate-fade-in bg-blue-50">
-                            <h2 className="text-3xl font-bold mb-6 text-center flex items-center justify-center gap-2 text-gray-900">Termos e Condições de Uso da AELO <FileText size={32} /></h2>
-                            <p className="text-lg mb-6 leading-relaxed text-gray-900">Ao utilizar os serviços da AELO - Sua Voz em Movimento, você concorda com os seguintes termos e condições, que visam garantir a qualidade, a segurança e a integridade de todas as mensagens veiculadas.</p>
-                            <div className="space-y-6 text-left">
-                                <div className="p-5 rounded-lg shadow-md animate-fade-in-up bg-white">
-                                    <h3 className="text-xl font-semibold mb-2 flex items-center gap-2 text-blue-600"><CheckCircle size={20} /> Moderação de Conteúdo</h3>
-                                    <p className="leading-relaxed text-gray-900">Todos os áudios enviados para veiculação na AELO - Sua Voz em Movimento são submetidos a um rigoroso processo de moderação. Nosso objetivo é assegurar que o conteúdo seja claro, objetivo e, acima de tudo, respeitoso e adequado para o público geral.</p>
-                                    <p className="mt-2 leading-relaxed text-gray-900"><span className="font-semibold text-red-600">Conteúdos Estritamente Proibidos:</span> Não serão veiculados áudios que contenham:</p>
-                                    <ul className="list-disc list-inside space-y-1 mt-2 text-gray-600">
+                        <section className="bg-white p-8 rounded-xl shadow-lg max-w-5xl mx-auto mt-8 animate-fade-in border border-[#A8DADC]">
+                            <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center text-[#0A1128]">
+                                Termos e Condições de Uso da AELO
+                            </h2>
+                            <p className="text-lg mb-10 leading-relaxed text-gray-700 text-center">
+                                Ao utilizar os serviços da AELO - Sua Voz em Movimento, você concorda com os seguintes termos e condições, que visam garantir a qualidade, a segurança e a integridade de todas as mensagens veiculadas.
+                            </p>
+                            <div className="space-y-8 text-left">
+                                <div className="bg-[#E0E7F0] p-6 rounded-xl shadow-md border border-[#A8DADC] animate-fade-in-up">
+                                    <h3 className="text-xl font-bold mb-3 flex items-center gap-2 text-[#0A1128]"><CheckCircle size={24} className="text-green-600" /> Moderação de Conteúdo</h3>
+                                    <p className="leading-relaxed text-gray-700">Todos os áudios enviados para veiculação na AELO - Sua Voz em Movimento são submetidos a um rigoroso processo de moderação. Nosso objetivo é assegurar que o conteúdo seja claro, objetivo e, acima de tudo, respeitoso e adequado para o público geral.</p>
+                                    <p className="mt-4 leading-relaxed text-gray-700"><span className="font-semibold text-red-600">Conteúdos Estritamente Proibidos:</span> Não serão veiculados áudios que contenham:</p>
+                                    <ul className="list-disc list-inside space-y-2 mt-3 text-gray-600">
                                         <li>Mensagens de má-fé, difamação ou calúnia.</li>
                                         <li>Qualquer forma de discriminação (racial, de gênero, religiosa, sexual).</li>
                                         <li>Discurso de ódio ou incitação à violência.</li>
@@ -1380,111 +1513,115 @@ const App = () => {
                                         <li>Conteúdo que viole direitos autorais ou de propriedade intelectual.</li>
                                         <li>Qualquer conteúdo que seja ilegal ou promova atividades ilícitas.</li>
                                     </ul>
-                                    <p className="mt-4 leading-relaxed text-gray-900">A AELO - Sua Voz em Movimento se reserva o direito de recusar a veiculação de qualquer áudio que, a seu critério exclusivo, não esteja em conformidade com estas diretrizes, sem a necessidade de justificativa detalhada.</p>
+                                    <p className="mt-4 leading-relaxed text-gray-700">A AELO - Sua Voz em Movimento se reserva o direito de recusar a veiculação de qualquer áudio que, a seu critério exclusivo, não esteja em conformidade com estas diretrizes, sem a necessidade de justificativa detalhada.</p>
                                 </div>
-                                <div className="p-5 rounded-lg shadow-md animate-fade-in-up delay-100 bg-white">
-                                    <h3 className="text-xl font-semibold mb-2 flex items-center gap-2 text-blue-600"><DollarSign size={20} /> Política de Reembolso</h3>
-                                    <p className="leading-relaxed text-gray-900">Entendemos que imprevistos podem acontecer. No entanto, é importante que você esteja ciente da nossa política de reembolso:</p>
-                                    <p className="mt-2 leading-relaxed text-gray-900">Após o envio do áudio e a confirmação do pagamento, não haverá reembolso caso você desista da veiculação após 30 (trinta) minutos. Esta política se aplica mesmo que o áudio não esteja infringindo nenhuma das regras de conteúdo da empresa.</p>
+                                <div className="bg-[#E0E7F0] p-6 rounded-xl shadow-md border border-[#A8DADC] animate-fade-in-up delay-100">
+                                    <h3 className="text-xl font-bold mb-3 flex items-center gap-2 text-[#0A1128]"><DollarSign size={24} className="text-green-600" /> Política de Reembolso</h3>
+                                    <p className="leading-relaxed text-gray-700">Entendemos que imprevistos podem acontecer. No entanto, é importante que você esteja ciente da nossa política de reembolso:</p>
+                                    <p className="mt-4 leading-relaxed text-gray-700">Após o envio do áudio e a confirmação do pagamento, não haverá reembolso caso você desista da veiculação após 30 (trinta) minutos. Esta política se aplica mesmo que o áudio não infrinja nossas regras.</p>
                                 </div>
-                                <div className="p-5 rounded-lg shadow-md animate-fade-in-up delay-200 bg-white">
-                                    <h3 className="text-xl font-semibold mb-2 flex items-center gap-2 text-blue-600"><Info size={20} /> Responsabilidade do Usuário</h3>
-                                    <p className="leading-relaxed text-gray-900">O usuário é o único responsável pelo conteúdo do áudio enviado, garantindo que ele não viole quaisquer leis, regulamentos ou direitos de terceiros. A AELO - Sua Voz em Movimento não se responsabiliza por quaisquer danos ou prejuízos decorrentes da veiculação de conteúdo inadequado ou ilícito enviado pelo usuário.</p>
+                                <div className="bg-[#E0E7F0] p-6 rounded-xl shadow-md border border-[#A8DADC] animate-fade-in-up delay-200">
+                                    <h3 className="text-xl font-bold mb-3 flex items-center gap-2 text-[#0A1128]"><Info size={24} className="text-[#034078]" /> Responsabilidade do Usuário</h3>
+                                    <p className="leading-relaxed text-gray-700">O usuário é o único responsável pelo conteúdo do áudio enviado, garantindo que ele não viole quaisquer leis, regulamentos ou direitos de terceiros. A AELO - Sua Voz em Movimento não se responsabiliza por quaisquer danos ou prejuízos decorrentes da veiculação de conteúdo inadequado ou ilícito enviado pelo usuário.</p>
                                 </div>
                             </div>
-                        </div>
+                        </section>
                     )}
 
                     {activePage === 'contato' && (
-                        <div className="p-8 rounded-xl shadow-xl max-w-4xl mx-auto mt-8 animate-fade-in bg-blue-50">
-                            <h2 className="text-3xl font-bold mb-6 flex items-center justify-center gap-2 text-gray-900">Fale Conosco: Sua Voz é Importante! <MessageSquare size={32} /></h2>
-                            <p className="text-lg mb-6 leading-relaxed text-gray-900">Tem alguma dúvida, sugestão ou quer saber mais sobre como a AELO - Sua Voz em Movimento pode amplificar sua mensagem? Preencha o formulário abaixo ou use nossos canais de contato direto.</p>
+                        <section className="bg-white p-8 rounded-xl shadow-lg max-w-5xl mx-auto mt-8 animate-fade-in border border-[#A8DADC]">
+                            <h2 className="text-3xl md:text-4xl font-bold mb-8 text-center text-[#0A1128]">
+                                Fale Conosco: Sua Voz é Importante para Nós!
+                            </h2>
+                            <p className="text-lg mb-10 leading-relaxed text-gray-700 text-center">
+                                Tem alguma dúvida, sugestão ou quer saber mais sobre como a AELO - Sua Voz em Movimento pode amplificar sua mensagem? Preencha o formulário abaixo ou use nossos canais de contato direto.
+                            </p>
                             
                             {/* Formulário de Contato */}
-                            <form onSubmit={handleFormSubmit} className="space-y-4">
+                            <form onSubmit={handleFormSubmit} className="space-y-6 bg-[#E0E7F0] p-8 rounded-xl shadow-md border border-[#A8DADC]">
                                 <div>
-                                    <label htmlFor="name" className="block text-sm font-semibold mb-1 text-gray-900">Seu Nome</label>
+                                    <label htmlFor="name" className="block text-sm font-semibold mb-2 text-[#0A1128]">Seu Nome</label>
                                     <input
                                         type="text"
                                         id="name"
                                         value={formName}
                                         onChange={(e) => setFormName(e.target.value)}
-                                        className="w-full p-3 rounded-lg border-2 focus:outline-none focus:ring-2 bg-white border-gray-200 text-gray-900 outline-blue-500"
+                                        className="w-full p-3 rounded-lg border border-[#A8DADC] bg-white focus:outline-none focus:ring-2 focus:ring-[#034078] text-[#0A1128]"
                                         required
                                     />
                                 </div>
                                 <div>
-                                    <label htmlFor="email" className="block text-sm font-semibold mb-1 text-gray-900">Seu E-mail</label>
+                                    <label htmlFor="email" className="block text-sm font-semibold mb-2 text-[#0A1128]">Seu E-mail</label>
                                     <input
                                         type="email"
                                         id="email"
                                         value={formEmail}
                                         onChange={(e) => setFormEmail(e.target.value)}
-                                        className="w-full p-3 rounded-lg border-2 focus:outline-none focus:ring-2 bg-white border-gray-200 text-gray-900 outline-blue-500"
+                                        className="w-full p-3 rounded-lg border border-[#A8DADC] bg-white focus:outline-none focus:ring-2 focus:ring-[#034078] text-[#0A1128]"
                                         required
                                     />
                                 </div>
                                 <div>
-                                    <label htmlFor="message" className="block text-sm font-semibold mb-1 text-gray-900">Sua Mensagem</label>
+                                    <label htmlFor="message" className="block text-sm font-semibold mb-2 text-[#0A1128]">Sua Mensagem</label>
                                     <textarea
                                         id="message"
-                                        rows="4"
+                                        rows="5"
                                         value={formMessage}
                                         onChange={(e) => setFormMessage(e.target.value)}
-                                        className="w-full p-3 rounded-lg border-2 focus:outline-none focus:ring-2 bg-white border-gray-200 text-gray-900 outline-blue-500"
+                                        className="w-full p-3 rounded-lg border border-[#A8DADC] bg-white focus:outline-none focus:ring-2 focus:ring-[#034078] text-[#0A1128]"
                                         required
                                     ></textarea>
                                 </div>
                                 <button
                                     type="submit"
-                                    className="w-full py-3 text-white font-bold rounded-lg shadow-md hover:opacity-90 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed bg-blue-600"
+                                    className="w-full py-3 bg-[#034078] text-white font-bold rounded-lg shadow-md hover:bg-[#1282A2] transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
                                     disabled={isSubmitting}
                                 >
                                     {isSubmitting ? 'Enviando...' : 'Enviar Mensagem'}
                                 </button>
                                 {formStatus && (
-                                    <p className={`text-center font-semibold mt-4 ${formStatus.includes('Erro') ? 'text-red-500' : 'text-green-500'}`}>{formStatus}</p>
+                                    <p className={`text-center font-semibold mt-4 ${formStatus.includes('Erro') ? 'text-red-600' : 'text-green-600'}`}>{formStatus}</p>
                                 )}
                             </form>
 
-                            <hr className="my-8 border-gray-300" />
+                            <hr className="my-12 border-[#A8DADC]" />
                             
                             <div className="space-y-6 text-left">
-                                <h3 className="text-2xl font-bold mb-4 text-gray-900">Ou Fale Diretamente Conosco:</h3>
-                                <div className="p-5 rounded-lg shadow-md flex items-start gap-4 animate-fade-in-up bg-white">
-                                    <Mail size={24} className="text-blue-600 flex-shrink-0 mt-1" />
+                                <h3 className="text-2xl font-bold mb-4 text-[#0A1128]">Ou Fale Diretamente Conosco:</h3>
+                                <div className="contact-info-card bg-[#E0E7F0] p-6 rounded-xl shadow-md flex items-start gap-4 animate-fade-in-up border border-[#A8DADC]">
+                                    <Mail size={28} className="text-[#034078] flex-shrink-0 mt-1" />
                                     <div>
-                                        <h3 className="text-xl font-semibold mb-1 text-gray-900">E-mail</h3>
-                                        <p className="text-gray-600">Envie suas perguntas e sugestões para: <a href="mailto:Aelobrasil@gmail.com" className="hover:underline text-blue-600">Aelobrasil@gmail.com</a></p>
+                                        <h3 className="text-xl font-bold mb-1 text-[#0A1128]">E-mail</h3>
+                                        <p className="text-gray-700">Envie suas perguntas e sugestões para: <a href="mailto:Aelobrasil@gmail.com" className="text-[#034078] hover:underline">Aelobrasil@gmail.com</a></p>
                                     </div>
                                 </div>
-                                <div className="p-5 rounded-lg shadow-md flex items-start gap-4 animate-fade-in-up delay-100 bg-white">
-                                    <Phone size={24} className="text-blue-600 flex-shrink-0 mt-1" />
+                                <div className="contact-info-card bg-[#E0E7F0] p-6 rounded-xl shadow-md flex items-start gap-4 animate-fade-in-up delay-100 border border-[#A8DADC]">
+                                    <Phone size={28} className="text-[#034078] flex-shrink-0 mt-1" />
                                     <div>
-                                        <h3 className="text-xl font-semibold mb-1 text-gray-900">WhatsApp</h3>
-                                        <p className="text-gray-600">Para um atendimento rápido e direto, fale conosco pelo WhatsApp: <a href="https://wa.me/5514981150675" target="_blank" rel="noopener noreferrer" className="hover:underline text-blue-600">(14) 98115-0675</a></p>
+                                        <h3 className="text-xl font-bold mb-1 text-[#0A1128]">WhatsApp</h3>
+                                        <p className="text-gray-700">Para um atendimento rápido e direto, fale conosco pelo WhatsApp: <a href="https://wa.me/5514981150675" target="_blank" rel="noopener noreferrer" className="text-[#034078] hover:underline">(14) 98115-0675</a></p>
                                     </div>
                                 </div>
-                                <div className="p-5 rounded-lg shadow-md flex items-start gap-4 animate-fade-in-up delay-200 bg-white">
-                                    <Info size={24} className="text-blue-600 flex-shrink-0 mt-1" />
+                                <div className="contact-info-card bg-[#E0E7F0] p-6 rounded-xl shadow-md flex items-start gap-4 animate-fade-in-up delay-200 border border-[#A8DADC]">
+                                    <Instagram size={28} className="text-pink-600 flex-shrink-0 mt-1" />
                                     <div>
-                                        <h3 className="text-xl font-semibold mb-1 text-gray-900">Redes Sociais</h3>
-                                        <p className="text-gray-600">Siga-nos no Instagram para ficar por dentro das novidades, dinâmicas e temporadas: <a href="https://www.instagram.com/aelovoz" target="_blank" rel="noopener noreferrer" className="hover:underline text-blue-600">@Aelovoz</a></p>
+                                        <h3 className="text-xl font-bold mb-1 text-[#0A1128]">Redes Sociais</h3>
+                                        <p className="text-gray-700">Siga-nos no Instagram para ficar por dentro das novidades, dinâmicas e temporadas: <a href="https://www.instagram.com/aelovoz" target="_blank" rel="noopener noreferrer" className="text-[#034078] hover:underline">@Aelovoz</a></p>
                                     </div>
                                 </div>
                             </div>
-                        </div>
+                        </section>
                     )}
                 </div>
             </main>
 
             {/* Rodapé aprimorado */}
-            <footer className="text-white text-center p-4 mt-auto rounded-t-xl shadow-inner bg-gradient-to-r from-black to-blue-700">
+            <footer className="text-white text-center p-6 mt-auto rounded-t-xl shadow-inner bg-gradient-to-r from-[#034078] to-[#0A1128] border-t border-[#A8DADC]">
                 <div className="container mx-auto flex flex-col items-center justify-center">
                     <p className="text-lg font-bold mb-1">AELO - Sua Voz em Movimento</p>
                     <p className="text-sm">Bauru, SP</p>
                     <p className="text-xs mt-2">&copy; {new Date().getFullYear()} Todos os direitos reservados.</p>
-                    <Bike size={20} className="text-yellow-300 transform transition-transform duration-300 hover:rotate-[360deg] mt-2" />
+                    <Bike size={24} className="text-[#A8DADC] transform transition-transform duration-300 hover:rotate-[360deg] mt-3" />
                 </div>
             </footer>
         </div>

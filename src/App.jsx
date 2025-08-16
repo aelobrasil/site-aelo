@@ -8,7 +8,7 @@ const SendAudioModal = ({ onClose, navigateTo }) => {
     // Cores fixas para o modal
     const modalBg = 'bg-white';
     const modalText = 'text-gray-900';
-    const buttonBg = 'bg-[#1282A2]'; // Azul vibrante
+    const buttonBg = 'bg-[#1282A2]'; // Azul vibrant
     const buttonText = 'text-white';
     const primaryColor = 'text-[#034078]'; // Azul médio
     const successBg = 'bg-green-600'; // Verde para sucesso
@@ -460,7 +460,7 @@ const App = () => {
         },
         {
             question: "Posso enviar áudios com música de fundo?",
-            answer: "Sim, é possível! No entanto, todos os áudios com música devem ter os direitos autorais liberados. Caso contrário, a AELO não poderá veicular. Recomendamos o uso de músicas de domínio público ou que você mesmo tenha o direito de usar."
+            answer: "Sim, é possível! No entanto, todos os áudios com música devem ter os direitos autorais liberados. Caso contrário, a AELO não poderá veicular. Recomendamos o uso de músicas de domínio público ou que você mesmo tenha o direito de usar." 
         },
         {
             question: "Qual a diferença entre os planos 'Em Fila' e 'Particular'?",
@@ -666,7 +666,7 @@ const App = () => {
             <div className="fixed bottom-4 right-4 z-50 flex flex-col items-end space-y-2 transition-all duration-300" style={{ transform: activePage !== 'home' ? 'scale(0.9) opacity(0.8)' : 'scale(1) opacity(1)' }}>
                 {/* Floating Instagram Button */}
                 <a
-                    href="https://www.instagram.com/aelovoz"
+                    href="https://www.instagram.com/aelo.voz"
                     target="_blank"
                     rel="noopener noreferrer"
                     className="p-3 rounded-full shadow-lg transform hover:scale-110 transition-all duration-300 ease-in-out flex items-center justify-center bg-pink-600 text-white"
@@ -816,27 +816,27 @@ const App = () => {
                                     <h3 className="text-xl font-semibold text-[#0A1128] mb-2">Alcance Dinâmico e Preciso</h3>
                                     <p className="text-gray-700">Sua mensagem em movimento, atingindo o público certo, no lugar certo, com agilidade e impacto.</p>
                                 </div>
-                                <div className="feature-card bg-[#E0E7F0] p-6 rounded-xl shadow-md border border-[#A8DADC] flex flex-col items-center text-center transform hover:scale-[1.02] transition-transform duration-300 animate-fade-in-up delay-100">
+                                <div className="feature-card bg-[#E0E7F0] p-6 rounded-xl shadow-md border border-[#A8DADC] flex flex-col items-center text-center transform hover:scale-[1.02] transition-transform duration-300 animate-fade-in-up delay-100"> 
                                     <Lightbulb size={40} className="text-yellow-600 mb-4" />
                                     <h3 className="text-xl font-semibold text-[#0A1128] mb-2">Engajamento Inovador</h3>
                                     <p className="text-gray-700">Cative a atenção com a originalidade da publicidade sonora em bicicleta, gerando curiosidade e memorização.</p>
                                 </div>
-                                <div className="feature-card bg-[#E0E7F0] p-6 rounded-xl shadow-md border border-[#A8DADC] flex flex-col items-center text-center transform hover:scale-[1.02] transition-transform duration-300 animate-fade-in-up delay-200">
+                                <div className="feature-card bg-[#E0E7F0] p-6 rounded-xl shadow-md border border-[#A8DADC] flex flex-col items-center text-center transform hover:scale-[1.02] transition-transform duration-300 animate-fade-in-up delay-200"> 
                                     <Volume2 size={40} className="text-[#1282A2] mb-4" />
                                     <h3 className="text-xl font-semibold text-[#0A1128] mb-2">Qualidade Sonora Impecável</h3>
                                     <p className="text-gray-700">Áudios moderados e veiculados com a mais alta qualidade, garantindo que sua mensagem seja clara e profissional.</p>
                                 </div>
-                                <div className="feature-card bg-[#E0E7F0] p-6 rounded-xl shadow-md border border-[#A8DADC] flex flex-col items-center text-center transform hover:scale-[1.02] transition-transform duration-300 animate-fade-in-up delay-300">
+                                <div className="feature-card bg-[#E0E7F0] p-6 rounded-xl shadow-md border border-[#A8DADC] flex flex-col items-center text-center transform hover:scale-[1.02] transition-transform duration-300 animate-fade-in-up delay-300"> 
                                     <Leaf size={40} className="text-green-600 mb-4" />
                                     <h3 className="text-xl font-semibold text-[#0A1128] mb-2">Compromisso Sustentável</h3>
                                     <p className="text-gray-700">Escolha uma publicidade que contribui para um meio ambiente mais limpo e uma cidade mais saudável.</p>
                                 </div>
-                                <div className="feature-card bg-[#E0E7F0] p-6 rounded-xl shadow-md border border-[#A8DADC] flex flex-col items-center text-center transform hover:scale-[1.02] transition-transform duration-300 animate-fade-in-up delay-400">
+                                <div className="feature-card bg-[#E0E7F0] p-6 rounded-xl shadow-md border border-[#A8DADC] flex flex-col items-center text-center transform hover:scale-[1.02] transition-transform duration-300 animate-fade-in-up delay-400"> 
                                     <Handshake size={40} className="text-orange-600 mb-4" />
                                     <h3 className="text-xl font-semibold text-[#0A1128] mb-2">Conexão Humana Autêntica</h3>
                                     <p className="text-gray-700">Nossos ciclistas criam uma interação genuína, tornando sua mensagem mais próxima e memorável.</p>
                                 </div>
-                                <div className="feature-card bg-[#E0E7F0] p-6 rounded-xl shadow-md border border-[#A8DADC] flex flex-col items-center text-center transform hover:scale-[1.02] transition-transform duration-300 animate-fade-in-up delay-500">
+                                <div className="feature-card bg-[#E0E7F0] p-6 rounded-xl shadow-md border border-[#A8DADC] flex flex-col items-center text-center transform hover:scale-[1.02] transition-transform duration-300 animate-fade-in-up delay-500"> 
                                     <Award size={40} className="text-red-600 mb-4" />
                                     <h3 className="text-xl font-semibold text-[#0A1128] mb-2">Resultados Comprovados</h3>
                                     <p className="text-gray-700">Clientes satisfeitos e campanhas de sucesso que demonstram o poder da AELO.</p>
@@ -981,7 +981,7 @@ const App = () => {
                                     </div>
                                     <h3 className="text-2xl font-bold text-[#0A1128] mb-3 text-center">Achou um Áudio Conhecido?</h3>
                                     <p className="text-gray-700 leading-relaxed text-center">
-                                        Ouça atentamente! Se você reconhecer um áudio veiculado pela AELO, grave um vídeo do ciclista, marque-nos no Instagram (@Aelovoz) e envie o vídeo. O dono da voz pode ganhar um brinde exclusivo!
+                                        Ouça atentamente! Se você reconhecer um áudio veiculado pela AELO, grave um vídeo do ciclista, marque-nos no Instagram (@Aelo.voz) e envie o vídeo. O dono da voz pode ganhar um brinde exclusivo!
                                     </p>
                                 </div>
 
@@ -1142,7 +1142,7 @@ const App = () => {
                                 <p className="text-lg mb-4 text-gray-700">Titular: A A S Fernandes</p>
                                 <button onClick={copyPixKey} className="inline-flex items-center justify-center px-8 py-4 bg-[#034078] text-white font-bold rounded-full shadow-lg hover:bg-[#1282A2] transform hover:scale-105 transition-all duration-300 gap-2" aria-label="Copiar chave Pix"><Copy size={20} /> Copiar Chave Pix</button>
                                 {pixCopiedMessage && (<p className="mt-4 text-sm font-semibold text-green-600 animate-fade-in-up">{pixCopiedMessage}</p>)}
-                                <p className="text-gray-600 mt-4">Dica: Copie a chave Pix acima e realize o pagamento. Após a transação, envie o comprovante para nós via WhatsApp ou Instagram <span className="font-semibold text-[#034078]">@Aelovoz</span> para agilizar a veiculação do seu áudio!</p>
+                                <p className="text-gray-600 mt-4">Dica: Copie a chave Pix acima e realize o pagamento. Após a transação, envie o comprovante para nós via WhatsApp ou Instagram <span className="font-semibold text-[#034078]">@Aelo.voz</span> para agilizar a veiculação do seu áudio!</p>
                             </div>
                         </section>
                     )}
@@ -1172,7 +1172,7 @@ const App = () => {
                                     <div className="flex-shrink-0 w-16 h-16 text-white rounded-full flex items-center justify-center text-3xl font-extrabold bg-[#034078] shadow-md">2</div>
                                     <div>
                                         <h3 className="text-2xl font-bold text-[#0A1128] mb-2 flex items-center gap-2"><Upload size={24} className="text-yellow-600" /> Envie o Áudio para a AELO</h3>
-                                        <p className="text-gray-700">Após a gravação, envie seu áudio diretamente para a nossa equipe. Você pode fazer isso de forma muito prática pelo nosso WhatsApp ou via Direct do Instagram <span className="font-semibold text-[#0A1128]">@Aelovoz</span>. Escolha o canal que for mais conveniente para você!</p>
+                                        <p className="text-gray-700">Após a gravação, envie seu áudio diretamente para a nossa equipe. Você pode fazer isso de forma muito prática pelo nosso WhatsApp ou via Direct do Instagram <span className="font-semibold text-[#0A1128]">@Aelo.voz</span>. Escolha o canal que for mais conveniente para você!</p>
                                         <p className="mt-2 text-gray-600">Para uma experiência mais fluida, o envio do áudio pode ser feito diretamente pelo WhatsApp da AELO - Sua Voz em Movimento.</p>
                                     </div>
                                 </div>
@@ -1609,7 +1609,7 @@ const App = () => {
                                     <Instagram size={28} className="text-pink-600 flex-shrink-0 mt-1" />
                                     <div>
                                         <h3 className="text-xl font-bold mb-1 text-[#0A1128]">Redes Sociais</h3>
-                                        <p className="text-gray-700">Siga-nos no Instagram para ficar por dentro das novidades, dinâmicas e temporadas: <a href="https://www.instagram.com/aelovoz" target="_blank" rel="noopener noreferrer" className="text-[#034078] hover:underline">@Aelovoz</a></p>
+                                        <p className="text-gray-700">Siga-nos no Instagram para ficar por dentro das novidades, dinâmicas e temporadas: <a href="https://www.instagram.com/aelo.voz" target="_blank" rel="noopener noreferrer" className="text-[#034078] hover:underline">@Aelo.voz</a></p>
                                     </div>
                                 </div>
                             </div>
